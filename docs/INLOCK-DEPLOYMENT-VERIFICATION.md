@@ -11,6 +11,8 @@
 - ✅ **Docker build successful** — Image size: 390MB (compressed)
 - ✅ **Image tagged**: `inlock-ai:latest`
 - ✅ **All user-facing code updated** to "Inlock" branding
+- ✅ **Regression suite executed** via `/opt/inlock-ai-secure-mvp/scripts/regression-check.sh`
+- ✅ **Pre-deploy checks passed** via `/opt/inlock-ai-secure-mvp/scripts/pre-deploy.sh`
 
 ## 🌐 Production Deployment Status
 
@@ -107,7 +109,14 @@ curl -I https://inlock.ai 2>&1 | grep -i "strict-transport-security\|x-frame-opt
 
 ## 🔄 Deployment Commands
 
-### Update Application
+### Update Application (Preferred)
+```bash
+# Single entrypoint: runs regression, branding checks, build, deploy, verification
+cd /home/comzis/inlock-infra
+./scripts/deploy-inlock.sh
+```
+
+### Update Application (Manual)
 ```bash
 # 1. Build new image
 cd /opt/inlock-ai-secure-mvp
@@ -185,7 +194,27 @@ cd /opt/inlock-ai-secure-mvp
 
 **Note**: The regression script works in Docker if npm is not installed on the host.
 
+### Nightly Regression Wrapper
+```bash
+/home/comzis/inlock-infra/scripts/nightly-regression.sh
+```
+Add to cron (example):  
+`0 3 * * * /home/comzis/inlock-infra/scripts/nightly-regression.sh`
+
+### Full Deployment Pipeline
+```bash
+/home/comzis/inlock-infra/scripts/deploy-inlock.sh
+```
+Runs pre-deploy checks, builds the Docker image, deploys via `docker compose`, then executes the verification script.
+
+## 📈 Monitoring & Alerting
+
+- **Prometheus**: scrape config + alert rules live in `compose/prometheus/` (alerts fire for downtime, high CPU/memory, health failures, and elevated 5xx rates)
+- **Grafana**: dashboards + datasources auto-provisioned from `grafana/provisioning/` and `grafana/dashboards/`
+  - Primary board: *Inlock AI Observability* (availability, CPU, memory, throughput, error rate, Traefik health, Loki logs)
+- **Loki / Promtail**: enabled via `compose/logging.yml` to centralize Docker logs
+- **Docs**: See `docs/monitoring.md` and `docs/AUTOMATION-SCRIPTS.md` for alert/dash customization or to wire notifications into Slack/PagerDuty.
+
 ---
 
 **Note**: The Traefik router is already configured and active. No additional router changes are needed.
-
