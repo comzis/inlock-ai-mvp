@@ -67,6 +67,7 @@ sudo ./scripts/apply-firewall-manual.sh
 - **[Automation Scripts](docs/AUTOMATION-SCRIPTS.md)** - Regression, deploy, monitoring, and cron automation
 - **[Orphan Container Cleanup](docs/ORPHAN-CONTAINER-CLEANUP.md)** - Managing orphaned Docker containers
 - **[Directory Cleanup](docs/DIRECTORY-CLEANUP.md)** - Directory organization and cleanup procedures
+- **[Home Directory Cleanup](docs/HOME-DIRECTORY-CLEANUP.md)** - Home directory organization and cleanup summary
 
 ### Security Documentation
 
