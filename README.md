@@ -104,13 +104,18 @@ inlock-infra/
 │   ├── prometheus/     # Prometheus configuration
 │   │   ├── prometheus.yml
 │   │   └── rules/      # Alert rules
+│   ├── alertmanager/   # Alertmanager configuration
+│   │   └── alertmanager.yml
+│   ├── monitoring/     # Monitoring exporters
+│   │   └── blackbox.yml
 │   ├── logging/        # Logging configuration
 │   │   ├── loki-config.yaml
 │   │   └── promtail-config.yaml
 │   └── grafana/        # Grafana configuration
 │       ├── provisioning/
 │       │   ├── datasources/
-│       │   └── dashboards/
+│       │   ├── dashboards/
+│       │   └── alerting/
 │       └── dashboards/
 ├── traefik/             # Traefik configuration
 │   ├── traefik.yml      # Static configuration
