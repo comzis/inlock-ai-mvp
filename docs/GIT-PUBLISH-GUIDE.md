@@ -5,7 +5,7 @@ Guide for publishing the Inlock AI codebase to Git repositories.
 ## Repository Status
 
 ### Application Repository
-**Location:** `/opt/streamart-ai-secure-mvp/streamart-ai-secure-mvp`  
+**Location:** `/opt/inlock-ai-secure-mvp`  
 **Remote:** `https://github.com/comzis/streamart-ai-secure-mvp.git`  
 **Branch:** `main`
 
@@ -24,7 +24,7 @@ Guide for publishing the Inlock AI codebase to Git repositories.
 
 **To push changes:**
 ```bash
-cd /opt/streamart-ai-secure-mvp/streamart-ai-secure-mvp
+cd /opt/inlock-ai-secure-mvp
 git push origin main
 ```
 
@@ -34,7 +34,7 @@ git push origin main
 
 **To verify before pushing:**
 ```bash
-cd /opt/streamart-ai-secure-mvp/streamart-ai-secure-mvp
+cd /opt/inlock-ai-secure-mvp
 git status
 git log --oneline -5
 ```
@@ -229,7 +229,7 @@ Add [feature]: [description]
 ### Application Repository
 
 ```bash
-cd /opt/streamart-ai-secure-mvp/streamart-ai-secure-mvp
+cd /opt/inlock-ai-secure-mvp
 
 # Check status
 git status

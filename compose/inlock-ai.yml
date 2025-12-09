@@ -22,7 +22,7 @@ services:
     image: inlock-ai:latest
     restart: always
     env_file:
-      - /opt/streamart-ai-secure-mvp/streamart-ai-secure-mvp/.env.production
+      - /opt/inlock-ai-secure-mvp/.env.production
     networks:
       - edge
       - internal

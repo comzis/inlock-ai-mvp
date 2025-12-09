@@ -5,7 +5,7 @@
 ## Prerequisites Check
 
 ✅ Positive SSL certificate is installed  
-✅ App code is in `/opt/streamart-ai-secure-mvp/streamart-ai-secure-mvp`
+✅ App code is in `/opt/inlock-ai-secure-mvp`
 
 ## Quick Deployment Steps
 
@@ -29,20 +29,20 @@ echo "Auth secret: $AUTH_SECRET"
 ### 3. Create Environment File
 
 ```bash
-cat > /opt/streamart-ai-secure-mvp/streamart-ai-secure-mvp/.env.production << EOF
+cat > /opt/inlock-ai-secure-mvp/.env.production << EOF
 DATABASE_URL=postgresql://inlock:${DB_PASSWORD}@inlock-db:5432/inlock?sslmode=disable
 AUTH_SESSION_SECRET=${AUTH_SECRET}
 NODE_ENV=production
 NEXT_TELEMETRY_DISABLED=1
 EOF
 
-chmod 600 /opt/streamart-ai-secure-mvp/streamart-ai-secure-mvp/.env.production
+chmod 600 /opt/inlock-ai-secure-mvp/.env.production
 ```
 
 ### 4. Build Docker Image
 
 ```bash
-cd /opt/streamart-ai-secure-mvp/streamart-ai-secure-mvp
+cd /opt/inlock-ai-secure-mvp
 docker build -t inlock-ai:latest .
 ```
 
@@ -64,7 +64,7 @@ Edit `/home/comzis/inlock-infra/compose/stack.yml` and add after the `grafana` s
     image: inlock-ai:latest
     restart: always
     env_file:
-      - /opt/streamart-ai-secure-mvp/streamart-ai-secure-mvp/.env.production
+      - /opt/inlock-ai-secure-mvp/.env.production
     networks:
       - edge
       - internal
@@ -157,7 +157,7 @@ docker compose -f compose/stack.yml restart traefik
 ## Important Notes
 
 - ⚠️ **Database password** is stored in `/home/comzis/apps/secrets-real/inlock-db-password`
-- ⚠️ **Environment file** is at `/opt/streamart-ai-secure-mvp/streamart-ai-secure-mvp/.env.production`
+- ⚠️ **Environment file** is at `/opt/inlock-ai-secure-mvp/.env.production`
 - ✅ **Positive SSL** is already configured in Traefik
 - ✅ **Security headers** are applied via Traefik middleware
 

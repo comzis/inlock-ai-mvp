@@ -52,17 +52,17 @@ echo $AUTH_SECRET  # Save this for the environment file
 
 ### Step 3: Create Environment File
 
-Create `/opt/streamart-ai-secure-mvp/streamart-ai-secure-mvp/.env.production`:
+Create `/opt/inlock-ai-secure-mvp/.env.production`:
 
 ```bash
-cat > /opt/streamart-ai-secure-mvp/streamart-ai-secure-mvp/.env.production << EOF
+cat > /opt/inlock-ai-secure-mvp/.env.production << EOF
 DATABASE_URL=postgresql://inlock:$(cat /home/comzis/apps/secrets-real/inlock-db-password)@inlock-db:5432/inlock?sslmode=disable
 AUTH_SESSION_SECRET=${AUTH_SECRET}
 NODE_ENV=production
 NEXT_TELEMETRY_DISABLED=1
 EOF
 
-chmod 600 /opt/streamart-ai-secure-mvp/streamart-ai-secure-mvp/.env.production
+chmod 600 /opt/inlock-ai-secure-mvp/.env.production
 ```
 
 ### Step 4: Verify Positive SSL Certificate
@@ -133,7 +133,7 @@ include:
 ### 2. Build Docker Image
 
 ```bash
-cd /opt/streamart-ai-secure-mvp/streamart-ai-secure-mvp
+cd /opt/inlock-ai-secure-mvp
 docker build -t inlock-ai:latest .
 ```
 

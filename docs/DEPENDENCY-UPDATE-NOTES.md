@@ -75,7 +75,7 @@ If ESLint 9 causes issues with Next.js 15:
 After updating, rebuild and check for warnings:
 
 ```bash
-cd /opt/streamart-ai-secure-mvp/streamart-ai-secure-mvp
+cd /opt/inlock-ai-secure-mvp
 docker build -t inlock-ai:latest . 2>&1 | grep -i "warn\|error"
 ```
 

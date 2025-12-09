@@ -6,7 +6,7 @@ This guide explains how to manage and update content on the Inlock platform afte
 
 ### Page Routes (React Components)
 
-Every route in `/opt/streamart-ai-secure-mvp/streamart-ai-secure-mvp/app` maps one-to-one with a page:
+Every route in `/opt/inlock-ai-secure-mvp/app` maps one-to-one with a page:
 
 | Route | File | Purpose |
 |-------|------|---------|
@@ -127,7 +127,7 @@ Forms that display brand text:
 ### 1. Local Development
 
 ```bash
-cd /opt/streamart-ai-secure-mvp/streamart-ai-secure-mvp
+cd /opt/inlock-ai-secure-mvp
 
 # Install dependencies
 npm install
@@ -211,14 +211,14 @@ curl -I https://inlock.ai
 To find any remaining "StreamArt" references:
 
 ```bash
-cd /opt/streamart-ai-secure-mvp/streamart-ai-secure-mvp
+cd /opt/inlock-ai-secure-mvp
 grep -r "streamart\|StreamArt" --include="*.tsx" --include="*.ts" --include="*.md" --include="*.json" . | grep -v node_modules
 ```
 
 ## Content File Locations Summary
 
 ```
-/opt/streamart-ai-secure-mvp/streamart-ai-secure-mvp/
+/opt/inlock-ai-secure-mvp/
 ├── app/                          # Page routes (React components)
 │   ├── layout.tsx               # Global layout, nav, footer
 │   ├── page.tsx                 # Homepage

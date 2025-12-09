@@ -40,5 +40,15 @@ http:
           - "31.10.147.220/32"  # MacBook public IPv4 (from logs)
           - "172.71.147.142/32"  # MacBook public IPv4 (from logs)
           - "172.71.146.180/32"  # MacBook public IPv4 (from logs)
+    dashboard-redirect:
+      redirectRegex:
+        regex: "^https://traefik.inlock.ai/$"
+        replacement: "https://traefik.inlock.ai/dashboard/"
+        permanent: true
+    api-redirect:
+      redirectRegex:
+        regex: "^https://traefik.inlock.ai/api/?$"
+        replacement: "https://traefik.inlock.ai/api/overview"
+        permanent: false
 
 

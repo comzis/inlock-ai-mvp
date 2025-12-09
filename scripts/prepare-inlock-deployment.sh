@@ -6,7 +6,7 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 INFRA_DIR="$(dirname "$SCRIPT_DIR")"
-APP_DIR="/opt/streamart-ai-secure-mvp/streamart-ai-secure-mvp"
+APP_DIR="/opt/inlock-ai-secure-mvp"
 
 echo "========================================="
 echo "Inlock AI Deployment Preparation"

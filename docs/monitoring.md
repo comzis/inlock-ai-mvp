@@ -25,15 +25,28 @@ All services have health checks configured:
 - **cAdvisor:** Container health check (30s interval)
 - **docker-socket-proxy:** `wget --spider http://localhost:2375/_ping` (30s interval)
 
-## Monitoring Gaps
+## Prometheus, Alerts & Logs
 
-- **Prometheus:** Not configured (metrics endpoint available but not scraped)
-- **Grafana:** Not configured (no visualization dashboard)
-- **Alerting:** Not configured (no alert rules)
+- **Prometheus:** Live, scraping Prometheus, cAdvisor, Traefik, and Docker health
+- **Alert rules:** `compose/prometheus/rules/inlock-ai.yml`
+  - Downtime (no metrics from container)
+  - High memory/CPU
+  - Traefik healthcheck failures
+  - HTTP 5xx rate > 5%
+- **Log aggregation:** Loki + Promtail (see `compose/logging.yml`) collects Docker logs and exposes them via Grafana/Loki datasource.
+
+## Grafana
+
+- Datasources: Prometheus (default) + Loki
+- Dashboards: `grafana/dashboards/inlock-observability.json`
+  - Service availability gauge
+  - CPU + memory utilization
+  - Throughput + error-rate charts
+  - Traefik health status
+  - Live log panel for `compose-inlock-ai-1`
 
 ## Next Steps
 
-1. Deploy Prometheus to scrape Traefik metrics
-2. Configure Grafana dashboards
-3. Set up alerting rules for service failures
-4. Monitor certificate expiration (PositiveSSL expires Dec 7 2026)
+1. Configure alert notifications (PagerDuty, email, Slack) if desired
+2. Add dashboard panels for database + n8n workloads
+3. Monitor PositiveSSL expiration (Dec 7 2026)

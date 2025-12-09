@@ -1,15 +1,34 @@
 http:
   routers:
+    dashboard-root:
+      entryPoints:
+        - websecure
+      rule: Host(`traefik.inlock.ai`) && Path(`/`)
+      middlewares:
+        - dashboard-redirect
+      service: noop@internal
+      tls:
+        certResolver: le-dns
+    api-root:
+      entryPoints:
+        - websecure
+      rule: Host(`traefik.inlock.ai`) && (Path(`/api`) || Path(`/api/`))
+      middlewares:
+        - api-redirect
+      service: noop@internal
+      tls:
+        certResolver: le-dns
     dashboard:
       entryPoints:
         - websecure
-      rule: Host(`traefik.inlock.ai`) && (PathPrefix(`/dashboard`) || PathPrefix(`/api`))
+      rule: Host(`traefik.inlock.ai`) && (PathPrefix(`/dashboard`) || (PathPrefix(`/api/`) && !Path(`/api`) && !Path(`/api/`)))
       middlewares:
         - secure-headers
         - dashboard-auth
         - allowed-admins
         - mgmt-ratelimit
       service: api@internal
+      priority: 100
       tls:
         certResolver: le-dns
     

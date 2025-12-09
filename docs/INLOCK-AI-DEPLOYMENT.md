@@ -6,7 +6,7 @@ This guide covers deploying the Inlock AI application to `inlock.ai` using Posit
 
 **Domain:** `inlock.ai` and `www.inlock.ai`  
 **SSL:** Positive SSL (already installed)  
-**App Location:** `/opt/streamart-ai-secure-mvp/streamart-ai-secure-mvp`  
+**App Location:** `/opt/inlock-ai-secure-mvp`  
 **Port:** 3040  
 **Database:** PostgreSQL (separate instance)
 
@@ -17,7 +17,7 @@ This guide covers deploying the Inlock AI application to `inlock.ai` using Posit
 Before starting, ensure:
 
 - [ ] Positive SSL certificate is installed and valid
-- [ ] Project code is in `/opt/streamart-ai-secure-mvp/streamart-ai-secure-mvp`
+- [ ] Project code is in `/opt/inlock-ai-secure-mvp`
 - [ ] You have backup of current homepage service (if needed)
 - [ ] Database credentials prepared
 - [ ] Environment variables documented
@@ -141,7 +141,7 @@ include:
 ### 3.1 Navigate to App Directory
 
 ```bash
-cd /opt/streamart-ai-secure-mvp/streamart-ai-secure-mvp
+cd /opt/inlock-ai-secure-mvp
 ```
 
 ### 3.2 Build the Image
@@ -171,7 +171,7 @@ Save this value for the environment file.
 
 ### 4.2 Create Environment File
 
-Create `/opt/streamart-ai-secure-mvp/streamart-ai-secure-mvp/.env.production`:
+Create `/opt/inlock-ai-secure-mvp/.env.production`:
 
 ```bash
 # Database
@@ -206,7 +206,7 @@ Replace:
 ### 4.3 Set Proper Permissions
 
 ```bash
-chmod 600 /opt/streamart-ai-secure-mvp/streamart-ai-secure-mvp/.env.production
+chmod 600 /opt/inlock-ai-secure-mvp/.env.production
 ```
 
 ---
@@ -220,7 +220,7 @@ Edit `/home/comzis/inlock-infra/compose/stack.yml` and add the Inlock AI service
     image: inlock-ai:latest
     restart: always
     env_file:
-      - /opt/streamart-ai-secure-mvp/streamart-ai-secure-mvp/.env.production
+      - /opt/inlock-ai-secure-mvp/.env.production
     networks:
       - edge
       - internal
@@ -450,7 +450,7 @@ If something goes wrong, you can quickly rollback:
 ### Update Application
 
 ```bash
-cd /opt/streamart-ai-secure-mvp/streamart-ai-secure-mvp
+cd /opt/inlock-ai-secure-mvp
 git pull  # or update code
 docker build -t inlock-ai:latest .
 docker compose -f /home/comzis/inlock-infra/compose/stack.yml --env-file /home/comzis/inlock-infra/.env up -d inlock-ai

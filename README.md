@@ -47,6 +47,7 @@ sudo ./scripts/apply-firewall-manual.sh
 
 - **[Inlock AI Deployment](docs/INLOCK-AI-DEPLOYMENT.md)** - Complete guide for deploying Inlock AI application to inlock.ai
 - **[Inlock AI Quick Start](docs/INLOCK-AI-QUICK-START.md)** - Quick deployment guide for Inlock AI
+- **[Workflow Best Practices](docs/WORKFLOW-BEST-PRACTICES.md)** - ⭐ Two-layer architecture and workflow guide
 
 ### Security Documentation
 
