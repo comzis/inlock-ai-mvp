@@ -1,0 +1,42 @@
+x-default-logging: &default-logging
+  logging:
+    driver: "json-file"
+    options:
+      max-size: "10m"
+      max-file: "3"
+
+x-hardening: &hardening
+  security_opt:
+    - no-new-privileges:true
+
+x-resource-hints: &resource-hints
+  deploy:
+    resources:
+      limits:
+        memory: 1g
+      reservations:
+        memory: 256m
+
+services:
+  inlock-ai:
+    image: inlock-ai:latest
+    restart: always
+    env_file:
+      - /opt/streamart-ai-secure-mvp/streamart-ai-secure-mvp/.env.production
+    networks:
+      - edge
+      - internal
+    depends_on:
+      inlock-db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3040/api/readiness"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    cap_drop:
+      - ALL
+    user: "1001:1001"
+    <<: [*hardening, *default-logging, *resource-hints]
+

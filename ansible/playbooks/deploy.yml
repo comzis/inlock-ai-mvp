@@ -1,0 +1,9 @@
+---
+- name: Deploy INLOCK.AI Docker stack
+  hosts: edge
+  gather_facts: true
+  become: true
+
+  roles:
+    - role: docker
+    - role: traefik

@@ -1,0 +1,51 @@
+---
+- name: Trigger infrastructure backups
+  hosts: mgmt
+  gather_facts: false
+  become: true
+
+  tasks:
+    - name: Run restic snapshot
+      ansible.builtin.command:
+        cmd: "restic backup /etc/traefik /var/lib/docker/volumes --repo {{ restic_repo }} --password-file {{ restic_password_file }}"
+      register: restic_result
+      changed_when: restic_result.rc == 0
+
+    - name: Ensure backup directory exists
+      ansible.builtin.file:
+        path: /var/backups/n8n
+        state: directory
+        mode: '0700'
+
+    - name: Run pg_dump for n8n database (encrypted)
+      ansible.builtin.shell: |
+        docker exec postgres pg_dump -U n8n n8n | \
+        gpg --encrypt --recipient {{ backup_gpg_recipient | default('admin@inlock.ai') }} \
+        --output /var/backups/n8n/n8n-$(date +%F).sql.gpg
+      args:
+        warn: false
+      changed_when: true
+      notify: rotate-backups
+      when: backup_gpg_recipient is defined
+
+    - name: Run pg_dump for n8n database (fallback unencrypted)
+      ansible.builtin.command:
+        cmd: "docker exec postgres pg_dump -U n8n n8n > /var/backups/n8n/n8n-$(date +%F).sql"
+      args:
+        warn: false
+      changed_when: true
+      notify: rotate-backups
+      when: backup_gpg_recipient is not defined
+
+    - name: Upload encrypted backup to restic
+      ansible.builtin.command:
+        cmd: "restic backup /var/backups/n8n --repo {{ restic_repo }} --password-file {{ restic_password_file }}"
+      when: restic_repo is defined and restic_password_file is defined
+      changed_when: true
+
+  handlers:
+    - name: rotate-backups
+      ansible.builtin.command:
+        cmd: "/usr/local/bin/rotate-backups"
+      changed_when: true
+      failed_when: false

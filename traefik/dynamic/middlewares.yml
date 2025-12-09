@@ -1,0 +1,44 @@
+http:
+  middlewares:
+    secure-headers:
+      headers:
+        sslRedirect: true
+        stsSeconds: 63072000
+        stsIncludeSubdomains: true
+        stsPreload: true
+        contentTypeNosniff: true
+        referrerPolicy: no-referrer-when-downgrade
+        frameDeny: true
+        permissionsPolicy: "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()"
+    dashboard-auth:
+      basicAuth:
+        usersFile: /run/secrets/traefik-basicauth
+    portainer-auth:
+      forwardAuth:
+        address: https://auth.inlock.ai/check
+        trustForwardHeader: true
+        tls:
+          insecureSkipVerify: false
+    mgmt-ratelimit:
+      rateLimit:
+        average: 50
+        burst: 100
+    # IP allowlist for admin services (Traefik dashboard, Portainer, n8n, Cockpit)
+    # Only Tailscale VPN IPs and allowed public IPs are allowed
+    # To test access control: scripts/test-access-control.sh
+    # To update IPs: scripts/update-allowlists.sh
+    # 
+    # Temporarily removed ipStrategy to test direct IP check
+    # If direct check works, we'll re-add ipStrategy for Cloudflare support
+    allowed-admins:
+      ipAllowList:
+        sourceRange:
+          - "100.83.222.69/32"  # Device 1 - Tailscale IP (Server)
+          - "100.96.110.8/32"   # Device 2 - Tailscale IP (MacBook)
+          - "156.67.29.52/32"   # Server public IP (for testing from server)
+          - "2a09:bac3:1e53:2664::3d3:2f/128"  # MacBook public IPv6
+          - "31.10.147.220/32"  # MacBook public IPv4 (from logs)
+          - "172.71.147.142/32"  # MacBook public IPv4 (from logs)
+          - "172.71.146.180/32"  # MacBook public IPv4 (from logs)
+
+

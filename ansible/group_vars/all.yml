@@ -1,0 +1,15 @@
+---
+project_root: "{{ playbook_dir | dirname }}"
+compose_files:
+  - "{{ project_root }}/compose/stack.yml"
+  - "{{ project_root }}/compose/postgres.yml"
+  - "{{ project_root }}/compose/n8n.yml"
+env_file: "{{ project_root }}/.env"
+docker_compose_project: inlock-stack
+traefik_config_dir: /etc/traefik
+traefik_dynamic_subdir: dynamic
+traefik_acme_file: acme.json
+scripts_dir: "{{ project_root }}/scripts"
+restic_repo: b2:inlock-infra
+restic_password_file: /root/.config/restic/password
+cloudflare_api_token: "{{ lookup('env', 'CLOUDFLARE_API_TOKEN') }}"

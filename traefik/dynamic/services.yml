@@ -1,0 +1,30 @@
+http:
+  services:
+    homepage:
+      loadBalancer:
+        servers:
+          - url: http://homepage:80
+    portainer:
+      loadBalancer:
+        servers:
+          - url: http://portainer:9000
+    n8n:
+      loadBalancer:
+        servers:
+          - url: http://n8n:5678
+    grafana:
+      loadBalancer:
+        servers:
+          - url: http://grafana:3000
+    coolify:
+      loadBalancer:
+        servers:
+          - url: http://coolify:8000
+    homarr:
+      loadBalancer:
+        servers:
+          - url: http://homarr:7575
+    inlock-ai:
+      loadBalancer:
+        servers:
+          - url: http://inlock-ai:3040

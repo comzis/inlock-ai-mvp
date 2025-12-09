@@ -1,0 +1,32 @@
+services:
+  homarr:
+    image: ghcr.io/ajnart/homarr:latest
+    restart: always
+    environment:
+      - BASE_URL=https://dashboard.inlock.ai
+      - TZ=Europe/Zurich
+    volumes:
+      - homarr_configs:/app/data/configs
+      - homarr_icons:/app/public/icons
+      - homarr_data:/data
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - edge
+      - mgmt
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.homarr.rule=Host(`dashboard.${DOMAIN}`)"
+      - "traefik.http.routers.homarr.entrypoints=websecure"
+      - "traefik.http.routers.homarr.tls.certresolver=le-dns"
+      - "traefik.http.routers.homarr.middlewares=secure-headers@file"
+      - "traefik.http.services.homarr.loadbalancer.server.port=7575"
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:7575"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  homarr_configs:
+  homarr_icons:
+  homarr_data:

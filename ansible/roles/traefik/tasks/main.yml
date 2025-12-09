@@ -1,0 +1,45 @@
+---
+- name: Ensure Traefik config directory exists
+  ansible.builtin.file:
+    path: "{{ traefik_config_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0750"
+
+- name: Sync Traefik static config
+  ansible.builtin.copy:
+    src: "{{ project_root }}/traefik/traefik.yml"
+    dest: "{{ traefik_config_dir }}/traefik.yml"
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Sync Traefik dynamic config
+  ansible.builtin.copy:
+    src: "{{ project_root }}/traefik/dynamic/"
+    dest: "{{ traefik_config_dir }}/{{ traefik_dynamic_subdir }}/"
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Deploy acme storage placeholder
+  ansible.builtin.copy:
+    src: "{{ project_root }}/traefik/acme.json"
+    dest: "{{ traefik_config_dir }}/{{ traefik_acme_file }}"
+    owner: root
+    group: root
+    mode: "0600"
+
+- name: Reconcile Docker Compose stack
+  community.docker.docker_compose:
+    project_name: "{{ docker_compose_project }}"
+    project_src: "{{ project_root }}"
+    files: "{{ compose_files }}"
+    env_file: "{{ env_file }}"
+    state: present
+  register: compose_result
+
+- name: Show docker compose changes
+  ansible.builtin.debug:
+    var: compose_result

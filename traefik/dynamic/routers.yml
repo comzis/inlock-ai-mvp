@@ -1,0 +1,97 @@
+http:
+  routers:
+    dashboard:
+      entryPoints:
+        - websecure
+      rule: Host(`traefik.inlock.ai`) && (PathPrefix(`/dashboard`) || PathPrefix(`/api`))
+      middlewares:
+        - secure-headers
+        - dashboard-auth
+        - allowed-admins
+        - mgmt-ratelimit
+      service: api@internal
+      tls:
+        certResolver: le-dns
+    
+    # Homepage service - COMMENTED OUT - Replaced by Inlock AI app
+    # homepage:
+    #   entryPoints:
+    #     - websecure
+    #   rule: Host(`inlock.ai`) || Host(`www.inlock.ai`)
+    #   middlewares:
+    #     - secure-headers
+    #   service: homepage
+    #   tls:
+    #     certResolver: le-tls
+    
+    portainer:
+      entryPoints:
+        - websecure
+      rule: Host(`portainer.inlock.ai`)
+      middlewares:
+        - secure-headers
+        - allowed-admins
+        - mgmt-ratelimit
+      service: portainer
+      tls:
+        certResolver: le-dns
+    
+    n8n:
+      entryPoints:
+        - websecure
+      rule: Host(`n8n.inlock.ai`)
+      middlewares:
+        - secure-headers
+        - allowed-admins
+        - mgmt-ratelimit
+      service: n8n
+      tls:
+        certResolver: le-dns
+    
+    
+    grafana:
+      entryPoints:
+        - websecure
+      rule: Host(`grafana.inlock.ai`)
+      middlewares:
+        - secure-headers
+        - allowed-admins
+        - mgmt-ratelimit
+      service: grafana
+      tls:
+        certResolver: le-dns
+    
+    coolify:
+      entryPoints:
+        - websecure
+      rule: Host(`deploy.inlock.ai`)
+      middlewares:
+        - secure-headers
+        - allowed-admins
+        - mgmt-ratelimit
+      service: coolify
+      tls:
+        certResolver: le-dns
+    
+    homarr:
+      entryPoints:
+        - websecure
+      rule: Host(`dashboard.inlock.ai`)
+      middlewares:
+        - secure-headers
+        - allowed-admins
+      service: homarr
+      tls:
+        certResolver: le-dns
+    
+    # Inlock AI application - Main production route
+    # Routes inlock.ai and www.inlock.ai to the Inlock AI app using Positive SSL
+    inlock-ai:
+      entryPoints:
+        - websecure
+      rule: Host(`inlock.ai`) || Host(`www.inlock.ai`)
+      middlewares:
+        - secure-headers
+      service: inlock-ai
+      tls:
+        options: default  # Uses Positive SSL certificate

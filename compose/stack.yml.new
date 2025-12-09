@@ -1,0 +1,21 @@
+# ... keeping all the previous services the same, just updating cockpit ...
+  cockpit:
+    image: quay.io/cockpit/ws
+    restart: always
+    command: ["/usr/libexec/cockpit-ws", "--port", "9091", "--no-tls"]
+    volumes:
+      - /:/host
+      - /etc/passwd:/etc/passwd:ro
+      - /etc/shadow:/etc/shadow:ro
+      - /etc/group:/etc/group:ro
+      - /etc/pam.d:/etc/pam.d:ro
+    networks:
+      - mgmt
+      - edge
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9091"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    privileged: true
+    <<: [*default-logging]

@@ -1,0 +1,246 @@
+networks:
+  edge:
+    external: true
+    name: edge
+  mgmt:
+    name: mgmt
+    driver: bridge
+  internal:
+    external: true
+    name: internal
+  socket-proxy:
+    external: true
+    name: socket-proxy
+
+include:
+  - inlock-db.yml
+  - inlock-ai.yml
+
+secrets:
+  traefik-basicauth:
+    file: /home/comzis/apps/secrets-real/traefik-dashboard-users.htpasswd
+  positive_ssl_cert:
+    file: /home/comzis/apps/secrets-real/positive-ssl.crt
+  positive_ssl_key:
+    file: /home/comzis/apps/secrets-real/positive-ssl.key
+  portainer_admin_password:
+    file: /home/comzis/apps/secrets-real/portainer-admin-password
+  n8n_db_password:
+    file: /home/comzis/apps/secrets-real/n8n-db-password
+  n8n_encryption_key:
+    file: /home/comzis/apps/secrets-real/n8n-encryption-key
+  grafana_admin_password:
+    file: /home/comzis/apps/secrets-real/grafana-admin-password
+
+volumes:
+  grafana_data:
+  prometheus_data:
+
+x-default-logging: &default-logging
+  logging:
+    driver: "json-file"
+    options:
+      max-size: "10m"
+      max-file: "3"
+
+x-hardening: &hardening
+  security_opt:
+    - no-new-privileges:true
+
+x-resource-hints: &resource-hints
+  deploy:
+    resources:
+      limits:
+        memory: 1g
+      reservations:
+        memory: 256m
+
+services:
+  traefik:
+    image: traefik:v3.1
+    restart: always
+    env_file:
+      - ../.env
+    environment:
+      - CLOUDFLARE_DNS_API_TOKEN=${CLOUDFLARE_API_TOKEN}
+      - DOMAIN=${DOMAIN}
+      - DOCKER_API_VERSION=1.41
+    command:
+      - "--configFile=/etc/traefik/traefik.yml"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "9100:9100"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ../traefik/traefik.yml:/etc/traefik/traefik.yml:ro
+      - ../traefik/dynamic:/etc/traefik/dynamic:ro
+      - ../traefik/acme:/etc/traefik/acme
+    networks:
+      - edge
+      - socket-proxy
+      - mgmt
+    secrets:
+      - traefik-basicauth
+      - positive_ssl_cert
+      - positive_ssl_key
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/ping"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    tmpfs:
+      - /tmp
+      - /var/run
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE
+    user: "1000:1000"
+    <<: [*hardening, *default-logging, *resource-hints]
+
+  docker-socket-proxy:
+    image: ghcr.io/tecnativa/docker-socket-proxy:v0.4.1
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - CONTAINERS=1
+      - EVENTS=1
+      - IMAGES=1
+      - INFO=1
+      - NETWORKS=1
+      - PING=1
+      - SECRETS=1
+      - SERVICES=1
+      - SWARM=1
+      - TASKS=1
+      - VERSION=1
+      - VOLUMES=1
+    networks:
+      - socket-proxy
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:2375/_ping"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    read_only: true
+    tmpfs:
+      - /var/lib/haproxy
+      - /var/run
+      - /tmp
+    cap_drop:
+      - ALL
+    <<: [*default-logging]
+
+  homepage:
+    image: nginx@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10
+    restart: always
+    volumes:
+      - /var/www/homepage:/usr/share/nginx/html:ro
+    networks:
+      - edge
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.homepage.rule=Host(``) || Host(`www.`)"
+      - "traefik.http.routers.homepage.entrypoints=websecure"
+      - "traefik.http.routers.homepage.tls.certresolver=le-tls"
+      - "traefik.http.routers.homepage.middlewares=secure-headers@file"
+      - "traefik.http.services.homepage.loadbalancer.server.port=80"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    <<: [*default-logging]
+
+  portainer:
+    image: portainer/portainer-ce@sha256:c2353b2bd0dbfaa33faa8895222732e8823a4cf5b57ea664ba631ec3e23d842b
+    restart: always
+    command:
+      - "-H"
+      - "tcp://docker-socket-proxy:2375"
+    volumes:
+      - /home/comzis/apps/traefik/portainer_data:/data
+    networks:
+      - mgmt
+      - edge
+      - socket-proxy
+    secrets:
+      - portainer_admin_password
+    healthcheck:
+      disable: true
+    cap_drop:
+      - ALL
+    user: "1000:1000"
+    <<: [*hardening, *default-logging, *resource-hints]
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor@sha256:3cde6faf0791ebf7b41d6f8ae7145466fed712ea6f252c935294d2608b1af388
+    restart: always
+    command:
+      - "--disable_metrics=percpu,udp,process,sched"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    networks:
+      - mgmt
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/metrics"]
+    read_only: true
+    <<: [*hardening, *default-logging, *resource-hints]
+
+  prometheus:
+    image: prom/prometheus:v2.51.2@sha256:4f6c47e39a9064028766e8c95890ed15690c30f00c4ba14e7ce6ae1ded0295b1
+    restart: always
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    volumes:
+      - prometheus_data:/prometheus
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    networks:
+      - mgmt
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    <<: [*hardening, *default-logging, *resource-hints]
+
+  grafana:
+    image: grafana/grafana@sha256:079600c9517b678c10cda6006b4487d3174512fd4c6cface37df7822756ed7a5
+    restart: always
+    environment:
+      - GF_SERVER_DOMAIN=grafana.${DOMAIN}
+      - GF_SERVER_ROOT_URL=https://grafana.${DOMAIN}
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=/run/secrets/grafana_admin_password
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ../grafana/provisioning:/etc/grafana/provisioning:ro
+    networks:
+      - mgmt
+      - edge
+    secrets:
+      - grafana_admin_password
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    <<: [*hardening, *default-logging, *resource-hints]

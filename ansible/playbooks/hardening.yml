@@ -1,0 +1,8 @@
+---
+- name: Apply host hardening baseline
+  hosts: all
+  gather_facts: true
+  become: true
+
+  roles:
+    - role: hardening

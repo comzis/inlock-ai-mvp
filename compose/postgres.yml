@@ -1,0 +1,75 @@
+x-default-logging: &default-logging
+  logging:
+    driver: "json-file"
+    options:
+      max-size: "10m"
+      max-file: "3"
+
+x-hardening: &hardening
+  security_opt:
+    - no-new-privileges:true
+
+x-resource-hints: &resource-hints
+  deploy:
+    resources:
+      limits:
+        memory: 512m
+      reservations:
+        memory: 128m
+
+services:
+  postgres:
+    image: postgres@sha256:a5074487380d4e686036ce61ed6f2d363939ae9a0c40123d1a9e3bb3a5f344b4
+    restart: always
+    env_file:
+      - ../.env
+    environment:
+      - POSTGRES_DB=${N8N_DB:-n8n}
+      - POSTGRES_USER=${N8N_DB_USER:-n8n}
+      # Read password from secret file and pass as environment variable
+      # This avoids permission issues with Docker secrets
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-$(cat /home/comzis/apps/secrets/n8n-db-password 2>/dev/null | tr -d '\n\r' || echo '')}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - internal
+    # No longer using Docker secrets - password passed via environment variable
+    # secrets:
+    #   - n8n-db-password
+    # entrypoint: ["/bin/bash", "/entrypoint-wrapper.sh"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${N8N_DB_USER:-n8n} -d ${N8N_DB:-n8n}"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+    # Postgres needs write access to data directory, so read_only not applied
+    # But we can use tmpfs for temporary files and drop capabilities
+    tmpfs:
+      - /tmp
+      - /var/run/postgresql
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN  # Required for data directory ownership
+      - SETGID
+      - SETUID
+      - DAC_OVERRIDE  # Required to fix permissions on data directory
+    # Postgres runs as postgres user (UID 70) by default
+    # This is already non-root, so no user override needed
+    # Temporarily disable no-new-privileges to allow Postgres to fix data directory permissions
+    security_opt:
+      - no-new-privileges:false
+    <<: [*default-logging, *resource-hints]
+
+networks:
+  internal:
+    external: true
+    name: internal
+
+volumes:
+  postgres_data:
+
+secrets:
+  n8n-db-password:
+    file: /home/comzis/apps/secrets/n8n-db-password
+

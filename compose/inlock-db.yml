@@ -1,0 +1,60 @@
+x-default-logging: &default-logging
+  logging:
+    driver: "json-file"
+    options:
+      max-size: "10m"
+      max-file: "3"
+
+x-hardening: &hardening
+  security_opt:
+    - no-new-privileges:true
+
+x-resource-hints: &resource-hints
+  deploy:
+    resources:
+      limits:
+        memory: 512m
+      reservations:
+        memory: 128m
+
+services:
+  inlock-db:
+    image: postgres@sha256:a5074487380d4e686036ce61ed6f2d363939ae9a0c40123d1a9e3bb3a5f344b4
+    restart: always
+    env_file:
+      - ../.env
+    environment:
+      - POSTGRES_DB=${INLOCK_DB_NAME:-inlock}
+      - POSTGRES_USER=${INLOCK_DB_USER:-inlock}
+      - POSTGRES_PASSWORD=${INLOCK_DB_PASSWORD:-$(cat /home/comzis/apps/secrets-real/inlock-db-password 2>/dev/null | tr -d '\n\r' || echo '')}
+    volumes:
+      - inlock_db_data:/var/lib/postgresql/data
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${INLOCK_DB_USER:-inlock} -d ${INLOCK_DB_NAME:-inlock}"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+    tmpfs:
+      - /tmp
+      - /var/run/postgresql
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETGID
+      - SETUID
+      - DAC_OVERRIDE
+    security_opt:
+      - no-new-privileges:false
+    <<: [*default-logging, *resource-hints]
+
+networks:
+  internal:
+    external: true
+    name: internal
+
+volumes:
+  inlock_db_data:
+
