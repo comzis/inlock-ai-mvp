@@ -12,7 +12,7 @@ This repository contains the complete infrastructure configuration for INLOCK.AI
 - **Container Management**: Portainer
 - **Workflow Automation**: n8n
 - **Database**: PostgreSQL (multiple instances)
-- **Monitoring & Observability**: Prometheus, Grafana, cAdvisor, Loki/Promtail
+- **Monitoring & Observability**: Prometheus, Alertmanager, Grafana, Node Exporter, Blackbox Exporter, cAdvisor, Loki/Promtail
 - **Security**: Hardened with IP allowlists, authentication, rate limiting
 - **Application**: Inlock AI production application (Next.js)
 
@@ -142,6 +142,8 @@ inlock-infra/
 |---------|-----|--------|
 | **Inlock AI** | https://inlock.ai | Public |
 | **Inlock AI (WWW)** | https://www.inlock.ai | Public |
+| **Prometheus** | http://localhost:9090 (internal) | Internal only |
+| **Alertmanager** | http://localhost:9093 (internal) | Internal only |
 
 ### Admin Services (IP Restricted)
 
@@ -297,11 +299,14 @@ See [Automation Scripts](docs/AUTOMATION-SCRIPTS.md) for detailed usage.
   - Alert rules: `compose/prometheus/rules/inlock-ai.yml`
   - Scrapes: Traefik, cAdvisor, Docker, custom metrics
 
+- **Prometheus**: Scrapes application, Traefik, host, and synthetic metrics (config: `compose/prometheus/`)
+- **Alertmanager**: Handles alert fan-out (config: `compose/alertmanager/alertmanager.yml`)
+- **Node Exporter**: Host CPU/memory/disk/network metrics
+- **Blackbox Exporter**: Synthetic HTTP + TCP probes for public routes and internal services
 - **Grafana**: Visualization and dashboards
   - Auto-provisioned datasources: Prometheus, Loki
-  - Dashboard: `grafana/dashboards/inlock-observability.json`
+  - Dashboard: `grafana/dashboards/inlock-observability.json` (includes host + probe panels)
   - Access: https://grafana.inlock.ai (IP restricted)
-
 - **Loki & Promtail**: Centralized log aggregation
   - Configuration: `compose/logging/loki-config.yaml`, `compose/logging/promtail-config.yaml`
   - Collects Docker container logs
@@ -315,6 +320,12 @@ Configured alerts in Prometheus:
 - `InlockAIHighCPU` - CPU usage > 80%
 - `InlockAIHealthCheckFailed` - Health endpoint failures
 - `InlockAIHigh5xxRate` - HTTP 5xx error rate > 5%
+- `NodeHighCPUUsage` - Host CPU > 85%
+- `NodeMemoryPressure` - Host memory > 85%
+- `NodeDiskSpaceLow` - Root filesystem < 15% free
+- `NodeLoadHigh` - Sustained load average per core > 1.5
+- `ExternalHTTPProbeFailed` - Public routes failing HTTP probe
+- `ServiceTCPProbeFailed` - Internal service port unreachable
 
 ### Documentation
 
@@ -353,5 +364,3 @@ See [Git Publish Guide](docs/GIT-PUBLISH-GUIDE.md) for publishing workflows.
 **Last Updated**: December 9, 2025  
 **Version**: GitOps-ready hardened stack  
 **Maintainer**: INLOCK.AI Infrastructure Team
-
-

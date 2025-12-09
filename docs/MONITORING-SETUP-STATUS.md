@@ -1,112 +1,67 @@
-# Monitoring & Alerts Setup Status
+# Monitoring & Alerts – Current Status
 
-## ✅ Completed Components
+**Last Updated:** 2025-12-09  
+**Maintainer:** Inlock Infrastructure Team
 
-### 1. Prometheus
-- **Status**: ✅ Running and healthy
-- **Rules**: ✅ Alert rules configured in `/home/comzis/compose/prometheus/rules/inlock-ai.yml`
-- **Alerts Configured**:
-  - `InlockAIDown` - Service downtime detection
-  - `InlockAIHighMemory` - Memory usage > 850MB
-  - `InlockAIHighCPU` - CPU usage > 80%
-  - `InlockAIHealthCheckFailed` - Health endpoint failures
-  - `InlockAIHigh5xxRate` - Error rate spikes
+## ✅ Running Components
 
-### 2. Grafana
-- **Status**: ✅ Running and healthy
-- **Datasources**: ✅ Prometheus and Loki provisioned
-- **Dashboards**: ⚠️ Dashboard JSON has syntax issue (needs fix)
-- **Access**: https://grafana.inlock.ai
+| Component | Status | Notes |
+|-----------|--------|-------|
+| Prometheus | ✅ Healthy | Scraping app, Traefik, cAdvisor, node-exporter, alertmanager, blackbox exporter |
+| Alertmanager | ✅ Healthy | Default receiver logs locally; ready for Slack/email integrations |
+| Grafana | ✅ Healthy | Datasources: Prometheus + Loki; dashboards auto-provisioned |
+| Node Exporter | ✅ Healthy | Host CPU/memory/disk/network metrics |
+| Blackbox Exporter | ✅ Healthy | HTTP probes for public routes + TCP probes for internal services |
+| Loki | ✅ Healthy | Stores Docker logs (volume `loki_data`) |
+| Promtail | ✅ Healthy | Scrapes Docker logs via socket, ships to Loki |
 
-### 3. Loki (Log Aggregation)
-- **Status**: ⚠️ Fixed configuration, restarting
-- **Config**: `/home/comzis/inlock-infra/compose/logging/loki-config.yaml`
-- **Volume**: `loki_data` mounted at `/loki`
-- **Issue Fixed**: Added compactor configuration with working directory
+## 📊 Dashboards
 
-### 4. Promtail (Log Shipping)
-- **Status**: ✅ Starting
-- **Config**: `/home/comzis/inlock-infra/compose/logging/promtail-config.yaml`
-- **Sources**: Docker logs from `/var/lib/docker/containers`
+- Primary board: `Inlock AI Observability`
+  - App KPIs (availability, CPU, memory, throughput, error rate)
+  - Host metrics (CPU, memory, disk, network throughput)
+  - Synthetic HTTP/TCP probe results
+  - Traefik health checks
+  - Live Loki log viewer
+- Access: https://grafana.inlock.ai (IP allowlist + service login)
 
-## ⚠️ Known Issues
+## 🚨 Alerts
 
-### Grafana Dashboard JSON
-**Issue**: Invalid character '\\n' in string literal  
-**Location**: `/home/comzis/inlock-infra/grafana/dashboards/inlock-observability.json`  
-**Action Required**: Fix JSON syntax error in dashboard file
+Configured in `compose/prometheus/rules/inlock-ai.yml`:
 
-### Loki Compactor
-**Status**: ✅ Fixed  
-**Solution**: Added compactor configuration with proper working directory
+- App alerts: `InlockAIDown`, `InlockAIHighCPU`, `InlockAIHighMemory`, `InlockAIHealthcheckFailed`, `InlockAIHighErrorRate`
+- Host alerts: `NodeHighCPUUsage`, `NodeMemoryPressure`, `NodeDiskSpaceLow`, `NodeLoadHigh`
+- Synthetic probes: `ExternalHTTPProbeFailed`, `ServiceTCPProbeFailed`
 
-## 📋 Verification Steps
+Alertmanager currently routes to the `default` receiver (no external notifications). To enable Slack/email:
+1. Edit `compose/alertmanager/alertmanager.yml` and add the desired receiver.
+2. Restart Alertmanager:  
+   `docker compose -f compose/stack.yml --env-file .env restart alertmanager`
 
-### 1. Check Service Health
+## 🔍 Verification Commands
+
 ```bash
+# Check service status
 cd /home/comzis/inlock-infra
-docker compose -f compose/stack.yml --env-file .env ps
+docker compose -f compose/stack.yml --env-file .env ps prometheus alertmanager grafana node-exporter blackbox-exporter
+
+# Validate Prometheus config/rules
+docker exec compose-prometheus-1 promtool check config /etc/prometheus/prometheus.yml
+docker exec compose-prometheus-1 promtool check rules /etc/prometheus/rules/*.yml
+
+# Reload Prometheus after edits
+curl -X POST http://localhost:9090/-/reload
 ```
 
-### 2. Verify Prometheus Rules
-```bash
-docker exec compose-prometheus-1 wget -qO- http://localhost:9090/api/v1/rules | jq
-```
+## 🧰 Maintenance
 
-### 3. Check Grafana Dashboard
-1. Navigate to https://grafana.inlock.ai
-2. Login with admin credentials
-3. Check "Inlock Observability" dashboard
-4. Verify panels populate with data
+- **Dashboards** – Drop JSON into `grafana/dashboards/` and restart Grafana to provision new dashboards.
+- **Blackbox Targets** – Add HTTPS/TCP endpoints to the `blackbox-http` / `blackbox-tcp` jobs in `compose/prometheus/prometheus.yml`.
+- **Backups** – Include volumes `prometheus_data`, `alertmanager_data`, `grafana_data`, `loki_data` in scheduled backups.
+- **Logs** – Use Grafana’s Explore view (Loki datasource) to tail service logs.
 
-### 4. Verify Loki Logs
-```bash
-# Check Loki is receiving logs
-docker logs compose-loki-1 --tail 20
+## 🚀 Next Enhancements
 
-# Check Promtail is shipping logs
-docker logs compose-promtail-1 --tail 20
-```
-
-## 🔧 Fixes Applied
-
-### Loki Configuration Update
-Added compactor section to `loki-config.yaml`:
-```yaml
-compactor:
-  working_directory: /loki/compactor
-  shared_store: filesystem
-  compaction_interval: 10m
-  retention_enabled: true
-```
-
-## 📊 Dashboard Panels (When Fixed)
-
-The "Inlock Observability" dashboard includes:
-- **Service Availability** - Uptime percentage
-- **CPU Usage** - 5-minute average
-- **Memory Usage** - Current memory consumption
-- **Request Rate** - Traffic metrics from Traefik
-- **Error Rate** - 5xx error tracking
-- **Log Panel** - Loki log viewer
-
-## 🚀 Next Steps
-
-1. **Fix Grafana Dashboard JSON** - Resolve syntax error
-2. **Restart Grafana** - Reload dashboard configuration
-3. **Verify Dashboard** - Confirm panels populate with data
-4. **Test Alerts** - Verify Prometheus alerts fire correctly
-5. **Monitor Logs** - Confirm Loki/Promtail are collecting logs
-
-## 📝 Automation Scripts
-
-All deployment and verification scripts are in place:
-- `/home/comzis/inlock-infra/scripts/verify-inlock-deployment.sh`
-- `/home/comzis/inlock-infra/scripts/deploy-inlock.sh`
-- `/home/comzis/inlock-infra/scripts/nightly-regression.sh`
-
----
-
-**Last Updated**: 2025-12-09  
-**Status**: Services restarting with updated configurations
-
+1. Connect Alertmanager to Slack/email/PagerDuty.
+2. Add dashboards for PostgreSQL, n8n, and Traefik internals.
+3. Extend blackbox probes to additional customer-facing routes if needed.

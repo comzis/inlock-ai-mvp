@@ -41,16 +41,17 @@ cd /opt/inlock-ai-secure-mvp
 ### Alerting + Dashboards
 
 Prometheus now loads alert rules from `compose/prometheus/rules/inlock-ai.yml`. Alerts include:
-- `InlockAIDown`: container disappeared from cAdvisor
-- `InlockAIHighMemory` / `InlockAIHighCPU`: sustained resource pressure
-- `InlockAIHealthcheckFailed`: Traefik health checks failing
-- `InlockAIHighErrorRate`: 5xx rate > 5% over 5 minutes
+- **Application:** `InlockAIDown`, `InlockAIHighMemory`, `InlockAIHighCPU`, `InlockAIHealthcheckFailed`, `InlockAIHighErrorRate`
+- **Host:** `NodeHighCPUUsage`, `NodeMemoryPressure`, `NodeDiskSpaceLow`, `NodeLoadHigh`
+- **Synthetic:** `ExternalHTTPProbeFailed`, `ServiceTCPProbeFailed`
 
 Grafana automatically provisions the **Inlock AI Observability** dashboard (`grafana/dashboards/inlock-observability.json`) with:
 - Availability gauge
 - CPU + memory timeseries
 - Request throughput + 5xx rate graphs
 - Traefik health status
+- Host CPU/memory/disk/network panels
+- Blackbox HTTP/TCP probe panel
 - Live Loki-backed logs panel
 
 Datasources:

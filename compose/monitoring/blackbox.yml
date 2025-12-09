@@ -1,0 +1,25 @@
+modules:
+  http_2xx:
+    prober: http
+    timeout: 10s
+    http:
+      method: GET
+      tls_config:
+        insecure_skip_verify: false
+      preferred_ip_protocol: "ip4"
+
+  http_api:
+    prober: http
+    timeout: 10s
+    http:
+      method: GET
+      fail_if_not_ssl: false
+      headers:
+        User-Agent: "inlock-blackbox-exporter"
+      preferred_ip_protocol: "ip4"
+
+  tcp_connect:
+    prober: tcp
+    timeout: 5s
+    tcp:
+      preferred_ip_protocol: "ip4"

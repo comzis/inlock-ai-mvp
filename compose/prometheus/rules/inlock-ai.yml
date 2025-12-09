@@ -1,0 +1,124 @@
+groups:
+  - name: inlock-ai
+    interval: 30s
+    rules:
+      - alert: InlockAIDown
+        expr: time() - container_last_seen{name="compose-inlock-ai-1"} > 60
+        for: 1m
+        labels:
+          severity: critical
+          service: inlock-ai
+        annotations:
+          summary: "Inlock AI container has stopped reporting"
+          description: "cAdvisor has not seen compose-inlock-ai-1 for longer than 60 seconds."
+
+      - alert: InlockAIHighMemory
+        expr: container_memory_working_set_bytes{name="compose-inlock-ai-1"} > 850 * 1024 * 1024
+        for: 5m
+        labels:
+          severity: warning
+          service: inlock-ai
+        annotations:
+          summary: "Inlock AI memory usage is high"
+          description: "compose-inlock-ai-1 memory usage has exceeded 850MB for at least 5 minutes."
+
+      - alert: InlockAIHighCPU
+        expr: rate(container_cpu_usage_seconds_total{name="compose-inlock-ai-1"}[5m]) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          service: inlock-ai
+        annotations:
+          summary: "Inlock AI CPU usage is high"
+          description: "compose-inlock-ai-1 CPU consumption has been above 80% for 5 minutes."
+
+      - alert: InlockAIHealthcheckFailed
+        expr: traefik_service_healthcheck_status{service="inlock-ai@docker"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          service: inlock-ai
+        annotations:
+          summary: "Inlock AI health check is failing"
+          description: "Traefik health checks against the inlock-ai router have reported failures for over 2 minutes."
+
+      - alert: InlockAIHighErrorRate
+        expr: >
+          (
+            sum(rate(traefik_service_requests_total{service="inlock-ai@docker",code=~"5.."}[5m]))
+            /
+            clamp_min(sum(rate(traefik_service_requests_total{service="inlock-ai@docker"}[5m])), 1)
+          ) > 0.05
+        for: 3m
+        labels:
+          severity: warning
+          service: inlock-ai
+        annotations:
+          summary: "Inlock AI HTTP 5xx rate elevated"
+          description: "More than 5% of requests routed through Traefik to inlock-ai have resulted in 5xx errors during the last 5 minutes."
+
+  - name: inlock-host
+    interval: 30s
+    rules:
+      - alert: NodeHighCPUUsage
+        expr: (1 - avg by (instance) (irate(node_cpu_seconds_total{mode="idle"}[5m]))) * 100 > 85
+        for: 10m
+        labels:
+          severity: warning
+          component: host
+        annotations:
+          summary: "Host CPU usage is high"
+          description: "Average CPU utilization on {{ $labels.instance }} has exceeded 85% for 10 minutes."
+
+      - alert: NodeMemoryPressure
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 85
+        for: 10m
+        labels:
+          severity: warning
+          component: host
+        annotations:
+          summary: "Host memory pressure"
+          description: "{{ $labels.instance }} memory usage has remained above 85% for 10 minutes."
+
+      - alert: NodeDiskSpaceLow
+        expr: (node_filesystem_avail_bytes{fstype!~"tmpfs|fuse.lxcfs",mountpoint="/"} / node_filesystem_size_bytes{fstype!~"tmpfs|fuse.lxcfs",mountpoint="/"}) < 0.15
+        for: 10m
+        labels:
+          severity: critical
+          component: host
+        annotations:
+          summary: "Low disk space on root filesystem"
+          description: "Less than 15% disk space available on {{ $labels.instance }} ({{ $labels.mountpoint }})."
+
+      - alert: NodeLoadHigh
+        expr: node_load5 / on(instance) count by (instance) (node_cpu_seconds_total{mode="system"}) > 1.5
+        for: 10m
+        labels:
+          severity: warning
+          component: host
+        annotations:
+          summary: "Host load average elevated"
+          description: "Load average (5m) per core on {{ $labels.instance }} has been above 1.5."
+
+  - name: inlock-probes
+    interval: 30s
+    rules:
+      - alert: ExternalHTTPProbeFailed
+        expr: probe_success{job="blackbox-http"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          component: blackbox
+        annotations:
+          summary: "External HTTP probe failed"
+          description: "Blackbox HTTP probe to {{ $labels.instance }} has been failing."
+
+      - alert: ServiceTCPProbeFailed
+        expr: probe_success{job="blackbox-tcp"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          component: blackbox
+        annotations:
+          summary: "TCP probe failed"
+          description: "Blackbox TCP probe to {{ $labels.instance }} has failed for more than 2 minutes."

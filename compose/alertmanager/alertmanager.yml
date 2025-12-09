@@ -1,0 +1,14 @@
+route:
+  receiver: default
+  group_by: ['alertname', 'service']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+
+receivers:
+  - name: default
+
+# To enable Slack or other channels, update the receivers section above and add the
+# appropriate configuration (e.g., slack_configs, email_configs). With
+# --config.expand-env enabled, you can reference environment variables such as
+# ${ALERTMANAGER_SLACK_WEBHOOK}.

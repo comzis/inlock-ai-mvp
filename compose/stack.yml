@@ -36,6 +36,7 @@ secrets:
 volumes:
   grafana_data:
   prometheus_data:
+  alertmanager_data:
 
 x-default-logging: &default-logging
   logging:
@@ -247,3 +248,69 @@ services:
     cap_drop:
       - ALL
     <<: [*hardening, *default-logging, *resource-hints]
+
+  alertmanager:
+    image: prom/alertmanager:v0.27.0
+    restart: always
+    command:
+      - "--config.file=/etc/alertmanager/alertmanager.yml"
+      - "--storage.path=/alertmanager"
+      - "--cluster.listen-address="
+    volumes:
+      - alertmanager_data:/alertmanager
+      - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+    networks:
+      - mgmt
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9093/-/ready"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    <<: [*hardening, *default-logging, *resource-hints]
+
+  node-exporter:
+    image: prom/node-exporter:v1.8.1
+    restart: always
+    command:
+      - "--path.procfs=/host/proc"
+      - "--path.sysfs=/host/sys"
+      - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
+    pid: host
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/host:ro,rslave
+    networks:
+      - mgmt
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9100/metrics"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
+    <<: [*default-logging]
+
+  blackbox-exporter:
+    image: prom/blackbox-exporter:v0.25.0
+    restart: always
+    command:
+      - "--config.file=/etc/blackbox/blackbox.yml"
+    volumes:
+      - ./monitoring/blackbox.yml:/etc/blackbox/blackbox.yml:ro
+    networks:
+      - mgmt
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9115/metrics"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
+    <<: [*default-logging]

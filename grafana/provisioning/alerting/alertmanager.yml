@@ -1,0 +1,11 @@
+apiVersion: 1
+
+# Alertmanager configuration for Grafana unified alerting
+# This configures Grafana to use its internal Alertmanager
+delete_contact_points: false
+delete_notification_policies: false
+delete_notification_templates: false
+organizations:
+  - name: Default
+    org_id: 1
+
