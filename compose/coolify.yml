@@ -25,13 +25,8 @@ services:
     networks:
       - edge
       - coolify
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.coolify.rule=Host(`deploy.${DOMAIN}`)"
-      - "traefik.http.routers.coolify.entrypoints=websecure"
-      - "traefik.http.routers.coolify.tls.certresolver=le-dns"
-      - "traefik.http.routers.coolify.middlewares=secure-headers@file"
-      - "traefik.http.services.coolify.loadbalancer.server.port=8000"
+    # Traefik router defined in traefik/dynamic/routers.yml (file provider)
+    # No Docker labels required because Traefik no longer watches the Docker API
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
       interval: 30s
@@ -88,6 +83,9 @@ services:
       retries: 3
 
 networks:
+  edge:
+    external: true
+    name: edge
   coolify:
     name: coolify
     driver: bridge

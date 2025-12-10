@@ -43,10 +43,13 @@ providers:
   file:
     directory: /etc/traefik/dynamic
     watch: true
-  docker:
-    endpoint: tcp://docker-socket-proxy:2375
-    exposedByDefault: false
-    network: edge
+  # Docker provider disabled - all routers use file provider to avoid Docker API version issues
+  # Traefik 3.2.5 uses Docker API 1.24 which is incompatible with Docker Engine 29.0.0+ (requires 1.44+)
+  # All service routers are defined in traefik/dynamic/routers.yml
+  # docker:
+  #   endpoint: tcp://docker-socket-proxy:2375
+  #   exposedByDefault: false
+  #   network: edge
 
 certificatesResolvers:
   le-dns:

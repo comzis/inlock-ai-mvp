@@ -13,13 +13,8 @@ services:
     networks:
       - edge
       - mgmt
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.homarr.rule=Host(`dashboard.${DOMAIN}`)"
-      - "traefik.http.routers.homarr.entrypoints=websecure"
-      - "traefik.http.routers.homarr.tls.certresolver=le-dns"
-      - "traefik.http.routers.homarr.middlewares=secure-headers@file"
-      - "traefik.http.services.homarr.loadbalancer.server.port=7575"
+    # Traefik router defined in traefik/dynamic/routers.yml (file provider)
+    # No Docker labels required because Traefik no longer watches the Docker API
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://localhost:7575"]
       interval: 30s
@@ -30,3 +25,11 @@ volumes:
   homarr_configs:
   homarr_icons:
   homarr_data:
+
+networks:
+  edge:
+    external: true
+    name: edge
+  mgmt:
+    external: true
+    name: mgmt

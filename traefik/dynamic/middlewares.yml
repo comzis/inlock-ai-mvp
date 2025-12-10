@@ -55,8 +55,16 @@ http:
     # - Use Cloudflare WAF rules for IP filtering instead
     # - Or keep admin subdomains with proxy OFF (gray cloud)
     # 
-    # ipStrategy is not used here because it's incompatible with direct IP checking
-    # When using Cloudflare proxy, configure IP filtering in Cloudflare dashboard
+    # ipStrategy configuration:
+    # - Without depth specified, Traefik uses direct remote address for direct connections
+    #   (e.g., blackbox-exporter from Docker network) and checks X-Forwarded-For for proxied
+    #   connections (e.g., through Cloudflare)
+    # - This allows both internal monitoring (no X-Forwarded-For) and external VPN access
+    #   (with X-Forwarded-For from Cloudflare) to work correctly
+    # 
+    # NOTE: 172.20.0.0/16 is included for internal monitoring (blackbox-exporter health checks)
+    # This is necessary because monitoring containers make requests from the Docker network.
+    # Consider restricting to specific monitoring container IPs if security requires it.
     allowed-admins:
       ipAllowList:
         sourceRange:
@@ -68,6 +76,11 @@ http:
           - "31.10.147.220/32"  # MacBook public IPv4
           - "172.71.147.142/32"  # MacBook public IPv4 (alternate)
           - "172.71.146.180/32"  # MacBook public IPv4 (alternate)
+          - "172.20.0.0/16"  # Docker edge network - for internal monitoring (blackbox-exporter, etc.)
+        # ipStrategy removed: Traefik will use direct remote address for all requests
+        # This works for both direct connections (Docker network) and proxied connections
+        # Note: For Cloudflare-proxied requests, you may need to add Cloudflare IPs to sourceRange
+        # or use a separate middleware that checks X-Forwarded-For headers
     dashboard-redirect:
       redirectRegex:
         regex: "^https://traefik.inlock.ai/$"

@@ -30,13 +30,10 @@ services:
     depends_on:
       inlock-db:
         condition: service_healthy
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.inlock-ai.rule=Host(`inlock.ai`) || Host(`www.inlock.ai`)"
-      - "traefik.http.routers.inlock-ai.entrypoints=websecure"
-      - "traefik.http.routers.inlock-ai.middlewares=secure-headers@file"
-      - "traefik.http.routers.inlock-ai.tls.options=default"
-      - "traefik.http.services.inlock-ai.loadbalancer.server.port=3040"
+    # Traefik router defined in traefik/dynamic/routers.yml (file provider)
+    # Docker labels removed to eliminate dependency on Docker provider (avoids API version issues)
+    # Service port configured in traefik/dynamic/services.yml
+    labels: []
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://localhost:3040/api/readiness"]
       interval: 30s

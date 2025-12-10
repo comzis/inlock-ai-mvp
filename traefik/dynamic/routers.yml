@@ -127,11 +127,8 @@ http:
         certResolver: le-dns
     
     # Inlock AI application - Main production route
-    # NOTE: Router is now defined via container labels in compose/inlock-ai.yml
-    # This ensures the domain stays in sync with the service definition
-    # The router below is kept as backup but may be overridden by labels
-    # 
     # Routes inlock.ai and www.inlock.ai to the Inlock AI app using Positive SSL
+    # Docker provider disabled, so router is only defined here (file provider)
     inlock-ai:
       entryPoints:
         - websecure
@@ -141,4 +138,3 @@ http:
       service: inlock-ai
       tls:
         options: default  # Uses Positive SSL certificate
-      priority: 50  # Lower priority allows labels to override if needed

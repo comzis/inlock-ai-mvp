@@ -67,8 +67,8 @@ services:
     environment:
       - CLOUDFLARE_DNS_API_TOKEN=${CLOUDFLARE_API_TOKEN}
       - DOMAIN=${DOMAIN}
-      # Removed DOCKER_API_VERSION - let Traefik auto-negotiate with Docker
-      # Traefik v3.2+ should handle this automatically
+      # Docker provider disabled - all routers use file provider
+      # DOCKER_API_VERSION not needed since Docker provider is commented out
     command:
       - "--configFile=/etc/traefik/traefik.yml"
     ports:
@@ -234,6 +234,14 @@ services:
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:8080/metrics"]
     read_only: true
+    # NOTE: cAdvisor runs in hardened mode (cap_drop: ALL, read_only, no-new-privileges).
+    # This prevents reading /proc/<pid>/smaps for processes in other namespaces, causing
+    # warnings about "failed to get smaps" in logs. These warnings are EXPECTED and
+    # can be safely ignored. Standard container metrics (memory usage, CPU, etc.) still
+    # work correctly. If you need smaps data (per-process RSS/page table breakdown),
+    # you must relax the sandboxing: add pid: host and either privileged: true or
+    # cap_add: [SYS_ADMIN, SYS_PTRACE]. However, keeping it hardened is recommended
+    # for security unless smaps data is specifically required.
     <<: [*hardening, *default-logging, *resource-hints]
 
   prometheus:
