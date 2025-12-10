@@ -1,236 +1,273 @@
-# Secret Management
+# Secret Management & Rotation
 
 ## Overview
 
-All sensitive credentials, certificates, and keys are stored **outside** the Git repository in `/home/comzis/apps/secrets/`. Only `.example` placeholder files are committed to Git.
+This document defines the lifecycle management for all secrets used in the Inlock infrastructure.
 
-## Secret Storage Location
+## Secret Inventory
 
-**Production secrets location:** `/home/comzis/apps/secrets/`
+### Cloudflare
+- **Type:** API Token
+- **Location:** `.env` → `CLOUDFLARE_API_TOKEN`
+- **Rotation Cadence:** Annually or if compromised
+- **Last Rotated:** [Update after rotation]
+- **Access:** Cloudflare Dashboard → My Profile → API Tokens
 
-This directory is:
-- Outside the Git repository
-- Excluded from Git via `.gitignore`
-- Protected with restrictive permissions (600 for files, 700 for directory)
-- Not backed up to Git or public repositories
+### Traefik Basic Auth
+- **Type:** HTTP Basic Auth (htpasswd)
+- **Location:** Docker secret → `traefik-basicauth`
+- **Rotation Cadence:** Quarterly
+- **Last Rotated:** [Update after rotation]
+- **Access:** `scripts/update-traefik-auth.sh` or manual htpasswd update
 
-## Required Secrets
+### Database Credentials
+- **Type:** Postgres username/password
+- **Location:** `.env.production` → `DATABASE_URL`
+- **Rotation Cadence:** Quarterly
+- **Last Rotated:** [Update after rotation]
+- **Access:** `/opt/inlock-ai-secure-mvp/.env.production`
 
-### 1. PositiveSSL Certificate (`positive-ssl.crt`, `positive-ssl.key`)
+### SSL Certificates
+- **Type:** Positive SSL Certificate & Key
+- **Location:** Docker secrets → `positive_ssl_cert`, `positive_ssl_key`
+- **Rotation Cadence:** Annually (cert expires)
+- **Last Rotated:** [Update after rotation]
+- **Access:** Cert provider portal
 
-**Purpose:** TLS certificate for apex domain `inlock.ai`
+### Application Secrets
+- **Type:** NextAuth secret, encryption keys, API keys
+- **Location:** `.env.production`
+- **Rotation Cadence:** Monthly
+- **Last Rotated:** [Update after rotation]
+- **Access:** `/opt/inlock-ai-secure-mvp/.env.production`
 
-**Installation:**
-```bash
-# Copy certificate
-cp /path/to/inlock_ai.crt /home/comzis/apps/secrets/positive-ssl.crt
+## Rotation Procedures
 
-# Copy private key
-cp /path/to/inlock_ai.key /home/comzis/apps/secrets/positive-ssl.key
+### Cloudflare API Token
 
-# Set permissions
-chmod 600 /home/comzis/apps/secrets/positive-ssl.crt
-chmod 600 /home/comzis/apps/secrets/positive-ssl.key
-```
-
-**Verification:**
-```bash
-# Verify key matches certificate
-openssl x509 -noout -modulus -in /home/comzis/apps/secrets/positive-ssl.crt | openssl md5
-openssl rsa -noout -modulus -in /home/comzis/apps/secrets/positive-ssl.key | openssl md5
-# Both should output the same hash
-```
-
-### 2. Traefik Dashboard Authentication (`traefik-dashboard-users.htpasswd`)
-
-**Purpose:** Basic authentication for Traefik dashboard at `traefik.inlock.ai`
-
-**Generation:**
-```bash
-# Generate bcrypt hash (preferred)
-htpasswd -nbB admin YOUR_PASSWORD > /home/comzis/apps/secrets/traefik-dashboard-users.htpasswd
-
-# Or Apache MD5 format (also works with Traefik)
-htpasswd -nbm admin YOUR_PASSWORD > /home/comzis/apps/secrets/traefik-dashboard-users.htpasswd
-
-# Set permissions
-chmod 600 /home/comzis/apps/secrets/traefik-dashboard-users.htpasswd
-```
-
-**Format:** `username:hashed_password` (one per line)
-
-### 3. Portainer Admin Password (`portainer-admin-password`)
-
-**Purpose:** Initial admin password for Portainer (set on first access if not using file)
-
-**Installation:**
-```bash
-echo "YOUR_SECURE_PASSWORD" > /home/comzis/apps/secrets/portainer-admin-password
-chmod 600 /home/comzis/apps/secrets/portainer-admin-password
-```
-
-**Note:** Portainer can also prompt for password on first access. The file is optional.
-
-### 4. n8n Database Password (`n8n-db-password`)
-
-**Purpose:** PostgreSQL password for n8n database user
-
-**Installation:**
-```bash
-echo "YOUR_SECURE_PASSWORD" > /home/comzis/apps/secrets/n8n-db-password
-chmod 600 /home/comzis/apps/secrets/n8n-db-password
-```
-
-**Important:** This password must match the PostgreSQL user password. To reset:
-```bash
-# Read password from secret
-N8N_PASSWORD=$(cat /home/comzis/apps/secrets/n8n-db-password | tr -d '\n\r')
-
-# Reset in Postgres
-docker compose -f compose/postgres.yml --env-file .env exec -T postgres \
-  psql -U n8n -d n8n -c "ALTER USER n8n WITH PASSWORD '$N8N_PASSWORD';"
-```
-
-### 5. n8n Encryption Key (`n8n-encryption-key`)
-
-**Purpose:** Encryption key for n8n workflow data (32+ characters)
-
-**Generation:**
-```bash
-# Generate random 32-character key
-openssl rand -base64 32 > /home/comzis/apps/secrets/n8n-encryption-key
-chmod 600 /home/comzis/apps/secrets/n8n-encryption-key
-```
-
-**Important:** 
-- Must be at least 32 characters
-- Keep this key secure - losing it means encrypted workflow data cannot be decrypted
-- Do not change this key after workflows are created (data will be lost)
-
-## Secret Rotation
-
-### Rotating Passwords
-
-1. **Update secret file:**
+1. **Create new token:**
    ```bash
-   echo "NEW_PASSWORD" > /home/comzis/apps/secrets/SECRET_NAME
-   chmod 600 /home/comzis/apps/secrets/SECRET_NAME
+   # Via Cloudflare Dashboard:
+   # My Profile → API Tokens → Create Token
+   # Permissions: Zone → DNS → Edit, Zone → Zone → Read
    ```
 
-2. **Update service configuration:**
-   - For database passwords: Update both secret file and database user
-   - For application passwords: Restart the service
-
-3. **Restart affected services:**
+2. **Update `.env`:**
    ```bash
-   docker compose -f compose/stack.yml --env-file .env restart SERVICE_NAME
+   cd /home/comzis/inlock-infra
+   # Edit .env: CLOUDFLARE_API_TOKEN=new_token_here
    ```
 
-### Rotating SSL Certificates
-
-1. **Backup current certificate:**
+3. **Verify:**
    ```bash
-   cp /home/comzis/apps/secrets/positive-ssl.crt /home/comzis/apps/secrets/positive-ssl.crt.backup-$(date +%Y%m%d)
-   cp /home/comzis/apps/secrets/positive-ssl.key /home/comzis/apps/secrets/positive-ssl.key.backup-$(date +%Y%m%d)
+   ./scripts/verify-cloudflare-proxy.sh
    ```
 
-2. **Install new certificate:**
+4. **Revoke old token:**
+   - Cloudflare Dashboard → API Tokens → Revoke old token
+
+### Traefik Basic Auth
+
+1. **Generate new password:**
    ```bash
-   cp /path/to/new_cert.crt /home/comzis/apps/secrets/positive-ssl.crt
-   cp /path/to/new_key.key /home/comzis/apps/secrets/positive-ssl.key
-   chmod 600 /home/comzis/apps/secrets/positive-ssl.*
+   htpasswd -nb admin new_password_here | base64
    ```
 
-3. **Verify key matches certificate:**
+2. **Update secret:**
    ```bash
-   openssl x509 -noout -modulus -in /home/comzis/apps/secrets/positive-ssl.crt | openssl md5
-   openssl rsa -noout -modulus -in /home/comzis/apps/secrets/positive-ssl.key | openssl md5
+   cd /home/comzis/inlock-infra
+   echo -n "$HASHED_PASSWORD" | docker secret create traefik-basicauth -
+   ```
+
+3. **Restart Traefik:**
+   ```bash
+   docker compose -f compose/stack.yml --env-file .env up -d traefik
+   ```
+
+4. **Update documentation:**
+   - Update password in secure password manager
+   - Update rotation date in this doc
+
+### Database Credentials
+
+1. **Generate new password:**
+   ```bash
+   openssl rand -base64 32
+   ```
+
+2. **Update database:**
+   ```sql
+   ALTER USER inlock_user WITH PASSWORD 'new_password';
+   ```
+
+3. **Update `.env.production`:**
+   ```bash
+   # Update DATABASE_URL in /opt/inlock-ai-secure-mvp/.env.production
+   ```
+
+4. **Restart application:**
+   ```bash
+   docker compose -f compose/stack.yml --env-file .env up -d inlock-ai
+   ```
+
+### SSL Certificates
+
+1. **Order renewal** (before expiry)
+   - Contact certificate provider
+   - Complete domain validation
+
+2. **Download new certificate and key:**
+   ```bash
+   # Save to secure location
+   ```
+
+3. **Update Docker secrets:**
+   ```bash
+   # Remove old secrets
+   docker secret rm positive_ssl_cert positive_ssl_key
+   
+   # Create new secrets
+   cat new_cert.crt | docker secret create positive_ssl_cert -
+   cat new_key.key | docker secret create positive_ssl_key -
    ```
 
 4. **Restart Traefik:**
    ```bash
-   docker compose -f compose/stack.yml --env-file .env restart traefik
+   docker compose -f compose/stack.yml --env-file .env up -d traefik
    ```
 
-## Security Best Practices
+5. **Verify:**
+   ```bash
+   openssl s_client -connect inlock.ai:443 -servername inlock.ai < /dev/null 2>/dev/null | openssl x509 -noout -dates
+   ```
 
-1. **File Permissions:**
-   - All secret files: `600` (read/write owner only)
-   - Secret directory: `700` (owner access only)
+### Application Secrets
 
-2. **Backup Strategy:**
-   - Do NOT backup secrets to Git
-   - Use encrypted backups (GPG, SOPS, or Vault)
-   - Store backups in secure, separate location
+1. **Generate new secrets:**
+   ```bash
+   # NextAuth secret
+   openssl rand -base64 32
+   
+   # Encryption keys
+   openssl rand -hex 32
+   ```
 
-3. **Access Control:**
-   - Limit access to `/home/comzis/apps/secrets/` to root and service owner only
-   - Use `sudo` for secret management operations
-   - Audit secret access logs regularly
+2. **Update `.env.production`:**
+   ```bash
+   # Edit /opt/inlock-ai-secure-mvp/.env.production
+   # Update NEXTAUTH_SECRET, ENCRYPTION_KEY, etc.
+   ```
 
-4. **Rotation Schedule:**
-   - Passwords: Every 90 days (or per security policy)
-   - SSL Certificates: Before expiration (typically 1 year)
-   - Encryption Keys: Only when compromised (data loss risk)
+3. **Restart application:**
+   ```bash
+   docker compose -f compose/stack.yml --env-file .env up -d inlock-ai
+   ```
 
-## Future: SOPS/Vault Integration
+4. **Verify:**
+   - Test authentication flows
+   - Check application logs
 
-For enhanced security, consider migrating to:
-- **SOPS (Secrets OPerationS):** Encrypted secrets in Git with age/age-key encryption
-- **HashiCorp Vault:** Centralized secret management with dynamic secrets
-- **Cloud Provider Secrets Manager:** AWS Secrets Manager, Azure Key Vault, etc.
+## Rotation Checklist
 
-Migration steps:
-1. Install SOPS/Vault client
-2. Encrypt existing secrets
-3. Update compose files to use SOPS/Vault provider
-4. Document new secret management workflow
+Add to `scripts/deploy-manual.sh` pre-deployment check:
 
-## Troubleshooting
+- [ ] Cloudflare API token valid (not expired)
+- [ ] SSL certificate valid (expiry > 30 days)
+- [ ] Database credentials rotated in last 90 days
+- [ ] Application secrets rotated in last 30 days
+- [ ] Traefik basic auth rotated in last 90 days
 
-### Service Cannot Read Secret
+## Secret Storage Security
 
-**Error:** `permission denied` or `file not found`
+### Current State
+- Secrets stored in plain text files (`.env`, `.env.production`)
+- Docker secrets used for some credentials
+- Files in `/home/comzis/apps/secrets-real`
 
-**Fix:**
+### Recommended Improvements
+
+#### Option 1: SOPS (Secrets Operations)
+
+**Install:**
 ```bash
-# Check file exists
-ls -la /home/comzis/apps/secrets/SECRET_NAME
-
-# Check permissions
-chmod 600 /home/comzis/apps/secrets/SECRET_NAME
-
-# Check compose file references correct path
-grep -r "SECRET_NAME" compose/
+# Download SOPS from https://github.com/getsops/sops/releases
+# Or via package manager
 ```
 
-### Secret File Contains Placeholder
+**Setup:**
+1. Generate GPG key or use AWS KMS / Azure Key Vault
+2. Encrypt `.env` files with SOPS
+3. Update deployment scripts to decrypt before use
 
-**Error:** Service fails with authentication/certificate errors
-
-**Fix:**
-1. Verify secret file contains real data (not placeholder)
-2. Check file size (placeholders are usually < 200 bytes)
-3. Reinstall secret following installation instructions above
-
-### Database Password Mismatch
-
-**Error:** `password authentication failed for user`
-
-**Fix:**
+**Usage:**
 ```bash
-# Reset password in database to match secret file
-N8N_PASSWORD=$(cat /home/comzis/apps/secrets/n8n-db-password | tr -d '\n\r')
-docker compose -f compose/postgres.yml --env-file .env exec -T postgres \
-  psql -U n8n -d n8n -c "ALTER USER n8n WITH PASSWORD '$N8N_PASSWORD';"
+# Encrypt
+sops -e -i .env
+
+# Decrypt for use
+sops -d .env > .env.decrypted
 ```
 
-## References
+#### Option 2: Docker Secrets with Automated Rotation
 
-- [Docker Secrets Documentation](https://docs.docker.com/engine/swarm/secrets/)
-- [Traefik Basic Auth](https://doc.traefik.io/traefik/middlewares/http/basicauth/)
-- [n8n Security](https://docs.n8n.io/security/)
-- [Portainer Security](https://docs.portainer.io/start/install/server/security)
+**Enhancement:**
+- Generate secrets at deploy time from secure vault
+- Use `docker secret create` with expiration dates
+- Automate rotation via cron + scripts
 
+#### Option 3: HashiCorp Vault (Enterprise)
 
+**Setup:**
+- Deploy Vault in secure network
+- Use AppRole authentication
+- Fetch secrets at container startup
+- Secrets never stored on disk
 
+### Migration Plan
+
+1. **Phase 1 (Immediate):**
+   - Document all secret locations
+   - Implement rotation cadence
+   - Add verification scripts
+
+2. **Phase 2 (Next Quarter):**
+   - Migrate to SOPS for `.env` files
+   - Move secrets to encrypted storage
+   - Update deployment scripts
+
+3. **Phase 3 (Future):**
+   - Evaluate Vault integration
+   - Implement automated rotation
+   - Add secret scanning in CI
+
+## Audit & Compliance
+
+### Secret Age Monitoring
+
+Run monthly audit:
+```bash
+./scripts/audit-secrets.sh
+```
+
+Checks:
+- Secret file modification dates
+- Certificate expiry dates
+- Credential age vs. rotation cadence
+
+### Access Logging
+
+- Log all secret access (who, when, what)
+- Monitor for unauthorized access
+- Alert on suspicious patterns
+
+### Compliance Notes
+
+- **GDPR:** Ensure secrets handling complies with data protection
+- **SOC 2:** Document secret management procedures
+- **PCI DSS:** If handling payment data, use FIPS 140-2 validated encryption
+
+---
+
+**Last Updated:** December 10, 2025  
+**Next Review:** January 10, 2026  
+**Related:** `docs/CLOUDFLARE-IP-ALLOWLIST.md`, `scripts/deploy-manual.sh`

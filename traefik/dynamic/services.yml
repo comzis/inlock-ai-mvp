@@ -1,9 +1,6 @@
 http:
   services:
-    homepage:
-      loadBalancer:
-        servers:
-          - url: http://homepage:80
+    # Homepage service removed - replaced by inlock-ai
     portainer:
       loadBalancer:
         servers:

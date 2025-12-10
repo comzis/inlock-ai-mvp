@@ -72,7 +72,8 @@ services:
     ports:
       - "80:80"
       - "443:443"
-      - "9100:9100"
+      # Metrics port only exposed to mgmt network, not public
+      - "127.0.0.1:9100:9100"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ../traefik/traefik.yml:/etc/traefik/traefik.yml:ro
@@ -135,26 +136,9 @@ services:
       - ALL
     <<: [*default-logging]
 
-  homepage:
-    image: nginx@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10
-    restart: always
-    volumes:
-      - /var/www/homepage:/usr/share/nginx/html:ro
-    networks:
-      - edge
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.homepage.rule=Host(``) || Host(`www.`)"
-      - "traefik.http.routers.homepage.entrypoints=websecure"
-      - "traefik.http.routers.homepage.tls.certresolver=le-tls"
-      - "traefik.http.routers.homepage.middlewares=secure-headers@file"
-      - "traefik.http.services.homepage.loadbalancer.server.port=80"
-    healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-    <<: [*default-logging]
+  # Homepage service REMOVED - Replaced by Inlock AI application
+  # The Inlock AI app now serves the main domain via Traefik router in routers.yml
+  # This prevents maintaining an unused nginx service with stale volumes
 
   portainer:
     image: portainer/portainer-ce@sha256:c2353b2bd0dbfaa33faa8895222732e8823a4cf5b57ea664ba631ec3e23d842b

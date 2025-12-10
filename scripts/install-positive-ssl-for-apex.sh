@@ -101,3 +101,4 @@ echo "3. Verify no certificate errors in Traefik logs"
 
 
 
+

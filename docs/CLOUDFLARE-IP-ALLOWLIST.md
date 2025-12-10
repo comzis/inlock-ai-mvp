@@ -1,145 +1,141 @@
-# Cloudflare IP Allowlist Configuration
+# Cloudflare IP Allowlist Strategy
 
 ## Overview
 
-When accessing services through Cloudflare proxy, Traefik sees Cloudflare's IP addresses, not your actual client IP. To make IP allowlists work correctly, Traefik must be configured to trust `X-Forwarded-For` headers from Cloudflare.
+When Cloudflare proxy is **ON** (orange cloud), Traefik sees Cloudflare IPs in `X-Forwarded-For`, not real client IPs. This breaks direct IP allowlisting.
 
-## Configuration
+## Strategy Options
 
-### 1. Traefik EntryPoint Configuration
+### Option 1: Gray Cloud (Recommended for Admin Services)
 
-In `traefik/traefik.yml`, the `websecure` entrypoint is configured to trust `X-Forwarded-For` headers from Cloudflare IP ranges:
+**When:** You want Traefik to enforce IP allowlisting directly.
 
-```yaml
-websecure:
-  address: :443
-  http:
-    tls:
-      options: default
-    forwardedHeaders:
-      trustedIPs:
-        # Cloudflare IPv4 ranges
-        - "173.245.48.0/20"
-        - "103.21.244.0/22"
-        # ... (see traefik.yml for complete list)
-        # Cloudflare IPv6 ranges
-        - "2400:cb00::/32"
-        - "2606:4700::/32"
-        # ... (see traefik.yml for complete list)
+**How:**
+1. Set DNS records to "DNS only" (gray cloud) in Cloudflare dashboard
+2. Traefik sees real client IPs directly
+3. IP allowlist in `middlewares.yml` works as expected
+
+**Pros:**
+- Simple: Direct IP checking works
+- No Cloudflare WAF needed
+- Full control at Traefik level
+
+**Cons:**
+- No Cloudflare DDoS protection for admin services
+- Real server IP exposed (use Tailscale for admin access)
+
+**Verification:**
+```bash
+./scripts/verify-cloudflare-proxy.sh
 ```
 
-### 2. IP Allowlist Middleware
+### Option 2: Orange Cloud + Cloudflare WAF
 
-The `allowed-admins` middleware in `traefik/dynamic/middlewares.yml` checks the `X-Forwarded-For` header (when behind a trusted proxy) for the real client IP:
+**When:** You want Cloudflare's DDoS protection and WAF.
 
+**How:**
+1. Keep DNS records proxied (orange cloud)
+2. Use Cloudflare Firewall Rules or Access for IP filtering
+3. Remove IP allowlist from Traefik (or use for additional defense-in-depth)
+
+**Pros:**
+- Cloudflare DDoS protection active
+- WAF rules available
+- Hides origin IP
+
+**Cons:**
+- Requires Cloudflare dashboard configuration
+- Less direct control at Traefik level
+
+**Setup:**
+1. Cloudflare Dashboard → Security → WAF
+2. Create firewall rule: `(ip.src in {100.83.222.69 100.96.110.8 ...}) and (http.host eq "traefik.inlock.ai")`
+3. Action: Allow, or use Access for MFA
+
+### Option 3: Orange Cloud + ipStrategy (Advanced)
+
+**When:** You must keep proxy ON but still want Traefik IP checking.
+
+**How:**
+1. Keep DNS records proxied (orange cloud)
+2. Configure Traefik `ipStrategy` with Cloudflare CIDRs
+3. Use `X-Forwarded-For` header depth to extract real client IP
+
+**Pros:**
+- Cloudflare protection + Traefik IP checking
+- Defense-in-depth
+
+**Cons:**
+- Complex configuration
+- Must maintain Cloudflare CIDR list
+- `X-Forwarded-For` can be spoofed (but Cloudflare validates it)
+
+**Setup:**
+
+Get Cloudflare CIDRs:
+```bash
+./scripts/get-cloudflare-cidrs.sh
+```
+
+Update `traefik/dynamic/middlewares.yml`:
 ```yaml
 allowed-admins:
   ipAllowList:
     sourceRange:
-      - "100.83.222.69/32"  # Device 1 - Tailscale IP
-      - "100.96.110.8/32"   # Device 2 - Tailscale IP
+      - "100.83.222.69/32"  # Your Tailscale IPs
+      - "100.96.110.8/32"
+      # ... other allowed IPs ...
+  ipStrategy:
+    depth: 1  # Use first IP in X-Forwarded-For (Cloudflare adds real IP)
+    excludedIPs:
+      # Add Cloudflare IPv4 ranges (fetch via get-cloudflare-cidrs.sh)
+      - "173.245.48.0/20"
+      - "103.21.244.0/22"
+      # ... all Cloudflare CIDRs ...
 ```
 
-## How It Works
+**Security Note:** This relies on `X-Forwarded-For` header. While Cloudflare validates it, this is less secure than direct IP checking. Prefer Option 1 or 2.
 
-1. **Request Flow:**
-   ```
-   Your Browser (Tailscale IP: 100.83.222.69)
-   → Cloudflare (adds X-Forwarded-For: 100.83.222.69)
-   → Traefik (sees Cloudflare IP, but trusts X-Forwarded-For)
-   → IP Allowlist checks X-Forwarded-For header
-   → Access allowed ✅
-   ```
+## Current Configuration
 
-2. **Without Trust Configuration:**
-   - Traefik sees Cloudflare IP (not in allowlist)
-   - Access denied ❌
+**Admin Subdomains:**
+- `traefik.inlock.ai`
+- `portainer.inlock.ai`
+- `n8n.inlock.ai`
+- `grafana.inlock.ai`
+- `deploy.inlock.ai`
 
-3. **With Trust Configuration:**
-   - Traefik trusts X-Forwarded-For from Cloudflare
-   - IP allowlist checks X-Forwarded-For (your Tailscale IP)
-   - Access allowed ✅
+**Recommendation:** Keep these **gray-clouded** (DNS only) for direct IP allowlisting.
 
-## Adding New IPs
+**Public Subdomains:**
+- `inlock.ai` / `www.inlock.ai` - Can be proxied (orange cloud) for DDoS protection
 
-To allow additional Tailscale IPs:
+## Verification
 
-1. Get your Tailscale IP:
-   ```bash
-   tailscale ip -4
-   ```
-
-2. Edit `traefik/dynamic/middlewares.yml`:
-   ```yaml
-   allowed-admins:
-     ipAllowList:
-       sourceRange:
-         - "100.83.222.69/32"  # Existing IP
-         - "100.96.110.8/32"    # Existing IP
-         - "YOUR_NEW_IP/32"     # Add your IP here
-   ```
-
-3. Restart Traefik:
-   ```bash
-   docker compose -f compose/stack.yml --env-file .env restart traefik
-   ```
-
-## Cloudflare IP Ranges
-
-Cloudflare publishes their IP ranges at:
-- https://www.cloudflare.com/ips/
-- IPv4: https://www.cloudflare.com/ips-v4
-- IPv6: https://www.cloudflare.com/ips-v6
-
-These ranges are updated periodically. The configuration in `traefik.yml` includes the major ranges as of 2024.
-
-## Testing
-
-Test from a Tailscale-connected device:
-
+Run the verification script to check proxy status:
 ```bash
-# Test Traefik Dashboard
-curl -k -u "admin:YOUR_PASSWORD" https://traefik.inlock.ai/dashboard/
-
-# Test Portainer
-curl -k https://portainer.inlock.ai
+cd /home/comzis/inlock-infra
+./scripts/verify-cloudflare-proxy.sh
 ```
 
-Both should return content (not 403) when accessed from an allowed Tailscale IP.
+Add to cron or CI to catch accidental proxy changes:
+```bash
+# Check daily at 3 AM
+0 3 * * * /home/comzis/inlock-infra/scripts/verify-cloudflare-proxy.sh >> /var/log/cloudflare-check.log 2>&1
+```
 
 ## Troubleshooting
 
-**If you get 403 Forbidden:**
+**Issue:** IP allowlist not working on proxied domains
+- **Cause:** Traefik sees Cloudflare IPs, not real client IPs
+- **Fix:** Gray-cloud the DNS record or use Cloudflare WAF
 
-1. Verify your Tailscale IP:
-   ```bash
-   tailscale ip -4
-   ```
+**Issue:** Can't access admin services from allowed IP
+- **Check:** Run `./scripts/verify-cloudflare-proxy.sh`
+- **Check:** Verify IP in `middlewares.yml` sourceRange
+- **Check:** Cloudflare firewall rules if using Option 2
 
-2. Check if IP is in allowlist:
-   ```bash
-   grep -A 5 "allowed-admins:" traefik/dynamic/middlewares.yml
-   ```
+---
 
-3. Verify Cloudflare proxy is enabled:
-   - Check Cloudflare dashboard
-   - DNS record should have orange cloud (proxied)
-
-4. Check Traefik logs:
-   ```bash
-   docker compose -f compose/stack.yml --env-file .env logs traefik | grep -i "forwarded\|403"
-   ```
-
-**If X-Forwarded-For is not working:**
-
-- Verify Cloudflare proxy is enabled (orange cloud in DNS)
-- Check Traefik configuration has `forwardedHeaders.trustedIPs` set
-- Ensure Cloudflare IP ranges are up to date
-
-## Security Notes
-
-- Only Cloudflare IP ranges are trusted for X-Forwarded-For
-- Direct connections (bypassing Cloudflare) will use direct client IP
-- IP allowlist uses `/32` (single IP) for maximum security
-- Consider adding additional security layers (2FA, VPN-only access)
-
+**Last Updated:** December 10, 2025  
+**Related:** `docs/SECRET-MANAGEMENT.md`, `traefik/dynamic/middlewares.yml`

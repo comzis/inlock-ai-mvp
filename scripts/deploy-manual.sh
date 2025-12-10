@@ -18,14 +18,42 @@ echo ""
 # Check prerequisites
 ENV_FILE=".env"
 if [ ! -f "$ENV_FILE" ]; then
-  if [ -f "env.example" ]; then
-    echo "⚠️  .env not found, using env.example"
-    ENV_FILE="env.example"
-  else
-    echo "❌ No .env or env.example found"
-    exit 1
+  echo "❌ ERROR: .env file not found at $ENV_FILE"
+  echo ""
+  echo "   The deployment script requires a valid .env file with:"
+  echo "   - DOMAIN variable"
+  echo "   - CLOUDFLARE_API_TOKEN"
+  echo "   - All required secrets"
+  echo ""
+  echo "   Do NOT use env.example for production deployments!"
+  echo "   Create .env from env.example and fill in real values."
+  echo ""
+  exit 1
+fi
+
+# Pre-deployment security checks
+echo "🔒 Running pre-deployment security checks..."
+echo ""
+
+# Check secret rotation status (non-blocking warnings)
+if [ -f "$SCRIPT_DIR/audit-secrets.sh" ]; then
+  SECRET_WARNINGS=$(bash "$SCRIPT_DIR/audit-secrets.sh" 2>&1 | grep -c "WARNING" || echo "0")
+  if [ "$SECRET_WARNINGS" -gt 0 ]; then
+    echo "⚠️  WARNING: Some secrets may need rotation"
+    echo "   Review: docs/SECRET-MANAGEMENT.md"
+    echo "   Run: ./scripts/audit-secrets.sh"
+    echo ""
+    read -p "Continue with deployment? (y/N) " -n 1 -r
+    echo ""
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+      echo "Deployment cancelled."
+      exit 1
+    fi
   fi
 fi
+
+echo "✅ Security checks passed"
+echo ""
 
 # Step 1: Firewall
 echo "STEP 1: Configuring firewall..."

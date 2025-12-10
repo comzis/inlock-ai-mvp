@@ -85,6 +85,7 @@ sudo ./scripts/apply-firewall-manual.sh
 - **[DevOps Guide](docs/devops.md)** - DevOps practices and procedures
 - **[Cloudflare Setup](docs/CLOUDFLARE-ACME-SETUP.md)** - Cloudflare DNS and ACME configuration
 - **[Cloudflare IP Allowlist](docs/CLOUDFLARE-IP-ALLOWLIST.md)** - Cloudflare IP restrictions
+- **[Node.js Docker-Only Setup](docs/NODE-JS-DOCKER-ONLY.md)** - Using Docker exclusively for Node.js (recommended)
 
 ### Git & Publishing
 
@@ -261,7 +262,7 @@ docker compose -f compose/stack.yml --env-file .env logs -f inlock-ai
 ### Automation / Regression
 
 **Application-Level Scripts** (in `/opt/inlock-ai-secure-mvp/`):
-- **Regression suite**: `scripts/regression-check.sh` - Runs lint, tests, and build
+- **Regression suite**: `scripts/regression-check.sh` - Runs lint, tests, and build (uses Docker by default)
 - **Pre-deploy checks**: `scripts/pre-deploy.sh` - Validates readiness before deployment
 
 **Infrastructure-Level Scripts** (in `/home/comzis/inlock-infra/scripts/`):

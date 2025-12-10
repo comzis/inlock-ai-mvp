@@ -23,23 +23,28 @@ http:
       rateLimit:
         average: 50
         burst: 100
-    # IP allowlist for admin services (Traefik dashboard, Portainer, n8n, Cockpit)
-    # Only Tailscale VPN IPs and allowed public IPs are allowed
-    # To test access control: scripts/test-access-control.sh
-    # To update IPs: scripts/update-allowlists.sh
+    # IP allowlist for admin services (Traefik dashboard, Portainer, n8n, etc.)
     # 
-    # Temporarily removed ipStrategy to test direct IP check
-    # If direct check works, we'll re-add ipStrategy for Cloudflare support
+    # SECURITY NOTE: This only works if Cloudflare proxy is OFF (gray cloud)
+    # If Cloudflare proxy is ON, Traefik sees Cloudflare IPs, not real client IPs
+    # 
+    # For production with Cloudflare proxy ON:
+    # - Use Cloudflare WAF rules for IP filtering instead
+    # - Or keep admin subdomains with proxy OFF (gray cloud)
+    # 
+    # ipStrategy is not used here because it's incompatible with direct IP checking
+    # When using Cloudflare proxy, configure IP filtering in Cloudflare dashboard
     allowed-admins:
       ipAllowList:
         sourceRange:
           - "100.83.222.69/32"  # Device 1 - Tailscale IP (Server)
           - "100.96.110.8/32"   # Device 2 - Tailscale IP (MacBook)
-          - "156.67.29.52/32"   # Server public IP (for testing from server)
+          # REMOVED: Server's own public IP - containers should use Tailscale for admin access
+          # Keeping it allows container breakouts to access admin services without VPN
           - "2a09:bac3:1e53:2664::3d3:2f/128"  # MacBook public IPv6
-          - "31.10.147.220/32"  # MacBook public IPv4 (from logs)
-          - "172.71.147.142/32"  # MacBook public IPv4 (from logs)
-          - "172.71.146.180/32"  # MacBook public IPv4 (from logs)
+          - "31.10.147.220/32"  # MacBook public IPv4
+          - "172.71.147.142/32"  # MacBook public IPv4 (alternate)
+          - "172.71.146.180/32"  # MacBook public IPv4 (alternate)
     dashboard-redirect:
       redirectRegex:
         regex: "^https://traefik.inlock.ai/$"

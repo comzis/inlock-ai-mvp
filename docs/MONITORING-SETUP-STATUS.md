@@ -65,3 +65,4 @@ curl -X POST http://localhost:9090/-/reload
 1. Connect Alertmanager to Slack/email/PagerDuty.
 2. Add dashboards for PostgreSQL, n8n, and Traefik internals.
 3. Extend blackbox probes to additional customer-facing routes if needed.
+

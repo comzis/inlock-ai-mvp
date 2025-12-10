@@ -25,18 +25,18 @@ services:
     command:
       - "-config.file=/etc/promtail/config.yml"
     volumes:
-      - /var/log:/var/log:ro
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./logging/promtail-config.yaml:/etc/promtail/config.yml:ro
-      - ../logs/promtail-positions:/tmp/promtail
+    tmpfs:
+      - /tmp/promtail:rw,noexec,nosuid,size=100m
     networks:
       - mgmt
     healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9080/ready"]
+      test: ["CMD-SHELL", "test -d /tmp/promtail && echo 'OK' || exit 1"]
       interval: 30s
       timeout: 5s
       retries: 3
+      start_period: 15s
     security_opt:
       - no-new-privileges:true
     cap_drop:

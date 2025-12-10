@@ -23,12 +23,20 @@ services:
     restart: always
     env_file:
       - /opt/inlock-ai-secure-mvp/.env.production
+      - ../.env
     networks:
       - edge
       - internal
     depends_on:
       inlock-db:
         condition: service_healthy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.inlock-ai.rule=Host(`inlock.ai`) || Host(`www.inlock.ai`)"
+      - "traefik.http.routers.inlock-ai.entrypoints=websecure"
+      - "traefik.http.routers.inlock-ai.middlewares=secure-headers@file"
+      - "traefik.http.routers.inlock-ai.tls.options=default"
+      - "traefik.http.services.inlock-ai.loadbalancer.server.port=3040"
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://localhost:3040/api/readiness"]
       interval: 30s
