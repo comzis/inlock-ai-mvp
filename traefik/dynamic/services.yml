@@ -25,3 +25,7 @@ http:
       loadBalancer:
         servers:
           - url: http://inlock-ai:3040
+    oauth2-proxy:
+      loadBalancer:
+        servers:
+          - url: http://oauth2-proxy:4180

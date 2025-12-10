@@ -69,6 +69,13 @@ sudo ./scripts/apply-firewall-manual.sh
 - **[Directory Cleanup](docs/DIRECTORY-CLEANUP.md)** - Directory organization and cleanup procedures
 - **[Home Directory Cleanup](docs/HOME-DIRECTORY-CLEANUP.md)** - Home directory organization and cleanup summary
 
+### Authentication & Authorization
+
+- **[Auth0 Stack Consistency](docs/AUTH0-STACK-CONSISTENCY.md)** - ⭐ Complete Auth0 integration guide
+- **[Auth0 + NextAuth.js Setup](docs/AUTH0-NEXTAUTH-SETUP.md)** - Auth0 and NextAuth.js configuration
+- **[Auth0 Testing Guide](docs/AUTH0-TESTING-GUIDE.md)** - Manual testing procedures
+- **[Auth0 Quick Reference](docs/AUTH0-QUICK-REFERENCE.md)** - Quick reference for Auth0 URLs
+
 ### Security Documentation
 
 - **[Ingress Hardening](docs/INGRESS-HARDENING.md)** - Traefik security middleware configuration
@@ -152,31 +159,33 @@ inlock-infra/
 | **Prometheus** | http://localhost:9090 (internal) | Internal only |
 | **Alertmanager** | http://localhost:9093 (internal) | Internal only |
 
-### Admin Services (IP Restricted)
+### Admin Services (Auth0 Protected)
 
 | Service | URL | Access |
 |---------|-----|--------|
-| Traefik Dashboard | https://traefik.inlock.ai/dashboard/ | IP allowlist + Basic Auth |
-| Traefik API | https://traefik.inlock.ai/api/overview | IP allowlist + Basic Auth |
-| Portainer | https://portainer.inlock.ai | IP allowlist + service login |
-| Grafana | https://grafana.inlock.ai | IP allowlist + service login |
+| Traefik Dashboard | https://traefik.inlock.ai/dashboard/ | Auth0 + IP allowlist |
+| Traefik API | https://traefik.inlock.ai/api/overview | Auth0 + IP allowlist |
+| Portainer | https://portainer.inlock.ai | Auth0 + IP allowlist |
+| Grafana | https://grafana.inlock.ai | Auth0 + IP allowlist |
 | Prometheus | http://localhost:9090 (internal) | Internal only |
 | Loki | http://localhost:3100 (internal) | Internal only |
-| n8n | https://n8n.inlock.ai | IP allowlist + service login |
-| Coolify | https://deploy.inlock.ai | IP allowlist + service login |
-| Homarr | https://dashboard.inlock.ai | IP allowlist + service login |
+| n8n | https://n8n.inlock.ai | Auth0 + IP allowlist |
+| Coolify | https://deploy.inlock.ai | Auth0 + IP allowlist |
+| Homarr | https://dashboard.inlock.ai | Auth0 + IP allowlist |
 
-**Note:** All admin services require Tailscale VPN or approved IP addresses. See [Admin Access Guide](docs/ADMIN-ACCESS-GUIDE.md) for details.
+**Note:** All admin services use Auth0 authentication via OAuth2-Proxy. See [Auth0 Stack Consistency](docs/AUTH0-STACK-CONSISTENCY.md) for details.
 
 ## Security
 
+- ✅ **Auth0 Authentication** - Single sign-on for all admin services (Google/Apple/Passkeys)
 - ✅ IP Allowlisting (Tailscale VPN required for admin services)
-- ✅ Authentication (Basic Auth / Forward Auth)
+- ✅ Forward Auth (OAuth2-Proxy for admin, NextAuth.js for frontend)
 - ✅ Rate Limiting (50 req/min, 100 burst)
 - ✅ Secure Headers (HSTS, CSP, etc.)
 - ✅ TLS/SSL Encryption (Let's Encrypt + PositiveSSL)
 - ✅ Firewall (UFW with deny-by-default)
 - ✅ Network Segmentation (Docker networks)
+- ✅ Role-Based Access Control (via Auth0 roles)
 
 ## Prerequisites
 

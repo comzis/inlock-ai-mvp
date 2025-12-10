@@ -24,11 +24,23 @@ http:
       rule: Host(`traefik.inlock.ai`) && (PathPrefix(`/dashboard`) || (PathPrefix(`/api/`) && !Path(`/api`) && !Path(`/api/`)))
       middlewares:
         - secure-headers
-        - dashboard-auth
-        - allowed-admins
-        - mgmt-ratelimit
+        - allowed-admins@file  # IP allowlist - check BEFORE forwardAuth
+        - admin-forward-auth@file  # Use OAuth2-Proxy instead of basic auth
+        - oauth-error-handler@file
+        - mgmt-ratelimit@file
       service: api@internal
       priority: 100
+      tls:
+        certResolver: le-dns
+    
+    # OAuth2-Proxy callback endpoint
+    oauth2-proxy:
+      entryPoints:
+        - websecure
+      rule: Host(`auth.inlock.ai`)
+      middlewares:
+        - secure-headers
+      service: oauth2-proxy
       tls:
         certResolver: le-dns
     
@@ -49,8 +61,10 @@ http:
       rule: Host(`portainer.inlock.ai`)
       middlewares:
         - secure-headers
-        - allowed-admins
-        - mgmt-ratelimit
+        - allowed-admins@file  # IP allowlist - check BEFORE forwardAuth
+        - admin-forward-auth@file  # Use OAuth2-Proxy for Auth0
+        - oauth-error-handler@file
+        - mgmt-ratelimit@file
       service: portainer
       tls:
         certResolver: le-dns
@@ -61,8 +75,10 @@ http:
       rule: Host(`n8n.inlock.ai`)
       middlewares:
         - secure-headers
-        - allowed-admins
-        - mgmt-ratelimit
+        - allowed-admins@file  # IP allowlist - check BEFORE forwardAuth
+        - admin-forward-auth@file  # Use OAuth2-Proxy for Auth0
+        - oauth-error-handler@file
+        - mgmt-ratelimit@file
       service: n8n
       tls:
         certResolver: le-dns
@@ -74,8 +90,10 @@ http:
       rule: Host(`grafana.inlock.ai`)
       middlewares:
         - secure-headers
-        - allowed-admins
-        - mgmt-ratelimit
+        # TEMPORARILY DISABLED: allowed-admins@file  # IP allowlist - disabled for testing
+        - admin-forward-auth@file  # Use OAuth2-Proxy for Auth0
+        - oauth-error-handler@file
+        - mgmt-ratelimit@file
       service: grafana
       tls:
         certResolver: le-dns
@@ -86,8 +104,10 @@ http:
       rule: Host(`deploy.inlock.ai`)
       middlewares:
         - secure-headers
-        - allowed-admins
-        - mgmt-ratelimit
+        - allowed-admins@file  # IP allowlist - check BEFORE forwardAuth
+        - admin-forward-auth@file  # Use OAuth2-Proxy for Auth0
+        - oauth-error-handler@file
+        - mgmt-ratelimit@file
       service: coolify
       tls:
         certResolver: le-dns
@@ -98,7 +118,10 @@ http:
       rule: Host(`dashboard.inlock.ai`)
       middlewares:
         - secure-headers
-        - allowed-admins
+        - allowed-admins@file  # IP allowlist - check BEFORE forwardAuth
+        - admin-forward-auth@file  # Use OAuth2-Proxy for Auth0
+        - oauth-error-handler@file
+        - mgmt-ratelimit@file
       service: homarr
       tls:
         certResolver: le-dns

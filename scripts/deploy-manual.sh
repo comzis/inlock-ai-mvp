@@ -55,6 +55,17 @@ fi
 echo "✅ Security checks passed"
 echo ""
 
+# Step 0.5: Fetch secrets from Vault (if configured)
+if [ -f "$SCRIPT_DIR/fetch-vault-secrets.sh" ]; then
+  echo "🔐 Fetching secrets from Vault..."
+  if bash "$SCRIPT_DIR/fetch-vault-secrets.sh" 2>&1 | grep -q "✅"; then
+    echo "✅ Secrets fetched from Vault"
+  else
+    echo "⚠️  Vault secrets not configured or unavailable, using .env file values"
+  fi
+  echo ""
+fi
+
 # Step 1: Firewall
 echo "STEP 1: Configuring firewall..."
 if [ "$EUID" -eq 0 ]; then

@@ -10,15 +10,38 @@ http:
         referrerPolicy: no-referrer-when-downgrade
         frameDeny: true
         permissionsPolicy: "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()"
-    dashboard-auth:
-      basicAuth:
-        usersFile: /run/secrets/traefik-basicauth
-    portainer-auth:
+    # OAuth2-Proxy forward auth for admin services
+    # Routes unauthenticated users to Auth0 login
+    # All admin services (Traefik, Portainer, Grafana, n8n, Coolify, Homarr) use this
+    # 
+    # IMPORTANT: Use the INTERNAL service URL (http://oauth2-proxy:4180/oauth2/auth)
+    # Using the public URL (https://auth.inlock.ai/oauth2/auth) causes the request
+    # to loop back through Traefik and get blocked by the IP allowlist middleware
+    # before oauth2-proxy ever sees it.
+    # 
+    # NOTE: forwardAuth returns 401 for unauthenticated requests. The error handler
+    # middleware may not catch forwardAuth responses. If browsers still see 401/403,
+    # we may need to use a redirect middleware instead.
+    admin-forward-auth:
       forwardAuth:
-        address: https://auth.inlock.ai/check
+        address: http://oauth2-proxy:4180/oauth2/auth
         trustForwardHeader: true
-        tls:
-          insecureSkipVerify: false
+        authResponseHeaders:
+          - X-Auth-Request-Email
+          - X-Auth-Request-User
+          - X-Auth-Request-Groups
+          - X-Auth-Request-Access-Token
+    # Legacy basic auth - DEPRECATED, use admin-forward-auth instead
+    # dashboard-auth:
+    #   basicAuth:
+    #     usersFile: /run/secrets/traefik-basicauth
+    # Legacy portainer auth - DEPRECATED, use admin-forward-auth instead
+    # portainer-auth:
+    #   forwardAuth:
+    #     address: https://auth.inlock.ai/check
+    #     trustForwardHeader: true
+    #     tls:
+    #       insecureSkipVerify: false
     mgmt-ratelimit:
       rateLimit:
         average: 50
@@ -55,5 +78,20 @@ http:
         regex: "^https://traefik.inlock.ai/api/?$"
         replacement: "https://traefik.inlock.ai/api/overview"
         permanent: false
+    # Redirect to oauth2-proxy start (for unauthenticated users)
+    redirect-to-oauth:
+      redirectRegex:
+        regex: "^https://grafana.inlock.ai(/.*)?$"
+        replacement: "https://auth.inlock.ai/oauth2/start?rd=https://grafana.inlock.ai${1}"
+        permanent: false
+    # Error handler to redirect 401/403 to oauth2-proxy sign-in
+    # Note: Error handler middleware only catches backend service errors, not forwardAuth responses
+    # This may not work for forwardAuth 401 responses - keeping as fallback
+    oauth-error-handler:
+      errors:
+        status:
+          - "401-403"
+        service: oauth2-proxy@file
+        query: "/oauth2/start"
 
 
