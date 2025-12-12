@@ -321,7 +321,11 @@ See [Automation Scripts](docs/AUTOMATION-SCRIPTS.md) for detailed usage.
 - **Blackbox Exporter**: Synthetic HTTP + TCP probes for public routes and internal services
 - **Grafana**: Visualization and dashboards
   - Auto-provisioned datasources: Prometheus, Loki
-  - Dashboard: `grafana/dashboards/inlock-observability.json` (includes host + probe panels)
+  - Dashboards:
+    - `grafana/dashboards/observability/inlock-observability.json` – host fundamentals + synthetic probes
+    - `grafana/dashboards/devops/devops-platform.json` – Traefik, Portainer, Grafana, n8n, Coolify, Homarr status and capacity
+    - `grafana/dashboards/devops/inlock-web.json` – inlock.ai HTTPS probe, visits/req per second, response time, 4xx/5xx error rates
+    - `grafana/dashboards/postgres/postgres-overview.json` – PostgreSQL connections, database size, cache hit ratio, BGWriter metrics
   - Access: https://grafana.inlock.ai (IP restricted)
 - **Loki & Promtail**: Centralized log aggregation
   - Configuration: `compose/logging/loki-config.yaml`, `compose/logging/promtail-config.yaml`
@@ -342,12 +346,18 @@ Configured alerts in Prometheus:
 - `NodeLoadHigh` - Sustained load average per core > 1.5
 - `ExternalHTTPProbeFailed` - Public routes failing HTTP probe
 - `ServiceTCPProbeFailed` - Internal service port unreachable
+- `TraefikContainerDown` - Traefik container not reporting metrics
+- `AdminServiceContainerDown` - Grafana/Portainer/n8n/Coolify/Homarr container missing
+- `AdminHttpProbeFailed` - Grafana/n8n/Coolify/Homarr HTTPS probe failing
+- `TraefikHighErrorRate` - 5xx responses > 2% across entrypoints
+- `PostgreSQL` metrics exposed via `postgres-exporter` for dashboards (connections, cache hit, BGWriter)
 
 ### Documentation
 
 - **[Monitoring Guide](docs/monitoring.md)** - Setup and usage
 - **[Monitoring Setup Status](docs/MONITORING-SETUP-STATUS.md)** - Current status
 - **[Observability Backups](docs/OBSERVABILITY-BACKUPS.md)** - Backup strategies
+- **Alert Automation** – Alertmanager forwards warning/critical alerts to `http://n8n:5678/webhook/alertmanager` for workflow notifications (customize in `compose/alertmanager/alertmanager.yml`)
 
 ## Security Notes
 

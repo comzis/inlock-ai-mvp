@@ -6,7 +6,7 @@ Guide for publishing the Inlock AI codebase to Git repositories.
 
 ### Application Repository
 **Location:** `/opt/inlock-ai-secure-mvp`  
-**Remote:** `https://github.com/comzis/streamart-ai-secure-mvp.git`  
+**Remote:** `https://github.com/comzis/inlock-ai.git`  
 **Branch:** `main`
 
 ### Infrastructure Repository
@@ -78,7 +78,7 @@ git push -u origin main
 If you want to rename or update the repository:
 
 **Option 1: Keep existing repo, update description**
-- Repository: `streamart-ai-secure-mvp`
+- Repository: `inlock-ai`
 - Update description to "Inlock AI - Secure AI Consulting Platform"
 - Update repository topics/tags
 

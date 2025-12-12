@@ -23,6 +23,7 @@ ADMIN_SERVICES=(
     "n8n"
     "coolify"
     "homarr"
+    "cockpit"
 )
 
 echo "Checking admin services for admin-forward-auth middleware..."
@@ -94,4 +95,3 @@ else
     echo "See docs/AUTH0-STACK-CONSISTENCY.md for guidance"
     exit 1
 fi
-

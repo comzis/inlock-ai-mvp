@@ -144,7 +144,29 @@ include:
 cd /opt/inlock-ai-secure-mvp
 ```
 
-### 3.2 Build the Image
+### 3.2 Run Pre-Build Validation
+
+Before building the image, run the automated lint/typecheck/build script to ensure the workspace is clean:
+
+```bash
+./scripts/pre-build.sh
+```
+
+This script:
+- Disables Next.js telemetry during the run (avoids trace file permission issues)
+- Runs ESLint with `--no-cache`
+- Runs TypeScript checks
+- Runs a full `next build`
+
+If you see permission errors for `.next/cache`, fix them once and re-run:
+
+```bash
+sudo chown -R $USER:$USER .next
+```
+
+> CI/CD runners already operate as the correct user, so the script works there without additional steps.
+
+### 3.3 Build the Image
 
 ```bash
 # Build the Docker image
@@ -503,4 +525,3 @@ After successful deployment:
 
 **Last Updated:** 2025-12-09  
 **Status:** Ready for deployment
-

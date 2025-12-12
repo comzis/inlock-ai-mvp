@@ -183,7 +183,35 @@ curl -I https://cockpit.inlock.ai
 
 ---
 
-## 5. Homepage (Public)
+## 5. Coolify
+
+**Status:** ✅ **HEALTHY** (Schema normalized 2025-12-10)
+
+**Access:**
+- URL: `https://deploy.inlock.ai`
+- Protection: OAuth2 forward auth + IP allowlist
+- Expected Response: 200 (if authenticated) or OAuth2 redirect
+
+**Maintenance References:**
+- Cron/schema helper: `scripts/fix-coolify-cron.sh`
+- Migration runner: `scripts/run-coolify-migrations.sh [--force]`
+- Notes & edge cases: `docs/COOLIFY-MIGRATION-NOTES.md`
+
+**How to run migrations safely:**
+```bash
+cd /home/comzis/inlock-infra
+./scripts/run-coolify-migrations.sh        # prompts for confirmation
+# or
+./scripts/run-coolify-migrations.sh --force
+```
+
+The script automatically drops obsolete SQLite indexes, marks PostgreSQL-only migrations as applied, reruns `php artisan migrate`, and restarts the Coolify stack service.
+
+**Future improvement:** Plan a migration of Coolify to PostgreSQL so upstream migrations apply without manual intervention (see the notes doc for context).
+
+---
+
+## 6. Homepage (Public)
 
 **Status:** ✅ **WORKING**
 
@@ -280,4 +308,3 @@ Full validation report:
 ---
 
 **Last Updated:** 2025-12-08
-

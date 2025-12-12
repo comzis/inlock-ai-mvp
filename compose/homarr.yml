@@ -11,8 +11,8 @@ services:
       - homarr_data:/data
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
-      - edge
       - mgmt
+      # SECURITY: Removed 'edge' network - access only via Traefik on mgmt network
     # Traefik router defined in traefik/dynamic/routers.yml (file provider)
     # No Docker labels required because Traefik no longer watches the Docker API
     healthcheck:
@@ -27,9 +27,6 @@ volumes:
   homarr_data:
 
 networks:
-  edge:
-    external: true
-    name: edge
   mgmt:
     external: true
     name: mgmt

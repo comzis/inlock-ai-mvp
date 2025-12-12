@@ -8,7 +8,7 @@ Quick reference for publishing both repositories to Git.
 **Location:** `/opt/inlock-ai-secure-mvp`  
 **Status:** ✅ Committed and ready to push  
 **Commit:** `Rebrand from StreamArt to Inlock AI`  
-**Remote:** `https://github.com/comzis/streamart-ai-secure-mvp.git`
+**Remote:** `https://github.com/comzis/inlock-ai.git`
 
 ### Infrastructure Repository
 **Location:** `/home/comzis/inlock-infra`  

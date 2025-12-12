@@ -10,4 +10,24 @@ providers:
     updateIntervalSeconds: 30
     allowUiUpdates: true
     options:
-      path: /etc/grafana/dashboards
+      path: /etc/grafana/dashboards/observability
+  - name: "devops-platform"
+    orgId: 1
+    folder: "DevOps Platform"
+    folderUid: "devops-platform"
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/dashboards/devops
+  - name: "postgres-overview"
+    orgId: 1
+    folder: "PostgreSQL"
+    folderUid: "postgres-overview"
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/dashboards/postgres

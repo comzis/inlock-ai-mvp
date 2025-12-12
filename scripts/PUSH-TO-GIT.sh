@@ -17,10 +17,10 @@ NC='\033[0m' # No Color
 
 # 1. Application Repository
 echo -e "${GREEN}Step 1: Application Repository${NC}"
-echo "Location: /opt/streamart-ai-secure-mvp/streamart-ai-secure-mvp"
+echo "Location: /opt/inlock-ai-secure-mvp"
 echo ""
 
-cd /opt/streamart-ai-secure-mvp/streamart-ai-secure-mvp
+cd /opt/inlock-ai-secure-mvp
 
 # Check if there are uncommitted changes
 if [ -n "$(git status --porcelain)" ]; then

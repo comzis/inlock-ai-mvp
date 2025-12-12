@@ -1,13 +1,13 @@
 #!/bin/bash
-# Move application directory from streamart-ai-secure-mvp to inlock-ai-secure-mvp
+# Move application directory (legacy script - directory already moved)
 # This script renames and moves the directory to a cleaner path
 
 set -e
 
-OLD_PATH="/opt/streamart-ai-secure-mvp/streamart-ai-secure-mvp"
+OLD_PATH="/opt/inlock-ai-secure-mvp"
 NEW_PATH="/opt/inlock-ai-secure-mvp"
-OLD_PARENT="/opt/streamart-ai-secure-mvp"
-BACKUP_PATH="/tmp/streamart-ai-secure-mvp-old-backup"
+OLD_PARENT="/opt/inlock-ai-secure-mvp"
+BACKUP_PATH="/tmp/inlock-ai-secure-mvp-old-backup"
 
 echo "========================================="
 echo "Moving Application Directory"

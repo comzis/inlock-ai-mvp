@@ -122,3 +122,51 @@ groups:
         annotations:
           summary: "TCP probe failed"
           description: "Blackbox TCP probe to {{ $labels.instance }} has failed for more than 2 minutes."
+
+  - name: devops-tools
+    interval: 30s
+    rules:
+      - alert: TraefikContainerDown
+        expr: time() - container_last_seen{name="compose-traefik-1"} > 60
+        for: 1m
+        labels:
+          severity: critical
+          service: traefik
+        annotations:
+          summary: "Traefik container is not reporting"
+          description: "cAdvisor has not observed compose-traefik-1 in over 60 seconds."
+
+      - alert: AdminServiceContainerDown
+        expr: (time() - container_last_seen{name=~"compose-(grafana|portainer|n8n|coolify|homarr)-1"}) > 60
+        for: 1m
+        labels:
+          severity: critical
+          component: devops
+        annotations:
+          summary: "{{ $labels.name }} container has stopped"
+          description: "{{ $labels.name }} has not reported metrics for over 60 seconds."
+
+      - alert: AdminHttpProbeFailed
+        expr: probe_success{job="blackbox-http",instance=~"https://(grafana|n8n|deploy|dashboard).inlock.ai"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          component: devops
+        annotations:
+          summary: "Admin endpoint {{ $labels.instance }} is unreachable"
+          description: "Blackbox HTTP probe for {{ $labels.instance }} has failed for 2 minutes."
+
+      - alert: TraefikHighErrorRate
+        expr: >
+          (
+            sum(rate(traefik_entrypoint_requests_total{code=~"5.."}[5m]))
+            /
+            clamp_min(sum(rate(traefik_entrypoint_requests_total[5m])), 1)
+          ) > 0.02
+        for: 5m
+        labels:
+          severity: warning
+          service: traefik
+        annotations:
+          summary: "Traefik 5xx rate elevated"
+          description: "More than 2% of requests routed through Traefik have returned 5xx responses over the last 5 minutes."

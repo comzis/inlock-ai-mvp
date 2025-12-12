@@ -32,7 +32,7 @@ This endpoint returns a 403 Forbidden error - **this is expected behavior**. The
    - Browser is redirected to Auth0 login page
 
 4. **User authenticates:**
-   - Sign in with `streamartmedia@gmail.com` (or your Auth0 account)
+   - Sign in with `admin@inlock.ai` (or your Auth0 account)
    - Auth0 handles the authentication (Google/Apple/Passkey/MFA)
 
 5. **Auth0 callback:**

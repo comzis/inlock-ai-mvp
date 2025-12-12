@@ -16,6 +16,7 @@ include:
   - inlock-db.yml
   - inlock-ai.yml
   - logging.yml
+  - cockpit-proxy.yml
 
 secrets:
   traefik-basicauth:
@@ -37,7 +38,6 @@ volumes:
   grafana_data:
   prometheus_data:
   alertmanager_data:
-  vault_data:
 
 x-default-logging: &default-logging
   logging:
@@ -60,15 +60,15 @@ x-resource-hints: &resource-hints
 
 services:
   traefik:
-    image: traefik:v3.6.4
+    image: traefik:latest
     restart: always
     env_file:
       - ../.env
     environment:
       - CLOUDFLARE_DNS_API_TOKEN=${CLOUDFLARE_API_TOKEN}
       - DOMAIN=${DOMAIN}
-      # Docker provider disabled - all routers use file provider
-      # DOCKER_API_VERSION not needed since Docker provider is commented out
+      - DOCKER_API_VERSION=1.46 # Docker Engine 29+ needs >=1.45 for provider connectivity
+      - DOCKER_HOST=tcp://docker-socket-proxy:2375
     command:
       - "--configFile=/etc/traefik/traefik.yml"
     ports:
@@ -77,10 +77,13 @@ services:
       # Metrics port only exposed to mgmt network, not public
       - "127.0.0.1:9100:9100"
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      # SECURITY: Removed direct docker.sock mount - using socket-proxy instead
+      # - /var/run/docker.sock:/var/run/docker.sock:ro
       - ../traefik/traefik.yml:/etc/traefik/traefik.yml:ro
       - ../traefik/dynamic:/etc/traefik/dynamic:ro
       - ../traefik/acme:/etc/traefik/acme
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     networks:
       - edge
       - socket-proxy
@@ -103,6 +106,61 @@ services:
       - NET_BIND_SERVICE
     user: "1000:1000"
     <<: [*hardening, *default-logging, *resource-hints]
+
+  oauth2-proxy:
+    image: quay.io/oauth2-proxy/oauth2-proxy:v7.6.0
+    restart: always
+    env_file:
+      - ../.env
+    environment:
+      - OAUTH2_PROXY_PROVIDER=oidc
+      - OAUTH2_PROXY_CLIENT_ID=${AUTH0_ADMIN_CLIENT_ID}
+      - OAUTH2_PROXY_CLIENT_SECRET=${AUTH0_ADMIN_CLIENT_SECRET}
+      - OAUTH2_PROXY_COOKIE_SECRET=${OAUTH2_PROXY_COOKIE_SECRET}
+      - OAUTH2_PROXY_COOKIE_NAME=_inlock_admin
+      - OAUTH2_PROXY_COOKIE_DOMAINS=.inlock.ai
+      - OAUTH2_PROXY_COOKIE_SECURE=true
+      - OAUTH2_PROXY_COOKIE_SAMESITE=lax
+      - OAUTH2_PROXY_EMAIL_DOMAINS=*
+      - OAUTH2_PROXY_REDIRECT_URL=https://auth.inlock.ai/oauth2/callback
+      - OAUTH2_PROXY_UPSTREAMS=static://202
+      - OAUTH2_PROXY_HTTP_ADDRESS=0.0.0.0:4180
+      - OAUTH2_PROXY_SKIP_AUTH_PREFLIGHT=true
+      - OAUTH2_PROXY_SKIP_AUTH_ROUTES=/ping
+      - OAUTH2_PROXY_WHITELIST_DOMAIN=.inlock.ai
+      - OAUTH2_PROXY_SET_XAUTHREQUEST_REDIRECT=true
+      - OAUTH2_PROXY_REVERSE_PROXY=true
+      - OAUTH2_PROXY_PASS_HOST_HEADER=true
+      - OAUTH2_PROXY_SKIP_REDIRECT_LOOP=true
+      - OAUTH2_PROXY_SKIP_OIDC_DISCOVERY=false
+      - OAUTH2_PROXY_PROVIDER_DISPLAY_NAME=Auth0
+      - OAUTH2_PROXY_SIGNOUT_REDIRECT=https://deploy.inlock.ai
+      - OAUTH2_PROXY_METRICS_ADDRESS=0.0.0.0:44180
+      - OAUTH2_PROXY_SCOPE=openid profile email
+      - OAUTH2_PROXY_OIDC_ISSUER_URL=${AUTH0_ISSUER:-https://comzis.eu.auth0.com/}
+      - OAUTH2_PROXY_PASS_ACCESS_TOKEN=true
+      - OAUTH2_PROXY_PASS_AUTHORIZATION_HEADER=true
+      - OAUTH2_PROXY_SET_XAUTHREQUEST=true
+      - OAUTH2_PROXY_SKIP_PROVIDER_BUTTON=true
+      - OAUTH2_PROXY_PING_PATH=/ping
+      - OAUTH2_PROXY_INSECURE_OIDC_ALLOW_UNVERIFIED_EMAIL=true
+    networks:
+      - mgmt
+    healthcheck:
+      test: ["CMD", "/bin/oauth2-proxy", "--version"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    tmpfs:
+      - /tmp
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   docker-socket-proxy:
     image: ghcr.io/tecnativa/docker-socket-proxy:v0.4.1
@@ -142,64 +200,8 @@ services:
   # The Inlock AI app now serves the main domain via Traefik router in routers.yml
   # This prevents maintaining an unused nginx service with stale volumes
 
-  oauth2-proxy:
-    image: quay.io/oauth2-proxy/oauth2-proxy:v7.5.1
-    restart: always
-    env_file:
-      - ../.env
-    environment:
-      - OAUTH2_PROXY_PROVIDER=oidc
-      - OAUTH2_PROXY_OIDC_ISSUER_URL=${AUTH0_ISSUER}
-      - OAUTH2_PROXY_CLIENT_ID=${AUTH0_ADMIN_CLIENT_ID}
-      - OAUTH2_PROXY_CLIENT_SECRET=${AUTH0_ADMIN_CLIENT_SECRET}
-      - OAUTH2_PROXY_COOKIE_SECRET=${OAUTH2_COOKIE_SECRET}
-      - OAUTH2_PROXY_EMAIL_DOMAINS=*
-      - OAUTH2_PROXY_UPSTREAMS=file:///dev/null
-      - OAUTH2_PROXY_SKIP_PROVIDER_BUTTON=true
-      - OAUTH2_PROXY_SET_XAUTHREQUEST=true
-      - OAUTH2_PROXY_INSECURE_OIDC_ALLOW_UNVERIFIED_EMAIL=true
-      - OAUTH2_PROXY_REDIRECT_URL=https://auth.${DOMAIN}/oauth2/callback
-      - OAUTH2_PROXY_COOKIE_DOMAIN=.${DOMAIN}
-      - OAUTH2_PROXY_SKIP_AUTH_REgex=^/ping$
-      - OAUTH2_PROXY_COOKIE_SECURE=true
-      - OAUTH2_PROXY_COOKIE_HTTPONLY=true
-      - OAUTH2_PROXY_COOKIE_SAMESITE=none
-      - OAUTH2_PROXY_COOKIE_CSRF_PER_REQUEST=false
-      - OAUTH2_PROXY_HTTP_ADDRESS=0.0.0.0:4180
-      - OAUTH2_PROXY_REVERSE_PROXY=true
-    networks:
-      - mgmt
-      - edge
-    healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:4180/ping"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-    cap_drop:
-      - ALL
-    <<: [*hardening, *default-logging, *resource-hints]
-
-  vault:
-    image: hashicorp/vault:1.16.1
-    restart: always
-    command: server -dev -dev-root-token-id=${VAULT_ROOT_TOKEN:-dev-only-token}
-    environment:
-      - VAULT_DEV_LISTEN_ADDRESS=0.0.0.0:8200
-      - VAULT_ADDR=http://0.0.0.0:8200
-    volumes:
-      - vault_data:/vault/file
-    networks:
-      - mgmt
-    ports:
-      - "127.0.0.1:8200:8200"  # Vault UI and API only on localhost
-    cap_add:
-      - IPC_LOCK
-    cap_drop:
-      - ALL
-    <<: [*default-logging, *resource-hints]
-
   portainer:
-    image: portainer/portainer-ce@sha256:c2353b2bd0dbfaa33faa8895222732e8823a4cf5b57ea664ba631ec3e23d842b
+    image: portainer/portainer-ce:latest
     restart: always
     command:
       - "-H"
@@ -208,7 +210,7 @@ services:
       - /home/comzis/apps/traefik/portainer_data:/data
     networks:
       - mgmt
-      - edge
+      # SECURITY: Removed 'edge' network - access only via Traefik on mgmt network
       - socket-proxy
     secrets:
       - portainer_admin_password
@@ -220,7 +222,7 @@ services:
     <<: [*hardening, *default-logging, *resource-hints]
 
   cadvisor:
-    image: gcr.io/cadvisor/cadvisor@sha256:3cde6faf0791ebf7b41d6f8ae7145466fed712ea6f252c935294d2608b1af388
+    image: gcr.io/cadvisor/cadvisor:latest
     restart: always
     command:
       - "--disable_metrics=percpu,udp,process,sched"
@@ -234,18 +236,10 @@ services:
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:8080/metrics"]
     read_only: true
-    # NOTE: cAdvisor runs in hardened mode (cap_drop: ALL, read_only, no-new-privileges).
-    # This prevents reading /proc/<pid>/smaps for processes in other namespaces, causing
-    # warnings about "failed to get smaps" in logs. These warnings are EXPECTED and
-    # can be safely ignored. Standard container metrics (memory usage, CPU, etc.) still
-    # work correctly. If you need smaps data (per-process RSS/page table breakdown),
-    # you must relax the sandboxing: add pid: host and either privileged: true or
-    # cap_add: [SYS_ADMIN, SYS_PTRACE]. However, keeping it hardened is recommended
-    # for security unless smaps data is specifically required.
     <<: [*hardening, *default-logging, *resource-hints]
 
   prometheus:
-    image: prom/prometheus:v2.51.2@sha256:4f6c47e39a9064028766e8c95890ed15690c30f00c4ba14e7ce6ae1ded0295b1
+    image: prom/prometheus:latest
     restart: always
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
@@ -272,7 +266,7 @@ services:
     <<: [*hardening, *default-logging, *resource-hints]
 
   grafana:
-    image: grafana/grafana@sha256:079600c9517b678c10cda6006b4487d3174512fd4c6cface37df7822756ed7a5
+    image: grafana/grafana:latest
     restart: always
     environment:
       - GF_SERVER_DOMAIN=grafana.${DOMAIN}
@@ -285,7 +279,7 @@ services:
       - ../grafana/dashboards:/etc/grafana/dashboards:ro
     networks:
       - mgmt
-      - edge
+      # SECURITY: Removed 'edge' network - access only via Traefik on mgmt network
     secrets:
       - grafana_admin_password
     healthcheck:
@@ -300,7 +294,7 @@ services:
     <<: [*hardening, *default-logging, *resource-hints]
 
   alertmanager:
-    image: prom/alertmanager:v0.27.0
+    image: prom/alertmanager:latest
     restart: always
     command:
       - "--config.file=/etc/alertmanager/alertmanager.yml"
@@ -319,7 +313,7 @@ services:
     <<: [*hardening, *default-logging, *resource-hints]
 
   node-exporter:
-    image: prom/node-exporter:v1.8.1
+    image: prom/node-exporter:latest
     restart: always
     command:
       - "--path.procfs=/host/proc"
@@ -345,7 +339,7 @@ services:
     <<: [*default-logging]
 
   blackbox-exporter:
-    image: prom/blackbox-exporter:v0.25.0
+    image: prom/blackbox-exporter:latest
     restart: always
     command:
       - "--config.file=/etc/blackbox/blackbox.yml"
@@ -364,3 +358,54 @@ services:
       - ALL
     read_only: true
     <<: [*default-logging]
+
+  postgres-exporter:
+    image: quay.io/prometheuscommunity/postgres-exporter:v0.15.0
+    restart: always
+    environment:
+      - DATA_SOURCE_URI=postgres:5432/${N8N_DB:-n8n}?sslmode=disable
+      - DATA_SOURCE_USER=${N8N_DB_USER:-n8n}
+      - DATA_SOURCE_PASS_FILE=/run/secrets/n8n_db_password
+    networks:
+      - internal
+      - mgmt
+    secrets:
+      - n8n_db_password
+    user: "1000:1000"
+    healthcheck:
+      test: ["CMD", "/bin/postgres_exporter", "--version"]
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    <<: [*default-logging]
+
+  # Cockpit - Commented out due to containerization issues
+  # The official Cockpit container requires write access to host PAM configuration
+  # which conflicts with security best practices. 
+  # Recommendation: Run Cockpit on host and access via Traefik proxy
+  # 
+  # For now, we'll keep Cockpit running on the host system and fix network connectivity
+  # cockpit:
+  #   image: quay.io/cockpit/ws:latest
+  #   restart: always
+  #   network_mode: host
+  #   volumes:
+  #     - /:/host:ro
+  #     - /var/run/docker.sock:/var/run/docker.sock:ro
+  #   environment:
+  #     - COCKPIT_WS_PORT=9090
+  #   healthcheck:
+  #     test: ["CMD", "wget", "--spider", "-q", "http://localhost:9090"]
+  #     interval: 30s
+  #     timeout: 5s
+  #     retries: 3
+  #   cap_add:
+  #     - SYS_ADMIN
+  #     - NET_ADMIN
+  #   security_opt:
+  #     - no-new-privileges:false
+  #   tmpfs:
+  #     - /tmp
+  #     - /run
+  #     - /var/run
+  #   <<: [*default-logging]

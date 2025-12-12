@@ -1,11 +1,11 @@
 services:
   n8n:
-    image: n8nio/n8n@sha256:a6d2c1b991a2c1f289d9c63b11fe5fd59c77421fb0c6701e0febc305cd2aa14b
+    image: n8nio/n8n:latest
     restart: always
     env_file:
       - ../.env
     environment:
-      - N8N_ENCRYPTION_KEY_FILE=/run/secrets/n8n_encryption_key
+      - N8N_ENCRYPTION_KEY_FILE=/run/secrets/n8n-encryption-key
       - DB_TYPE=postgresdb
       - DB_POSTGRESDB_HOST=postgres
       - DB_POSTGRESDB_PORT=5432
@@ -14,10 +14,19 @@ services:
       - DB_POSTGRESDB_PASSWORD_FILE=/run/secrets/n8n-db-password
       - N8N_EDITOR_BASE_URL=https://n8n.${DOMAIN}
       - WEBHOOK_URL=https://n8n.${DOMAIN}
+      - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
+      - N8N_RUNNERS_ENABLED=true
+      - N8N_BLOCK_ENV_ACCESS_IN_NODE=false
+      - N8N_GIT_NODE_DISABLE_BARE_REPOS=true
+      - N8N_TRUSTED_PROXIES=loopback,linklocal,uniquelocal
+      - N8N_PROXY_HOPS=1
+      - N8N_SECURE_COOKIE=true
+      - N8N_SAMESITE_COOKIE=none
     volumes:
       - n8n_data:/home/node/.n8n
     networks:
-      - edge
+      - mgmt
+      # SECURITY: Removed 'edge' network - access only via Traefik on mgmt network
       - internal
     secrets:
       - n8n-db-password
@@ -49,9 +58,9 @@ services:
         max-file: "3"
 
 networks:
-  edge:
+  mgmt:
     external: true
-    name: edge
+    name: mgmt
   internal:
     external: true
     name: internal

@@ -10,38 +10,51 @@ http:
         referrerPolicy: no-referrer-when-downgrade
         frameDeny: true
         permissionsPolicy: "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()"
-    # OAuth2-Proxy forward auth for admin services
-    # Routes unauthenticated users to Auth0 login
-    # All admin services (Traefik, Portainer, Grafana, n8n, Coolify, Homarr) use this
-    # 
-    # IMPORTANT: Use the INTERNAL service URL (http://oauth2-proxy:4180/oauth2/auth)
-    # Using the public URL (https://auth.inlock.ai/oauth2/auth) causes the request
-    # to loop back through Traefik and get blocked by the IP allowlist middleware
-    # before oauth2-proxy ever sees it.
-    # 
-    # NOTE: forwardAuth returns 401 for unauthenticated requests. The error handler
-    # middleware may not catch forwardAuth responses. If browsers still see 401/403,
-    # we may need to use a redirect middleware instead.
+    n8n-headers:
+      headers:
+        sslRedirect: true
+        stsSeconds: 63072000
+        stsIncludeSubdomains: true
+        stsPreload: true
+        contentTypeNosniff: false
+        referrerPolicy: no-referrer-when-downgrade
+        frameDeny: false
+        customFrameOptionsValue: "SAMEORIGIN"
+        customRequestHeaders:
+          X-Forwarded-Proto: "https"
+        # Don't override Content-Type - let n8n set it correctly
+        # ES modules work with both text/javascript and application/javascript
+    cockpit-headers:
+      headers:
+        sslRedirect: true
+        stsSeconds: 63072000
+        stsIncludeSubdomains: true
+        stsPreload: true
+        contentTypeNosniff: true
+        referrerPolicy: no-referrer-when-downgrade
+        frameDeny: false
+        customFrameOptionsValue: "SAMEORIGIN"
+    dashboard-auth:
+      basicAuth:
+        usersFile: /run/secrets/traefik-basicauth
     admin-forward-auth:
       forwardAuth:
-        address: http://oauth2-proxy:4180/oauth2/auth
+        address: https://auth.inlock.ai/oauth2/auth_or_start
         trustForwardHeader: true
         authResponseHeaders:
-          - X-Auth-Request-Email
           - X-Auth-Request-User
+          - X-Auth-Request-Email
           - X-Auth-Request-Groups
           - X-Auth-Request-Access-Token
-    # Legacy basic auth - DEPRECATED, use admin-forward-auth instead
-    # dashboard-auth:
-    #   basicAuth:
-    #     usersFile: /run/secrets/traefik-basicauth
-    # Legacy portainer auth - DEPRECATED, use admin-forward-auth instead
-    # portainer-auth:
-    #   forwardAuth:
-    #     address: https://auth.inlock.ai/check
-    #     trustForwardHeader: true
-    #     tls:
-    #       insecureSkipVerify: false
+          - X-Auth-Request-Redirect
+          - Authorization
+        authRequestHeaders:
+          - X-Forwarded-Method
+          - X-Forwarded-Proto
+          - X-Forwarded-Host
+          - X-Forwarded-Uri
+        tls:
+          insecureSkipVerify: false
     mgmt-ratelimit:
       rateLimit:
         average: 50
@@ -55,32 +68,20 @@ http:
     # - Use Cloudflare WAF rules for IP filtering instead
     # - Or keep admin subdomains with proxy OFF (gray cloud)
     # 
-    # ipStrategy configuration:
-    # - Without depth specified, Traefik uses direct remote address for direct connections
-    #   (e.g., blackbox-exporter from Docker network) and checks X-Forwarded-For for proxied
-    #   connections (e.g., through Cloudflare)
-    # - This allows both internal monitoring (no X-Forwarded-For) and external VPN access
-    #   (with X-Forwarded-For from Cloudflare) to work correctly
-    # 
-    # NOTE: 172.20.0.0/16 is included for internal monitoring (blackbox-exporter health checks)
-    # This is necessary because monitoring containers make requests from the Docker network.
-    # Consider restricting to specific monitoring container IPs if security requires it.
+    # ipStrategy is not used here because it's incompatible with direct IP checking
+    # When using Cloudflare proxy, configure IP filtering in Cloudflare dashboard
     allowed-admins:
       ipAllowList:
         sourceRange:
           - "100.83.222.69/32"  # Device 1 - Tailscale IP (Server)
           - "100.96.110.8/32"   # Device 2 - Tailscale IP (MacBook)
-          # REMOVED: Server's own public IP - containers should use Tailscale for admin access
-          # Keeping it allows container breakouts to access admin services without VPN
+          - "156.67.29.52/32"   # Server public IP (for Cockpit access)
           - "2a09:bac3:1e53:2664::3d3:2f/128"  # MacBook public IPv6
           - "31.10.147.220/32"  # MacBook public IPv4
           - "172.71.147.142/32"  # MacBook public IPv4 (alternate)
           - "172.71.146.180/32"  # MacBook public IPv4 (alternate)
-          - "172.20.0.0/16"  # Docker edge network - for internal monitoring (blackbox-exporter, etc.)
-        # ipStrategy removed: Traefik will use direct remote address for all requests
-        # This works for both direct connections (Docker network) and proxied connections
-        # Note: For Cloudflare-proxied requests, you may need to add Cloudflare IPs to sourceRange
-        # or use a separate middleware that checks X-Forwarded-For headers
+          - "172.18.0.0/16"      # Docker mgmt network (for Traefik forwardAuth)
+          - "172.20.0.0/16"      # Docker edge network (for Traefik forwardAuth)
     dashboard-redirect:
       redirectRegex:
         regex: "^https://traefik.inlock.ai/$"
@@ -91,20 +92,14 @@ http:
         regex: "^https://traefik.inlock.ai/api/?$"
         replacement: "https://traefik.inlock.ai/api/overview"
         permanent: false
-    # Redirect to oauth2-proxy start (for unauthenticated users)
-    redirect-to-oauth:
+    auth-root-redirect:
       redirectRegex:
-        regex: "^https://grafana.inlock.ai(/.*)?$"
-        replacement: "https://auth.inlock.ai/oauth2/start?rd=https://grafana.inlock.ai${1}"
+        regex: "^https://auth.inlock.ai/?$"
+        replacement: "https://auth.inlock.ai/oauth2/start"
         permanent: false
-    # Error handler to redirect 401/403 to oauth2-proxy sign-in
-    # Note: Error handler middleware only catches backend service errors, not forwardAuth responses
-    # This may not work for forwardAuth 401 responses - keeping as fallback
-    oauth-error-handler:
-      errors:
-        status:
-          - "401-403"
-        service: oauth2-proxy@file
-        query: "/oauth2/start"
-
-
+      # Only apply to root path, not to /oauth2/* paths
+    oauth2-redirect-fix:
+      redirectRegex:
+        regex: "^https://auth.inlock.ai/?$"
+        replacement: "https://deploy.inlock.ai/"
+        permanent: false

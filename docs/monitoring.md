@@ -5,11 +5,12 @@
 | Component | Purpose | Configuration |
 |-----------|---------|---------------|
 | **Prometheus** | Scrapes metrics from application, Traefik, cAdvisor, node-exporter, Alertmanager, blackbox exporter | `compose/prometheus/prometheus.yml` |
-| **Alertmanager** | Routes alerts; ready for Slack/email/webhook integrations | `compose/alertmanager/alertmanager.yml` |
+| **Alertmanager** | Routes alerts; forwards warnings/criticals to n8n (`/webhook/alertmanager`) | `compose/alertmanager/alertmanager.yml` |
 | **Node Exporter** | Captures host CPU, memory, disk, and network metrics | Service `node-exporter` in `compose/stack.yml` |
 | **Blackbox Exporter** | Synthetic HTTP + TCP probes (public routes + internal ports) | `compose/monitoring/blackbox.yml` |
+| **PostgreSQL Exporter** | Exposes PostgreSQL metrics for dashboards/alerts | `compose/stack.yml` service `postgres-exporter` |
 | **Loki + Promtail** | Centralized Docker logs, queried via Grafana | `compose/logging.yml` |
-| **Grafana** | Dashboards + alert visibility | `grafana/dashboards/*.json`, `grafana/provisioning/*` |
+| **Grafana** | Dashboards + alert visibility | `grafana/dashboards/*`, `grafana/provisioning/*` |
 
 ## Prometheus & Alertmanager
 
@@ -43,6 +44,13 @@
 ### Synthetic Probes
 - `ExternalHTTPProbeFailed` – blackbox HTTP probe failure to public domains
 - `ServiceTCPProbeFailed` – TCP probe failure for internal ports
+- `AdminHttpProbeFailed` – HTTPS probe failure (Grafana, n8n, Coolify, Homarr)
+
+- ### DevOps / Platform
+- `TraefikContainerDown` – Traefik container missing from cAdvisor
+- `AdminServiceContainerDown` – Grafana/Portainer/n8n/Coolify/Homarr container missing
+- `AdminHttpProbeFailed` – HTTPS probe failure (Grafana, n8n, Coolify, Homarr)
+- `TraefikHighErrorRate` – Traefik 5xx percentage above 2%
 
 ## Synthetic Monitoring
 
@@ -56,12 +64,23 @@ Add/remove targets by editing the `blackbox-http` or `blackbox-tcp` jobs in `com
 
 - Access: `https://grafana.inlock.ai` (IP allowlist + service login)
 - Datasources: Prometheus + Loki (provisioned in `grafana/provisioning/datasources/prometheus.yaml`)
-- Dashboards: `grafana/dashboards/inlock-observability.json`
-  - Application metrics: availability, throughput, CPU, memory, error rate
-  - Host metrics: CPU, memory, disk, network throughput
-  - Synthetic probes: HTTP/TCP success
-  - Traefik health checks
-  - Live Loki logs
+- Dashboards:
+  - `grafana/dashboards/observability/inlock-observability.json`
+    - Application metrics: availability, throughput, CPU, memory, error rate
+    - Host metrics: CPU, memory, disk, network throughput
+    - Synthetic probes: HTTP/TCP success
+    - Traefik health checks
+    - Live Loki logs
+  - `grafana/dashboards/devops/devops-platform.json`
+    - DevOps tool uptime (Traefik, Portainer, Grafana, n8n, Coolify, Homarr)
+    - Blackbox probe health for admin URLs
+    - Traefik request rate & 5xx percentage
+    - CPU and memory footprint for DevOps containers
+  - `grafana/dashboards/devops/inlock-web.json`
+    - inlock.ai HTTPS probe success
+    - Request volume, response-time p95, 4xx/5xx share
+  - `grafana/dashboards/postgres/postgres-overview.json`
+    - Connections, DB size, transactions, tuple activity, cache hit ratio
 - Add dashboards by dropping JSON files into `grafana/dashboards/` and restarting Grafana.
 
 ## Logs
@@ -83,6 +102,6 @@ Add/remove targets by editing the `blackbox-http` or `blackbox-tcp` jobs in `com
 
 ## Next Steps
 
-1. Wire Alertmanager to Slack/Email/PagerDuty for real notifications.
-2. Add dashboards for PostgreSQL, n8n, and Traefik if deeper visibility is required.
+1. Build an n8n workflow that listens on `/webhook/alertmanager` to fan-out Slack/email/SMS alerts (Alertmanager already forwards warning/critical traffic there).
+2. Extend dashboards for Loki volume usage or per-application internals if deeper visibility is required.
 3. Monitor certificate expiry timers (Positive SSL expires 7 Dec 2026).

@@ -153,3 +153,9 @@ The stack is functional with self-signed certificates. Once Portainer permission
 
 
 
+
+
+
+
+
+

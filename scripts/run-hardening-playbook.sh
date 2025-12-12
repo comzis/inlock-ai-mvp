@@ -25,3 +25,9 @@ sudo ufw status verbose
 
 
 
+
+
+
+
+
+

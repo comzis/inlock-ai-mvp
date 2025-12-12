@@ -333,7 +333,7 @@ git push origin main
 
 ## Best Practices Summary
 
-1. ✅ **Application changes → App repo** (`/opt/streamart-ai-secure-mvp/`)
+1. ✅ **Application changes → App repo** (`/opt/inlock-ai-secure-mvp/`)
 2. ✅ **Infrastructure changes → Infra repo** (`/home/comzis/inlock-infra/`)
 3. ✅ **Always test locally** before deploying
 4. ✅ **Run quality checks** (lint, test, build) before building image

@@ -134,6 +134,20 @@ docker logs compose-inlock-ai-1 2>&1 | grep -i error
 docker compose -f compose/stack.yml --env-file .env logs -f --tail=50 inlock-ai traefik
 ```
 
+**Blog & readiness probes:**
+```bash
+# Verify the public blog still renders Markdown
+curl -I https://inlock.ai/blog || true
+
+# Hit the internal readiness endpoint
+curl -s https://inlock.ai/api/readiness | jq
+
+# If either fails, tail app logs immediately:
+docker logs compose-inlock-ai-1 --tail 200 | rg -i \"blog\"
+```
+
+Adding these probes to your routine catches missing assets (e.g., `/app/content`) before they reach production.
+
 ### Metrics & Monitoring
 
 **Prometheus:**
@@ -239,4 +253,3 @@ newgrp docker
 
 **Last Updated:** December 10, 2025  
 **Related:** `scripts/docker-status.sh`, `scripts/docker-logs.sh`
-

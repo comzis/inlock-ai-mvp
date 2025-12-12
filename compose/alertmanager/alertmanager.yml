@@ -4,9 +4,17 @@ route:
   group_wait: 30s
   group_interval: 5m
   repeat_interval: 4h
+  routes:
+    - matchers:
+        - severity=~"warning|critical"
+      receiver: n8n-webhook
 
 receivers:
   - name: default
+  - name: n8n-webhook
+    webhook_configs:
+      - url: http://n8n:5678/webhook/alertmanager
+        send_resolved: true
 
 # To enable Slack or other channels, update the receivers section above and add the
 # appropriate configuration (e.g., slack_configs, email_configs). With

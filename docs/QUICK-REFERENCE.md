@@ -111,3 +111,9 @@ docker exec compose-postgres-1 pg_dump -U n8n n8n > backup.sql
 
 
 
+
+
+
+
+
+

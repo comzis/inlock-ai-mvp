@@ -37,8 +37,8 @@ ENDPOINTS=(
 )
 
 for endpoint in "${ENDPOINTS[@]}"; do
-    HOST="${endpoint%%:*}"
-    NAME="${endpoint##*:}"
+  HOST="${endpoint%%:*}"
+  NAME="${endpoint##*:}"
     
     echo "Testing $NAME ($HOST)..."
     HTTP_CODE=$(curl -k -s -o /dev/null -w "%{http_code}" -H "Host: $HOST" https://$SERVER_IP 2>/dev/null || echo "000")
@@ -54,8 +54,28 @@ for endpoint in "${ENDPOINTS[@]}"; do
     else
         echo "  ❌ Not accessible (HTTP $HTTP_CODE)"
     fi
-    echo ""
+  echo ""
 done
+
+# Blog & readiness probes
+echo "=== Blog & Readiness Probes ==="
+echo ""
+
+BLOG_CODE=$(curl -k -s -o /dev/null -w "%{http_code}" -H "Host: inlock.ai" "https://$SERVER_IP/blog" 2>/dev/null || echo "000")
+if [ "$BLOG_CODE" = "200" ]; then
+  echo "✅ Blog listing renders markdown (HTTP $BLOG_CODE)"
+else
+  echo "❌ Blog listing returned HTTP $BLOG_CODE"
+fi
+
+READINESS_BODY=$(curl -k -s -H "Host: inlock.ai" "https://$SERVER_IP/api/readiness" 2>/dev/null || echo "")
+if echo "$READINESS_BODY" | grep -q '"status":"ok"'; then
+  echo "✅ Readiness endpoint reports ok"
+else
+  echo "❌ Readiness endpoint unexpected response:"
+  echo "$READINESS_BODY"
+fi
+echo ""
 
 # Test internal services
 echo "=== Internal Service Connectivity ==="
@@ -109,7 +129,6 @@ echo "To test from external IP:"
 echo "  curl -k -v https://inlock.ai"
 echo "  curl -k -v https://traefik.inlock.ai"
 echo ""
-
 
 
 

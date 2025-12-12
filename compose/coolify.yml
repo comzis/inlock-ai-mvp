@@ -2,6 +2,8 @@ services:
   coolify:
     image: ghcr.io/coollabsio/coolify:latest
     restart: always
+    # Use host network mode to access Tailscale IP and SSH directly
+    network_mode: host
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /data/coolify:/data/coolify
@@ -15,20 +17,26 @@ services:
       - APP_ENV=production
       - APP_KEY=${COOLIFY_APP_KEY}
       - APP_URL=https://deploy.inlock.ai
-      - DB_CONNECTION=sqlite
+      - DB_CONNECTION=pgsql
+      - DB_HOST=localhost
+      - DB_PORT=5433
+      - DB_DATABASE=coolify
+      - DB_USERNAME=coolify
+      - DB_PASSWORD=${POSTGRES_PASSWORD}
       - QUEUE_CONNECTION=redis
-      - REDIS_HOST=coolify-redis
+      - REDIS_HOST=localhost
+      - REDIS_PORT=6380
       - REDIS_PASSWORD=${REDIS_PASSWORD}
       - PUSHER_APP_ID=coolify
       - PUSHER_APP_KEY=${PUSHER_APP_KEY}
       - PUSHER_APP_SECRET=${PUSHER_APP_SECRET}
-    networks:
-      - edge
-      - coolify
+      - PUSHER_HOST=127.0.0.1
+      - PUSHER_PORT=6001
+      - PUSHER_SCHEME=http
     # Traefik router defined in traefik/dynamic/routers.yml (file provider)
     # No Docker labels required because Traefik no longer watches the Docker API
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -39,13 +47,15 @@ services:
   coolify-redis:
     image: redis:alpine
     restart: always
-    command: redis-server --requirepass ${REDIS_PASSWORD}
+    command: redis-server --requirepass ${REDIS_PASSWORD} --port 6380
+    ports:
+      - "6380:6380"
     volumes:
       - coolify_redis:/data
     networks:
       - coolify
     healthcheck:
-      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      test: ["CMD", "redis-cli", "-h", "127.0.0.1", "-p", "6380", "-a", "${REDIS_PASSWORD}", "--raw", "PING"]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -57,6 +67,8 @@ services:
       - POSTGRES_USER=coolify
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=coolify
+    ports:
+      - "5433:5432"
     volumes:
       - coolify_postgres:/var/lib/postgresql/data
     networks:
@@ -74,18 +86,20 @@ services:
       - SOKETI_DEFAULT_APP_ID=coolify
       - SOKETI_DEFAULT_APP_KEY=${PUSHER_APP_KEY}
       - SOKETI_DEFAULT_APP_SECRET=${PUSHER_APP_SECRET}
+    ports:
+      - "6001:6001"
     networks:
       - coolify
     healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:6001/ready"]
+      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:6001/ready"]
       interval: 30s
       timeout: 5s
       retries: 3
 
 networks:
-  edge:
+  mgmt:
     external: true
-    name: edge
+    name: mgmt
   coolify:
     name: coolify
     driver: bridge
