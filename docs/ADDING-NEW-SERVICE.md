@@ -126,7 +126,7 @@ cd /home/comzis/inlock-infra
 ### Required Settings
 
 1. **Callback URL:** Already configured as `https://auth.inlock.ai/oauth2/callback`
-2. **Allowed Logout URLs:** Add `https://new-service.inlock.ai` if needed
+2. **Allowed Logout URLs:** Add `https://new-service.inlock.ai` (no trailing slash) to the comma-separated list in Auth0
 3. **Roles:** Assign roles in Auth0 if role-based access is needed
 
 ### Role-Based Access

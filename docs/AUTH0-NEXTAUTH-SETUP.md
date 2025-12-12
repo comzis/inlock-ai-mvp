@@ -34,10 +34,9 @@ This guide covers the complete authentication setup for Inlock infrastructure us
   ```
   https://auth.inlock.ai/oauth2/callback
   ```
-- **Allowed Logout URLs:**
+- **Allowed Logout URLs:** (comma-separated format, no trailing slashes on root domains)
   ```
-  https://auth.inlock.ai/oauth2/callback
-  https://traefik.inlock.ai/
+  https://auth.inlock.ai/oauth2/callback,https://traefik.inlock.ai,https://portainer.inlock.ai,https://grafana.inlock.ai,https://n8n.inlock.ai,https://deploy.inlock.ai,https://dashboard.inlock.ai,https://cockpit.inlock.ai
   ```
 - **Allowed Web Origins:** Leave empty (OAuth2-Proxy handles this)
 
