@@ -11,10 +11,9 @@
 https://auth.inlock.ai/oauth2/callback
 ```
 
-**Allowed Logout URLs:**
+**Allowed Logout URLs:** (comma-separated, no trailing slashes)
 ```
-https://auth.inlock.ai/oauth2/callback
-https://traefik.inlock.ai/
+https://auth.inlock.ai/oauth2/callback,https://traefik.inlock.ai,https://portainer.inlock.ai,https://grafana.inlock.ai,https://n8n.inlock.ai,https://deploy.inlock.ai,https://dashboard.inlock.ai,https://cockpit.inlock.ai
 ```
 
 **Why:** The oauth2-proxy service listens at `auth.inlock.ai` and handles the OAuth2 flow. After Auth0 authenticates the user, it redirects to this callback URL, and oauth2-proxy then forwards the user to the admin service they were trying to access (e.g., `traefik.inlock.ai`, `portainer.inlock.ai`).

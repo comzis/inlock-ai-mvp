@@ -37,8 +37,8 @@ Auth0 is warning that you're using **development/test keys** instead of **produc
 4. **Type**: Regular Web Application
 5. **Settings**:
    - **Allowed Callback URLs**: `https://auth.inlock.ai/oauth2/callback`
-   - **Allowed Logout URLs**: `https://auth.inlock.ai/`
-   - **Allowed Web Origins**: `https://auth.inlock.ai`
+   - **Allowed Logout URLs**: `https://auth.inlock.ai/oauth2/callback,https://traefik.inlock.ai,https://portainer.inlock.ai,https://grafana.inlock.ai,https://n8n.inlock.ai,https://deploy.inlock.ai,https://dashboard.inlock.ai,https://cockpit.inlock.ai` (comma-separated, no trailing slashes)
+   - **Allowed Web Origins**: Leave empty (OAuth2-Proxy handles this)
    - **Application Type**: Regular Web Application
 6. **Copy the new Client ID and Secret**
 7. **Update `.env` file**:
