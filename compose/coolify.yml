@@ -49,7 +49,7 @@ services:
     restart: always
     command: redis-server --requirepass ${REDIS_PASSWORD} --port 6380
     ports:
-      - "6380:6380"
+      - "127.0.0.1:6380:6380"
     volumes:
       - coolify_redis:/data
     networks:
@@ -68,7 +68,7 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=coolify
     ports:
-      - "5433:5432"
+      - "127.0.0.1:5433:5432"
     volumes:
       - coolify_postgres:/var/lib/postgresql/data
     networks:
@@ -87,7 +87,7 @@ services:
       - SOKETI_DEFAULT_APP_KEY=${PUSHER_APP_KEY}
       - SOKETI_DEFAULT_APP_SECRET=${PUSHER_APP_SECRET}
     ports:
-      - "6001:6001"
+      - "127.0.0.1:6001:6001"
     networks:
       - coolify
     healthcheck:
