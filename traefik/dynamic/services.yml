@@ -39,3 +39,7 @@ http:
       loadBalancer:
         servers:
           - url: http://oauth2-proxy:4180
+    oauth2-start-redirect:
+      loadBalancer:
+        servers:
+          - url: http://oauth2-proxy:4180

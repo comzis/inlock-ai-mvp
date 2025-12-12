@@ -89,8 +89,7 @@ http:
       rule: Host(`deploy.inlock.ai`)
       middlewares:
         - secure-headers
-        # Temporarily disabled admin-forward-auth due to 404 redirect issue
-        # State parameter contains :/ instead of original URL
+        # Temporarily disabled admin-forward-auth due to 504/502 errors
         # - admin-forward-auth
         - allowed-admins
         - mgmt-ratelimit
@@ -126,12 +125,21 @@ http:
     oauth2-proxy:
       entryPoints:
         - websecure
-      rule: Host(`auth.inlock.ai`)
+      rule: Host(`auth.inlock.ai`) && PathPrefix(`/oauth2/`)
       middlewares:
         - secure-headers
-        - oauth2-redirect-fix
         - mgmt-ratelimit
       service: oauth2-proxy
+      tls:
+        certResolver: le-dns
+    oauth2-proxy-root:
+      entryPoints:
+        - websecure
+      rule: Host(`auth.inlock.ai`) && Path(`/`)
+      middlewares:
+        - secure-headers
+        - oauth2-to-deploy-redirect
+      service: noop@internal
       tls:
         certResolver: le-dns
     
