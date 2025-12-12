@@ -131,6 +131,13 @@ http:
       service: oauth2-proxy
       tls:
         certResolver: le-dns
+    oauth2-proxy-ping:
+      entryPoints:
+        - websecure
+      rule: Host(`auth.inlock.ai`) && Path(`/ping`)
+      service: oauth2-proxy
+      tls:
+        certResolver: le-dns
     oauth2-proxy-root:
       entryPoints:
         - websecure
