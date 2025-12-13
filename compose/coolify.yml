@@ -2,8 +2,10 @@ services:
   coolify:
     image: ghcr.io/coollabsio/coolify:latest
     restart: always
-    # Use host network mode to access Tailscale IP and SSH directly
-    network_mode: host
+    # Changed from host network mode to bridge network to avoid port 80 conflict
+    # Port 8080 exposed and routed through Traefik
+    ports:
+      - "127.0.0.1:8080:8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /data/coolify:/data/coolify
@@ -15,26 +17,29 @@ services:
       - APP_ID=${APP_ID:-coolify}
       - APP_NAME=Coolify
       - APP_ENV=production
-      - APP_KEY=${COOLIFY_APP_KEY}
+      - APP_KEY=${COOLIFY_APP_KEY:-base64:fULAMvnIFN0dL9+yps4G/Zsd39Ppzhq5o7003pkRqV0=}
       - APP_URL=https://deploy.inlock.ai
       - DB_CONNECTION=pgsql
-      - DB_HOST=localhost
-      - DB_PORT=5433
+      - DB_HOST=coolify-postgres
+      - DB_PORT=5432
       - DB_DATABASE=coolify
       - DB_USERNAME=coolify
-      - DB_PASSWORD=${POSTGRES_PASSWORD}
+      - DB_PASSWORD=${POSTGRES_PASSWORD:-coolify}
       - QUEUE_CONNECTION=redis
-      - REDIS_HOST=localhost
+      - REDIS_HOST=coolify-redis
       - REDIS_PORT=6380
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
       - PUSHER_APP_ID=coolify
       - PUSHER_APP_KEY=${PUSHER_APP_KEY}
       - PUSHER_APP_SECRET=${PUSHER_APP_SECRET}
-      - PUSHER_HOST=127.0.0.1
+      - PUSHER_HOST=coolify-soketi
       - PUSHER_PORT=6001
       - PUSHER_SCHEME=http
     # Traefik router defined in traefik/dynamic/routers.yml (file provider)
     # No Docker labels required because Traefik no longer watches the Docker API
+    networks:
+      - coolify
+      - mgmt
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
       interval: 30s
@@ -47,7 +52,7 @@ services:
   coolify-redis:
     image: redis:alpine
     restart: always
-    command: redis-server --requirepass ${REDIS_PASSWORD} --port 6380
+    command: sh -c "if [ -n \"$$REDIS_PASSWORD\" ]; then redis-server --requirepass $$REDIS_PASSWORD --port 6380; else redis-server --port 6380; fi"
     ports:
       - "127.0.0.1:6380:6380"
     volumes:
@@ -55,7 +60,7 @@ services:
     networks:
       - coolify
     healthcheck:
-      test: ["CMD", "redis-cli", "-h", "127.0.0.1", "-p", "6380", "-a", "${REDIS_PASSWORD}", "--raw", "PING"]
+      test: ["CMD-SHELL", "if [ -n \"$$REDIS_PASSWORD\" ]; then redis-cli -h 127.0.0.1 -p 6380 -a $$REDIS_PASSWORD --raw PING; else redis-cli -h 127.0.0.1 -p 6380 --raw PING; fi"]
       interval: 30s
       timeout: 5s
       retries: 3

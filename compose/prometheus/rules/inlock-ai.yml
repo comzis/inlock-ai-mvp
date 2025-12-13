@@ -57,6 +57,70 @@ groups:
           summary: "Inlock AI HTTP 5xx rate elevated"
           description: "More than 5% of requests routed through Traefik to inlock-ai have resulted in 5xx errors during the last 5 minutes."
 
+      # OAuth2-Proxy Authentication Alerts
+      - alert: OAuth2ProxyDown
+        expr: up{job="oauth2-proxy"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: oauth2-proxy
+        annotations:
+          summary: "OAuth2-Proxy service is down"
+          description: "OAuth2-Proxy metrics endpoint has been down for more than 1 minute. Authentication will fail."
+
+      - alert: OAuth2ProxyHighErrorRate
+        expr: |
+          sum(rate(oauth2_proxy_http_request_total{job="oauth2-proxy",code=~"4..|5.."}[5m])) 
+          / 
+          sum(rate(oauth2_proxy_http_request_total{job="oauth2-proxy"}[5m])) 
+          > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          service: oauth2-proxy
+        annotations:
+          summary: "OAuth2-Proxy error rate is high"
+          description: "More than 10% of OAuth2-Proxy requests are failing (4xx/5xx errors) for the last 5 minutes."
+
+      - alert: OAuth2ProxyHighAuthFailureRate
+        expr: |
+          sum(rate(oauth2_proxy_authz_request_total{job="oauth2-proxy",code=~"401|403"}[5m]))
+          /
+          (sum(rate(oauth2_proxy_authz_request_total{job="oauth2-proxy"}[5m])) + 1)
+          > 0.2
+        for: 5m
+        labels:
+          severity: warning
+          service: oauth2-proxy
+        annotations:
+          summary: "OAuth2-Proxy authentication failure rate is high"
+          description: "More than 20% of authentication requests are failing (401/403) for the last 5 minutes. Check Auth0 configuration and callback URLs."
+
+      - alert: OAuth2ProxySlowResponseTime
+        expr: |
+          histogram_quantile(0.95, sum(rate(oauth2_proxy_http_request_duration_seconds_bucket{job="oauth2-proxy"}[5m])) by (le)) 
+          > 2
+        for: 10m
+        labels:
+          severity: warning
+          service: oauth2-proxy
+        annotations:
+          summary: "OAuth2-Proxy response time is slow"
+          description: "95th percentile response time for OAuth2-Proxy exceeds 2 seconds for the last 10 minutes."
+
+      - alert: OAuth2ProxyNoAuthSuccess
+        expr: |
+          sum(rate(oauth2_proxy_authz_request_total{job="oauth2-proxy",code="200"}[10m])) == 0
+          and
+          sum(rate(oauth2_proxy_authz_request_total{job="oauth2-proxy"}[10m])) > 0
+        for: 5m
+        labels:
+          severity: critical
+          service: oauth2-proxy
+        annotations:
+          summary: "OAuth2-Proxy authentication completely failing"
+          description: "No successful authentications (200) in the last 10 minutes despite authentication requests. All users are unable to authenticate."
+
   - name: inlock-host
     interval: 30s
     rules:

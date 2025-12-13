@@ -15,14 +15,14 @@ The Coolify server has been successfully configured and validated.
 - **Name**: `deploy-inlock-ai`
 - **Description**: `Inlock AI Production Server`
 - **IP Address**: `100.83.222.69` (Tailscale IP - recommended)
-- **User**: `root`
+- **User**: `comzis` ⚠️ **IMPORTANT: Use `comzis`, NOT `root`** (root login is disabled)
 - **Port**: `22`
 - **Wildcard Domain**: `https://inlock.ai`
 - **Status**: ✅ Server is reachable and validated
 
 ### SSH Configuration
 - **Private Key**: `deploy-inlock-ai-key` (stored in Coolify)
-- **Public Key**: Added to `/root/.ssh/authorized_keys` on server
+- **Public Key**: Added to `/home/comzis/.ssh/authorized_keys` on server
 - **Authentication**: ✅ Working
 
 ### Network Configuration
@@ -85,7 +85,8 @@ For applications deployed via Coolify:
 ### Server Not Reachable
 - **Check**: SSH connectivity from Coolify container
 - **Test**: `docker exec compose-coolify-1 nc -zv 100.83.222.69 22`
-- **Fix**: Ensure SSH key is in `/root/.ssh/authorized_keys`
+- **Fix**: Ensure SSH key is in `/home/comzis/.ssh/authorized_keys`
+- **⚠️ CRITICAL**: Use username `comzis` (NOT `root`) - root login is disabled for security
 
 ### Wildcard Domain Validation Error
 - **Error**: "The Wildcard Domain must be a valid URL"
@@ -110,5 +111,18 @@ For applications deployed via Coolify:
 
 ---
 
-**Last Updated:** December 11, 2025  
+**Last Updated:** December 13, 2025  
 **Status:** ✅ Setup Complete - Ready for deployments
+
+---
+
+## ⚠️ IMPORTANT: Username Configuration
+
+**If you see "Permission denied (publickey,password)" error:**
+
+1. **Go to Coolify UI** → **Servers** → **deploy-inlock-ai** → **Edit**
+2. **Change SSH Username** from `root` to `comzis`
+3. **Click "Validate Connection"** to test
+4. **Save** the configuration
+
+**Why:** Root login is disabled on the server for security. The `comzis` user has sudo privileges and Docker access.

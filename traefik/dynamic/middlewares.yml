@@ -39,7 +39,7 @@ http:
         usersFile: /run/secrets/traefik-basicauth
     admin-forward-auth:
       forwardAuth:
-        address: https://auth.inlock.ai/oauth2/auth_or_start
+        address: http://oauth2-proxy:4180/oauth2/auth_or_start
         trustForwardHeader: true
         authResponseHeaders:
           - X-Auth-Request-User
@@ -55,6 +55,7 @@ http:
           - X-Forwarded-Uri
           - X-Forwarded-For
           - X-Real-Ip
+          - Cookie
         tls:
           insecureSkipVerify: false
     mgmt-ratelimit:

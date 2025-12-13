@@ -20,7 +20,7 @@ http:
     coolify:
       loadBalancer:
         servers:
-          - url: http://172.18.0.1:8080
+          - url: http://coolify:8080
     homarr:
       loadBalancer:
         servers:
@@ -43,3 +43,7 @@ http:
       loadBalancer:
         servers:
           - url: http://oauth2-proxy:4180
+    mailu-front:
+      loadBalancer:
+        servers:
+          - url: http://mailu-front:80
