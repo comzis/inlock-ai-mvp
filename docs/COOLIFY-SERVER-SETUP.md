@@ -42,7 +42,7 @@ Fill in the form fields:
 
 5. **Advanced Connection Settings** (Click to expand):
    - **SSH Port**: `22` (default)
-   - **SSH Username**: `root` (or `comzis` if using non-root user)
+   - **SSH Username**: `comzis` ⚠️ **REQUIRED** (root login is disabled for security)
    - **SSH Private Key**: Will be configured in Step 2
 
 5. Click **"Validate Connection"** button
@@ -236,7 +236,7 @@ docker ps
 - **IP Address**: `100.83.222.69` (Tailscale) or `156.67.29.52` (Public)
 - **Hostname**: `deploy.inlock.ai` or `vmi2953354.contaboserver.net`
 - **SSH Port**: `22`
-- **SSH Username**: `root` (recommended) or `comzis` (non-root)
+- **SSH Username**: `comzis` ⚠️ **REQUIRED** (root login is disabled for security)
 - **SSH Key**: `deploy-inlock-ai-key` (in Coolify)
 - **Wildcard Domain**: `https://inlock.ai` (base domain, not `*.inlock.ai`)
 
@@ -248,10 +248,10 @@ docker ps
 docker compose -f compose/coolify.yml --env-file .env exec coolify ping -c 3 100.83.222.69
 
 # SSH connectivity (using Tailscale IP)
-docker compose -f compose/coolify.yml --env-file .env exec coolify ssh -i /var/www/html/storage/app/ssh/keys/<key-id> root@100.83.222.69 "echo 'Connection successful'"
+docker compose -f compose/coolify.yml --env-file .env exec coolify ssh -i /var/www/html/storage/app/ssh/keys/<key-id> comzis@100.83.222.69 "echo 'Connection successful'"
 
 # Docker access (after server is added)
-docker compose -f compose/coolify.yml --env-file .env exec coolify ssh -i /var/www/html/storage/app/ssh/keys/<key-id> root@100.83.222.69 "docker ps"
+docker compose -f compose/coolify.yml --env-file .env exec coolify ssh -i /var/www/html/storage/app/ssh/keys/<key-id> comzis@100.83.222.69 "docker ps"
 ```
 
 ---

@@ -58,10 +58,6 @@ scrape_configs:
       - targets:
           - https://inlock.ai
           - https://www.inlock.ai
-          - https://grafana.inlock.ai
-          - https://n8n.inlock.ai
-          - https://deploy.inlock.ai
-          - https://dashboard.inlock.ai
     relabel_configs:
       - source_labels: [__address__]
         target_label: __param_target
@@ -92,3 +88,71 @@ scrape_configs:
   - job_name: 'postgresql'
     static_configs:
       - targets: ['postgres-exporter:9187']
+
+  # OAuth2-Proxy metrics
+  - job_name: 'oauth2-proxy'
+    static_configs:
+      - targets: ['oauth2-proxy:44180']
+        labels:
+          service: 'oauth2-proxy'
+    metrics_path: /metrics
+
+  # Mailu Rspamd metrics (spam filtering statistics)
+  - job_name: 'mailu-rspamd'
+    static_configs:
+      - targets: ['mailu-rspamd:11334']
+        labels:
+          service: 'mailu-rspamd'
+    metrics_path: '/metrics'
+
+  # Blackbox exporter for Mailu SMTP ports
+  - job_name: 'blackbox-mailu-smtp'
+    metrics_path: /probe
+    params:
+      module: [tcp_connect]
+    static_configs:
+      - targets:
+          - mail.inlock.ai:25   # SMTP
+          - mail.inlock.ai:465  # SMTPS
+          - mail.inlock.ai:587  # Submission
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+
+  # Blackbox exporter for Mailu IMAP ports
+  - job_name: 'blackbox-mailu-imap'
+    metrics_path: /probe
+    params:
+      module: [tcp_connect]
+    static_configs:
+      - targets:
+          - mail.inlock.ai:143  # IMAP
+          - mail.inlock.ai:993  # IMAPS
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+
+  # Blackbox exporter for Mailu webmail/admin UI
+  - job_name: 'blackbox-mailu-web'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+          - https://mail.inlock.ai
+          - https://mail.inlock.ai/admin
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115

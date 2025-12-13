@@ -27,6 +27,7 @@ services:
     networks:
       - edge
       - internal
+      - mail
     depends_on:
       inlock-db:
         condition: service_healthy
@@ -45,3 +46,10 @@ services:
     user: "1001:1001"
     <<: [*hardening, *default-logging, *resource-hints]
 
+networks:
+  edge:
+    external: true
+  internal:
+    external: true
+  mail:
+    external: true
