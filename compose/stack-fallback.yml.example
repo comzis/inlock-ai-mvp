@@ -1,0 +1,59 @@
+# Fallback Configuration - Keycloak OIDC Provider
+# Usage: Only activate if Auth0 cannot be fixed quickly
+# Activate: docker compose -f compose/stack.yml -f compose/stack-fallback.yml --env-file .env up -d
+# Rollback: docker compose -f compose/stack.yml --env-file .env up -d oauth2-proxy
+
+version: '3.8'
+
+services:
+  keycloak-fallback:
+    image: quay.io/keycloak/keycloak:23.0
+    container_name: keycloak-fallback
+    restart: unless-stopped
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-CHANGE-ME-TEMPORARY-PASSWORD}
+      KC_DB: dev-mem
+      KC_HTTP_ENABLED: true
+      KC_HEALTH_ENABLED: true
+      KC_METRICS_ENABLED: true
+    command: start-dev --http-port=8080
+    networks:
+      - mgmt
+    ports:
+      - "8090:8080"  # Temporary external access for setup only
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    profiles:
+      - fallback
+
+  oauth2-proxy:
+    environment:
+      # Override OIDC issuer to use Keycloak instead of Auth0
+      - OAUTH2_PROXY_OIDC_ISSUER_URL=http://keycloak-fallback:8080/realms/inlock
+      - OAUTH2_PROXY_CLIENT_ID=${KEYCLOAK_CLIENT_ID:-inlock-admin}
+      - OAUTH2_PROXY_CLIENT_SECRET=${KEYCLOAK_CLIENT_SECRET}
+    depends_on:
+      keycloak-fallback:
+        condition: service_healthy
+    profiles:
+      - fallback
+
+# Setup Instructions:
+# 1. Start Keycloak: docker compose -f compose/stack.yml -f compose/stack-fallback.yml --env-file .env up -d keycloak-fallback
+# 2. Access: http://localhost:8090 (temporary, for setup)
+# 3. Create realm: "inlock"
+# 4. Create client: "inlock-admin"
+#    - Valid Redirect URIs: https://auth.inlock.ai/oauth2/callback
+#    - Web Origins: https://auth.inlock.ai
+#    - Access Type: confidential
+#    - Copy client secret to .env as KEYCLOAK_CLIENT_SECRET
+# 5. Create test user
+# 6. Activate: docker compose -f compose/stack.yml -f compose/stack-fallback.yml --env-file .env up -d
+# 
+# Rollback:
+# docker compose -f compose/stack.yml --env-file .env up -d oauth2-proxy
+

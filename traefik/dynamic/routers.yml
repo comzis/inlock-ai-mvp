@@ -163,4 +163,31 @@ http:
         - secure-headers
       service: inlock-ai
       tls:
-        options: default  # Uses Positive SSL certificate      priority: 50  # Lower priority allows labels to override if needed
+        options: default  # Uses Positive SSL certificate
+      priority: 50  # Lower priority allows labels to override if needed
+
+    # Mailu Admin UI - Requires OAuth2 authentication
+    mailu-admin:
+      entryPoints:
+        - websecure
+      rule: Host(`mail.inlock.ai`) && PathPrefix(`/admin`)
+      middlewares:
+        - secure-headers
+        - admin-forward-auth
+        - allowed-admins
+        - mgmt-ratelimit
+      service: mailu-front
+      tls:
+        certResolver: le-dns
+
+    # Mailu Webmail - Public access with rate limiting (users authenticate via Mailu)
+    mailu-webmail:
+      entryPoints:
+        - websecure
+      rule: Host(`mail.inlock.ai`) && !PathPrefix(`/admin`)
+      middlewares:
+        - secure-headers
+        - mgmt-ratelimit
+      service: mailu-front
+      tls:
+        certResolver: le-dns
