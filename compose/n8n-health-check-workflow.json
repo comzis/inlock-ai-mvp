@@ -1,0 +1,211 @@
+{
+  "name": "App Health Check & AI Analysis",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 1
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [
+        20,
+        340
+      ],
+      "id": "schedule-trigger",
+      "name": "Every 1 Hour"
+    },
+    {
+      "parameters": {
+        "url": "https://inlock.ai",
+        "options": {
+          "timeout": 5000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        240,
+        140
+      ],
+      "id": "check-homepage",
+      "name": "Check Homepage",
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "url": "https://n8n.inlock.ai",
+        "options": {
+          "timeout": 5000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        240,
+        340
+      ],
+      "id": "check-n8n-external",
+      "name": "Check n8n (External)",
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "url": "http://traefik:8080/ping",
+        "options": {
+          "timeout": 5000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        240,
+        540
+      ],
+      "id": "check-traefik-internal",
+      "name": "Check Traefik (Internal)",
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "url": "http://portainer:9000",
+        "options": {
+          "timeout": 5000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        240,
+        740
+      ],
+      "id": "check-portainer-internal",
+      "name": "Check Portainer (Internal)",
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const results = $('Merge Checks').all();\nconst failures = [];\n\nresults.forEach(item => {\n  const key = Object.keys(item.json)[0]; \n  // n8n merge node might behave differently depending on inputs, simplifying logic\n  // Check for error property or status code != 200\n  if (item.error) {\n      failures.push({ service: 'unknown', error: item.error.message });\n  } \n});\n\n// Check individual node executions\nconst nodesToCheck = ['Check Homepage', 'Check n8n (External)', 'Check Traefik (Internal)', 'Check Portainer (Internal)'];\n\nfor (const nodeName of nodesToCheck) {\n    const items = $items(nodeName);\n    if (items.length > 0) {\n        // If node ran, check if it failed (it continues on fail)\n        // In n8n v1, failed execution with continueOnFail might wrap data\n        const firstItem = items[0];\n        if (firstItem.json.error || (firstItem.json.status && firstItem.json.status !== 200)) {\n             failures.push({\n                 service: nodeName,\n                 status: firstItem.json.status || 'ERROR',\n                 error: firstItem.json.error || 'Unknown Error'\n             });\n        }\n    } else {\n        failures.push({ service: nodeName, error: 'Did not run' });\n    }\n}\n\nreturn { failures, isHealthy: failures.length === 0 };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [
+        680,
+        340
+      ],
+      "id": "aggregate-results",
+      "name": "Analyze Results"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.isHealthy }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        900,
+        340
+      ],
+      "id": "check-health-status",
+      "name": "Is Healthy?"
+    },
+    {
+      "parameters": {
+        "resource": "chat",
+        "model": "gpt-4o",
+        "messages": {
+          "values": [
+            {
+              "content": "=You are a Site Reliability Engineer Agent.\n\nThe following services have failed health checks:\n{{ JSON.stringify($json.failures) }}\n\nPlease analyze the potential causes and suggest 3 specific steps to fix them.\n\nAlso write a short incident report summary."
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [
+        1140,
+        460
+      ],
+      "id": "ai-agent-analysis",
+      "name": "AI SRE Agent",
+      "credentials": {
+        "openAiApi": {
+          "id": "YOUR_OPENAI_CREDENTIAL_ID",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1140,
+        240
+      ],
+      "id": "healthy-path",
+      "name": "Healthy - Do Nothing"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1380,
+        460
+      ],
+      "id": "send-alert",
+      "name": "Send Alert (Config Required)"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 1,
+      "position": [
+        460,
+        340
+      ],
+      "id": "merge-checks",
+      "name": "Merge Checks"
+    }
+  ],
+  "connections": {
+    "Every 1 Hour": {
+        "main": [
+            [
+                { "node": "Check Homepage", "type": "main", "index": 0 },
+                { "node": "Check n8n (External)", "type": "main", "index": 0 },
+                { "node": "Check Traefik (Internal)", "type": "main", "index": 0 },
+                { "node": "Check Portainer (Internal)", "type": "main", "index": 0 }
+            ]
+        ]
+    },
+    "Check Homepage": { "main": [[{ "node": "Merge Checks", "type": "main", "index": 0 }]] },
+    "Check n8n (External)": { "main": [[{ "node": "Merge Checks", "type": "main", "index": 1 }]] },
+    "Check Traefik (Internal)": { "main": [[{ "node": "Merge Checks", "type": "main", "index": 2 }]] },
+    "Check Portainer (Internal)": { "main": [[{ "node": "Merge Checks", "type": "main", "index": 3 }]] },
+    "Merge Checks": { "main": [[{ "node": "Analyze Results", "type": "main", "index": 0 }]] },
+    "Analyze Results": { "main": [[{ "node": "Is Healthy?", "type": "main", "index": 0 }]] },
+    "Is Healthy?": {
+        "main": [
+            [{ "node": "Healthy - Do Nothing", "type": "main", "index": 0 }],
+            [{ "node": "AI SRE Agent", "type": "main", "index": 0 }]
+        ]
+    },
+    "AI SRE Agent": { "main": [[{ "node": "Send Alert (Config Required)", "type": "main", "index": 0 }]] }
+  }
+}
