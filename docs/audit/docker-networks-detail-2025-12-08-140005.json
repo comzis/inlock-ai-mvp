@@ -1,0 +1,220 @@
+[
+    {
+        "Name": "edge",
+        "Id": "9dcfb81805ef48e402d8b6498816eed2b4c4e39fabf86da63bfaad6fb3ccc04c",
+        "Created": "2025-12-08T13:40:41.839541667+01:00",
+        "Scope": "local",
+        "Driver": "bridge",
+        "EnableIPv4": true,
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": {},
+            "Config": [
+                {
+                    "Subnet": "172.20.0.0/16",
+                    "IPRange": "",
+                    "Gateway": "172.20.0.1"
+                }
+            ]
+        },
+        "Internal": false,
+        "Attachable": false,
+        "Ingress": false,
+        "ConfigFrom": {
+            "Network": ""
+        },
+        "ConfigOnly": false,
+        "Options": {},
+        "Labels": {},
+        "Containers": {
+            "59b5fc17bde839da3c888bcdc3c19d61f1046b9e1c8fd448a5709aa14d01c43f": {
+                "Name": "compose-homepage-1",
+                "EndpointID": "3e52b06c36375087d2826ae8d8b35afb79cdf242209446d45f9110f6dde82eb6",
+                "MacAddress": "b6:4d:0e:99:7b:b2",
+                "IPv4Address": "172.20.0.3/16",
+                "IPv6Address": ""
+            },
+            "80fb4c23dcd26661d02c9e1b8b39c16f628b96419e79be0817441f9f8cac4780": {
+                "Name": "compose-n8n-1",
+                "EndpointID": "260b944e386aad303f2e9841a6b289ad0796f041fb2409bcbb2f22477ea95982",
+                "MacAddress": "22:0e:32:94:41:01",
+                "IPv4Address": "172.20.0.2/16",
+                "IPv6Address": ""
+            }
+        },
+        "Status": {
+            "IPAM": {
+                "Subnets": {
+                    "172.20.0.0/16": {
+                        "IPsInUse": 5,
+                        "DynamicIPsAvailable": 65531
+                    }
+                }
+            }
+        }
+    },
+    {
+        "Name": "mgmt",
+        "Id": "f6b1996a7176423334ac18feeca6bb5c8477a77d06bfa7eefe7f846c4e886ac1",
+        "Created": "2025-12-08T13:40:33.348171485+01:00",
+        "Scope": "local",
+        "Driver": "bridge",
+        "EnableIPv4": true,
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": null,
+            "Config": [
+                {
+                    "Subnet": "172.18.0.0/16",
+                    "IPRange": "",
+                    "Gateway": "172.18.0.1"
+                }
+            ]
+        },
+        "Internal": false,
+        "Attachable": false,
+        "Ingress": false,
+        "ConfigFrom": {
+            "Network": ""
+        },
+        "ConfigOnly": false,
+        "Options": {},
+        "Labels": {
+            "com.docker.compose.config-hash": "0e07c89f26c5720940a1cd38b0cca77ac824c7d32b9a5c0c390526d3eac779eb",
+            "com.docker.compose.network": "mgmt",
+            "com.docker.compose.project": "compose",
+            "com.docker.compose.version": "5.0.0"
+        },
+        "Containers": {
+            "3b4ae695e5679bfcb80683a14dea3a2e5b60a111c6d9b0269ab6bb7a57f03ff9": {
+                "Name": "compose-cadvisor-1",
+                "EndpointID": "8ff3727b8487ee41bba6feb8ed1a4c205875921129c17358875d4ab9edf3b8b8",
+                "MacAddress": "82:6f:b4:9a:06:ba",
+                "IPv4Address": "172.18.0.2/16",
+                "IPv6Address": ""
+            }
+        },
+        "Status": {
+            "IPAM": {
+                "Subnets": {
+                    "172.18.0.0/16": {
+                        "IPsInUse": 4,
+                        "DynamicIPsAvailable": 65532
+                    }
+                }
+            }
+        }
+    },
+    {
+        "Name": "internal",
+        "Id": "61df20020a3528b0d9c4aceabe2fca6e049ce4228aa75994da7f0f864292186c",
+        "Created": "2025-12-08T13:40:38.189878751+01:00",
+        "Scope": "local",
+        "Driver": "bridge",
+        "EnableIPv4": true,
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": {},
+            "Config": [
+                {
+                    "Subnet": "172.19.0.0/16",
+                    "IPRange": "",
+                    "Gateway": "172.19.0.1"
+                }
+            ]
+        },
+        "Internal": false,
+        "Attachable": false,
+        "Ingress": false,
+        "ConfigFrom": {
+            "Network": ""
+        },
+        "ConfigOnly": false,
+        "Options": {},
+        "Labels": {},
+        "Containers": {
+            "7da8c4062749668bb7b5601bbc9ea974b57906b8b1f55c1d5c7f6838761b1d5d": {
+                "Name": "compose-postgres-1",
+                "EndpointID": "dfa077e28220f5dab8208c530a2fb625bf9a899642bb4e9601954ff67a402027",
+                "MacAddress": "92:bd:94:cf:24:d5",
+                "IPv4Address": "172.19.0.3/16",
+                "IPv6Address": ""
+            },
+            "80fb4c23dcd26661d02c9e1b8b39c16f628b96419e79be0817441f9f8cac4780": {
+                "Name": "compose-n8n-1",
+                "EndpointID": "74fc793218f9e7d9fef97711c28ab06f078343c973db73d29d89a565f1e8b5e7",
+                "MacAddress": "02:de:e0:1f:da:6f",
+                "IPv4Address": "172.19.0.2/16",
+                "IPv6Address": ""
+            }
+        },
+        "Status": {
+            "IPAM": {
+                "Subnets": {
+                    "172.19.0.0/16": {
+                        "IPsInUse": 5,
+                        "DynamicIPsAvailable": 65531
+                    }
+                }
+            }
+        }
+    },
+    {
+        "Name": "socket-proxy",
+        "Id": "53547221c2d606cb37f3c0441d7825482440610df51a67fbc69fb68e3057a187",
+        "Created": "2025-12-08T13:40:41.872345782+01:00",
+        "Scope": "local",
+        "Driver": "bridge",
+        "EnableIPv4": true,
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": {},
+            "Config": [
+                {
+                    "Subnet": "172.22.0.0/16",
+                    "IPRange": "",
+                    "Gateway": "172.22.0.1"
+                }
+            ]
+        },
+        "Internal": false,
+        "Attachable": false,
+        "Ingress": false,
+        "ConfigFrom": {
+            "Network": ""
+        },
+        "ConfigOnly": false,
+        "Options": {},
+        "Labels": {},
+        "Containers": {
+            "099a0339cfb1167fef8fc51e77977b3cfef9e4856a01a8395629d6f718be1537": {
+                "Name": "compose-traefik-1",
+                "EndpointID": "09aa73f5df3e4650ec407caf098d0b13c83010ed2f030aabfdbe2044f0aba6d7",
+                "MacAddress": "8a:85:be:22:0a:f7",
+                "IPv4Address": "172.22.0.3/16",
+                "IPv6Address": ""
+            },
+            "3dfad4266b1c2b3368fad68ae2321bae5608f5514c9a8cf39a2612559c64c47a": {
+                "Name": "compose-docker-socket-proxy-1",
+                "EndpointID": "8788895f61877e94005953dadecfbbd6db20c2449bec467685fd7760af45ad38",
+                "MacAddress": "66:c8:05:e1:c6:ea",
+                "IPv4Address": "172.22.0.2/16",
+                "IPv6Address": ""
+            }
+        },
+        "Status": {
+            "IPAM": {
+                "Subnets": {
+                    "172.22.0.0/16": {
+                        "IPsInUse": 5,
+                        "DynamicIPsAvailable": 65531
+                    }
+                }
+            }
+        }
+    }
+]

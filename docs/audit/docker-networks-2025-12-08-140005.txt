@@ -1,0 +1,9 @@
+NETWORK ID     NAME              DRIVER    SCOPE
+146b0f7ce642   bridge            bridge    local
+9dcfb81805ef   edge              bridge    local
+93d70e78d80f   host              host      local
+61df20020a35   internal          bridge    local
+f6b1996a7176   mgmt              bridge    local
+96f842adbd30   none              null      local
+53547221c2d6   socket-proxy      bridge    local
+ae620758c3b0   traefik_default   bridge    local
