@@ -24,8 +24,11 @@ services:
       - N8N_SAMESITE_COOKIE=none
     volumes:
       - n8n_data:/home/node/.n8n
+    extra_hosts:
+      - "mail.inlock.ai:172.24.0.7"
     networks:
       - mgmt
+      - mail
       # SECURITY: Removed 'edge' network - access only via Traefik on mgmt network
       - internal
     secrets:
@@ -64,6 +67,9 @@ networks:
   internal:
     external: true
     name: internal
+  mail:
+    external: true
+    name: mail
 
 volumes:
   n8n_data:
