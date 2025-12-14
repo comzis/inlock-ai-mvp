@@ -1,0 +1,49 @@
+http:
+  routers:
+    strapi:
+      rule: "Host(`cms.inlock.ai`)"
+      service: strapi
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: le-dns
+
+    posthog:
+      rule: "Host(`analytics.inlock.ai`)"
+      service: posthog
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: le-dns
+
+    mailu-web:
+      rule: "Host(`mail.inlock.ai`)"
+      service: mailu-front
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: le-dns
+      middlewares:
+        - proto-header
+
+  services:
+    strapi:
+      loadBalancer:
+        servers:
+          - url: "http://strapi_app:1337"
+
+    posthog:
+      loadBalancer:
+        servers:
+          - url: "http://posthog_web:8000"
+
+    mailu-front:
+      loadBalancer:
+        servers:
+          - url: "http://mailu-mailu-front-1:80"
+
+  middlewares:
+    proto-header:
+      headers:
+        customRequestHeaders:
+          X-Forwarded-Proto: "https"
