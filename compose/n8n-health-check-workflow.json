@@ -129,6 +129,7 @@
         "messages": {
           "values": [
             {
+              "role": "user",
               "content": "=You are a Site Reliability Engineer Agent.\n\nThe following services have failed health checks:\n{{ JSON.stringify($json.failures) }}\n\nPlease analyze the potential causes and suggest 3 specific steps to fix them.\n\nAlso write a short incident report summary."
             }
           ]
