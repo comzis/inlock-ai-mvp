@@ -161,15 +161,27 @@
       "name": "Healthy - Do Nothing"
     },
     {
-      "parameters": {},
-      "type": "n8n-nodes-base.noOp",
-      "typeVersion": 1,
+      "parameters": {
+        "fromEmail": "admin@inlock.ai",
+        "toEmail": "admin@inlock.ai",
+        "subject": "=[Alert] App Health Check Failed - {{ $today }}",
+        "text": "={{ $json.content }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
       "position": [
         1380,
         460
       ],
-      "id": "send-alert",
-      "name": "Send Alert (Config Required)"
+      "id": "send-email-alert",
+      "name": "Send Email Alert",
+      "credentials": {
+        "smtp": {
+          "id": "YOUR_SMTP_CREDENTIAL_ID",
+          "name": "SMTP account"
+        }
+      }
     },
     {
       "parameters": {},
@@ -185,27 +197,125 @@
   ],
   "connections": {
     "Every 1 Hour": {
-        "main": [
-            [
-                { "node": "Check Homepage", "type": "main", "index": 0 },
-                { "node": "Check n8n (External)", "type": "main", "index": 0 },
-                { "node": "Check Traefik (Internal)", "type": "main", "index": 0 },
-                { "node": "Check Portainer (Internal)", "type": "main", "index": 0 }
-            ]
+      "main": [
+        [
+          {
+            "node": "Check Homepage",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Check n8n (External)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Check Traefik (Internal)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Check Portainer (Internal)",
+            "type": "main",
+            "index": 0
+          }
         ]
+      ]
     },
-    "Check Homepage": { "main": [[{ "node": "Merge Checks", "type": "main", "index": 0 }]] },
-    "Check n8n (External)": { "main": [[{ "node": "Merge Checks", "type": "main", "index": 1 }]] },
-    "Check Traefik (Internal)": { "main": [[{ "node": "Merge Checks", "type": "main", "index": 2 }]] },
-    "Check Portainer (Internal)": { "main": [[{ "node": "Merge Checks", "type": "main", "index": 3 }]] },
-    "Merge Checks": { "main": [[{ "node": "Analyze Results", "type": "main", "index": 0 }]] },
-    "Analyze Results": { "main": [[{ "node": "Is Healthy?", "type": "main", "index": 0 }]] },
+    "Check Homepage": {
+      "main": [
+        [
+          {
+            "node": "Merge Checks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check n8n (External)": {
+      "main": [
+        [
+          {
+            "node": "Merge Checks",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Check Traefik (Internal)": {
+      "main": [
+        [
+          {
+            "node": "Merge Checks",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Check Portainer (Internal)": {
+      "main": [
+        [
+          {
+            "node": "Merge Checks",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Merge Checks": {
+      "main": [
+        [
+          {
+            "node": "Analyze Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze Results": {
+      "main": [
+        [
+          {
+            "node": "Is Healthy?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
     "Is Healthy?": {
-        "main": [
-            [{ "node": "Healthy - Do Nothing", "type": "main", "index": 0 }],
-            [{ "node": "AI SRE Agent", "type": "main", "index": 0 }]
+      "main": [
+        [
+          {
+            "node": "Healthy - Do Nothing",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI SRE Agent",
+            "type": "main",
+            "index": 0
+          }
         ]
+      ]
     },
-    "AI SRE Agent": { "main": [[{ "node": "Send Alert (Config Required)", "type": "main", "index": 0 }]] }
+    "AI SRE Agent": {
+      "main": [
+        [
+          {
+            "node": "Send Alert (Config Required)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
   }
 }
