@@ -1,0 +1,189 @@
+# Inlock AI Infrastructure - Cursor AI Rules
+
+## Project Overview
+This is the Inlock AI infrastructure repository containing Docker Compose configurations, Traefik reverse proxy setup, deployment scripts, and comprehensive documentation.
+
+## Directory Structure - DO NOT DEVIATE
+
+```
+inlock-ai-mvp/
+├── compose/              # ALL Docker Compose service definitions
+├── traefik/              # ALL Traefik configurations
+│   └── dynamic/          # Dynamic configs (routers, middlewares, services)
+├── docs/                 # ALL documentation
+│   ├── reports/          # Status reports by topic (auth0, mailu, ssh, sso, incidents)
+│   ├── audit/            # System audit logs
+│   └── tooling-deployment/  # Deployment guides
+├── scripts/              # ALL automation scripts
+├── ansible/              # Infrastructure automation
+├── grafana/              # Monitoring dashboards
+├── secrets/              # Secret templates (NOT actual secrets)
+└── env.example           # Environment variable template
+```
+
+## CRITICAL RULES - Never Break These
+
+### ❌ What to Avoid (NEVER DO)
+
+1. **DO NOT create competing directory structures**
+   - No `infrastructure/` directory
+   - No separate config directories parallel to existing ones
+   - Use existing `compose/`, `traefik/`, `docs/` structure
+
+2. **DO NOT duplicate configuration files**
+   - No `email.yml` AND `mailu.yml` for same service
+   - No `main-stack.yml` AND `stack.yml`
+   - One authoritative file per service
+
+3. **DO NOT ignore Git workflow**
+   - Always check for unmerged branches first
+   - Pull latest before making changes
+   - Use feature branches for new work
+
+4. **DO NOT deviate from established patterns**
+   - Docker Compose files go in `compose/`
+   - Traefik configs go in `traefik/dynamic/`
+   - Documentation goes in `docs/` (organized by topic)
+   - Scripts go in `scripts/`
+
+### ✅ Best Practices - Always Follow
+
+1. **File Organization**
+   - Docker Compose: `compose/<service>.yml`
+   - Traefik routers: `traefik/dynamic/routers.yml`
+   - Status reports: `docs/reports/<topic>/`
+   - Deployment guides: `docs/tooling-deployment/`
+
+2. **Naming Conventions**
+   - Services: `<service-name>.yml` (e.g., `mailu.yml`, `tooling.yml`)
+   - Scripts: `<action>-<target>.sh` (e.g., `test-mailu-quick.sh`)
+   - Docs: Descriptive names in CAPS with hyphens
+
+3. **Git Workflow**
+   ```bash
+   # Before making changes
+   git pull origin main
+   
+   # Create feature branch
+   git checkout -b feature/<description>
+   
+   # Make changes, test, commit
+   git commit -m "type: descriptive message"
+   
+   # Push and create PR
+   git push origin feature/<description>
+   ```
+
+4. **Documentation Updates**
+   - Update README.md for major changes
+   - Add deployment guides to `docs/tooling-deployment/`
+   - Status reports go to `docs/reports/<topic>/`
+   - Keep root directory clean (only README, QUICK-START, etc.)
+
+## Environment & Secrets
+
+**Locations:**
+- Templates: `/env.example` in repo
+- Actual envs: `/home/comzis/deployments/.env.*` (NOT in repo)
+- Docker secrets: `/home/comzis/apps/secrets-real/` (NOT in repo)
+
+**Never commit:**
+- `.env` files with real values
+- Secret files
+- Passwords or tokens
+
+## Deployment Commands
+
+**Standard workflow:**
+```bash
+cd /home/comzis/inlock
+docker compose -f compose/<service>.yml up -d
+```
+
+**With environment file:**
+```bash
+docker compose -f compose/<service>.yml \
+  --env-file /home/comzis/deployments/.env.<service> up -d
+```
+
+## Security Guidelines
+
+1. **Network Isolation**
+   - Admin services: Only on `mgmt` network
+   - Public services: On `edge` network via Traefik
+   - Internal services: On `internal` network only
+
+2. **Authentication**
+   - All admin interfaces behind Auth0 + OAuth2-Proxy
+   - IP allowlists as secondary layer
+   - No direct service exposure
+
+3. **Hardening**
+   - Drop ALL capabilities
+   - Use `no-new-privileges`
+   - Read-only filesystems where possible
+   - Load secrets via Docker secrets
+
+## Code Style
+
+**Docker Compose:**
+- Use secrets for sensitive data
+- Always define networks explicitly
+- Include health checks
+- Set resource limits
+- Use specific image tags (not `latest` in production)
+
+**Shell Scripts:**
+- Include shebang: `#!/bin/bash`
+- Set error handling: `set -euo pipefail`
+- Add help text
+- Make executable: `chmod +x`
+
+## Making Changes
+
+### Adding a New Service
+
+1. Create `compose/<service>.yml`
+2. Add to `compose/stack.yml` includes (if part of main stack)
+3. Create deployment guide in `docs/tooling-deployment/`
+4. Add Traefik routers to `traefik/dynamic/routers.yml`
+5. Update `env.example` with new variables
+6. Test deployment
+7. Update README.md
+
+### Modifying Existing Service
+
+1. Check current state: `docker compose ps <service>`
+2. Edit `compose/<service>.yml`
+3. Validate: `docker compose -f compose/<service>.yml config`
+4. Deploy: `docker compose -f compose/<service>.yml up -d`
+5. Verify: Check logs and health
+6. Document changes
+
+### Organizing Files
+
+- **Status reports** → `docs/reports/<topic>/`
+- **Audit logs** → `docs/audit/`
+- **Deployment guides** → `docs/tooling-deployment/`
+- **Scripts** → `scripts/`
+- **Configs** → Appropriate subdirectory
+
+## Quick Reference
+
+**Repository:** https://github.com/comzis/inlock-ai-mvp
+**Server path:** /home/comzis/inlock (symlink to /home/comzis/projects/inlock-ai-mvp)
+**Deployments:** /home/comzis/deployments/
+**Secrets:** /home/comzis/apps/secrets-real/
+
+## When in Doubt
+
+1. Check existing patterns in the repo
+2. Look at similar services
+3. Review this file
+4. Ask before creating new directory structures
+5. Keep it simple - use what exists
+
+---
+
+*Last Updated: 2024-12-14*
+*Maintain this file as project evolves*
