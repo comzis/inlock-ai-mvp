@@ -1,0 +1,148 @@
+{
+  "Version": "1.90.9-t6e8a4f2de-g19196f361",
+  "TUN": true,
+  "BackendState": "Running",
+  "HaveNodeKey": true,
+  "AuthURL": "",
+  "TailscaleIPs": [
+    "100.83.222.69",
+    "fd7a:115c:a1e0::6f01:de5c"
+  ],
+  "Self": {
+    "ID": "nDE9C8oPCo11CNTRL",
+    "PublicKey": "nodekey:48724818b63630ccf7df99352bc4463eb000af474000b94eca147ed36f53de44",
+    "HostName": "vmi2953354",
+    "DNSName": "vmi2953354-1.tail4415f5.ts.net.",
+    "OS": "linux",
+    "UserID": 378073790933361,
+    "TailscaleIPs": [
+      "100.83.222.69",
+      "fd7a:115c:a1e0::6f01:de5c"
+    ],
+    "AllowedIPs": [
+      "100.83.222.69/32",
+      "fd7a:115c:a1e0::6f01:de5c/128"
+    ],
+    "Addrs": [
+      "156.67.29.52:41641",
+      "172.17.0.1:41641",
+      "172.18.0.1:41641",
+      "172.19.0.1:41641",
+      "172.20.0.1:41641",
+      "172.21.0.1:41641",
+      "172.22.0.1:41641",
+      "[2a02:c207:2295:3354::1]:41641"
+    ],
+    "CurAddr": "",
+    "Relay": "fra",
+    "PeerRelay": "",
+    "RxBytes": 0,
+    "TxBytes": 0,
+    "Created": "2025-12-07T11:35:11.477499507Z",
+    "LastWrite": "0001-01-01T00:00:00Z",
+    "LastSeen": "0001-01-01T00:00:00Z",
+    "LastHandshake": "0001-01-01T00:00:00Z",
+    "Online": true,
+    "ExitNode": false,
+    "ExitNodeOption": false,
+    "Active": false,
+    "PeerAPIURL": [
+      "http://100.83.222.69:38005",
+      "http://[fd7a:115c:a1e0::6f01:de5c]:50795"
+    ],
+    "TaildropTarget": 0,
+    "NoFileSharingReason": "",
+    "Capabilities": [
+      "HTTPS://TAILSCALE.COM/s/DEPRECATED-NODE-CAPS#see-https://github.com/tailscale/tailscale/issues/11508",
+      "https://tailscale.com/cap/file-sharing",
+      "https://tailscale.com/cap/is-admin",
+      "https://tailscale.com/cap/is-owner",
+      "https://tailscale.com/cap/ssh",
+      "https://tailscale.com/cap/tailnet-lock",
+      "probe-udp-lifetime",
+      "ssh-behavior-v1",
+      "ssh-env-vars",
+      "store-appc-routes",
+      "tailnet-display-name"
+    ],
+    "CapMap": {
+      "https://tailscale.com/cap/file-sharing": null,
+      "https://tailscale.com/cap/is-admin": null,
+      "https://tailscale.com/cap/is-owner": null,
+      "https://tailscale.com/cap/ssh": null,
+      "https://tailscale.com/cap/tailnet-lock": null,
+      "probe-udp-lifetime": null,
+      "ssh-behavior-v1": null,
+      "ssh-env-vars": null,
+      "store-appc-routes": null,
+      "tailnet-display-name": [
+        "streamartmedia@gmail.com"
+      ]
+    },
+    "InNetworkMap": true,
+    "InMagicSock": false,
+    "InEngine": false,
+    "KeyExpiry": "2026-06-05T11:35:11Z"
+  },
+  "Health": [],
+  "MagicDNSSuffix": "tail4415f5.ts.net",
+  "CurrentTailnet": {
+    "Name": "streamartmedia@gmail.com",
+    "MagicDNSSuffix": "tail4415f5.ts.net",
+    "MagicDNSEnabled": true
+  },
+  "CertDomains": null,
+  "Peer": {
+    "nodekey:8f02d3c5d6d1e65851a413473ab09b2644ec51b4efca6e88907a666211206e07": {
+      "ID": "nt9nqzz1Dy11CNTRL",
+      "PublicKey": "nodekey:8f02d3c5d6d1e65851a413473ab09b2644ec51b4efca6e88907a666211206e07",
+      "HostName": "comzis",
+      "DNSName": "comzis.tail4415f5.ts.net.",
+      "OS": "macOS",
+      "UserID": 378073790933361,
+      "TailscaleIPs": [
+        "100.96.110.8",
+        "fd7a:115c:a1e0::1101:6e38"
+      ],
+      "AllowedIPs": [
+        "100.96.110.8/32",
+        "fd7a:115c:a1e0::1101:6e38/128"
+      ],
+      "Addrs": null,
+      "CurAddr": "",
+      "Relay": "fra",
+      "PeerRelay": "",
+      "RxBytes": 27717824,
+      "TxBytes": 43130440,
+      "Created": "2025-12-06T11:17:47.676769692Z",
+      "LastWrite": "2025-12-08T14:00:05.192429622+01:00",
+      "LastSeen": "0001-01-01T00:00:00Z",
+      "LastHandshake": "2025-12-08T14:00:04.540276683+01:00",
+      "Online": true,
+      "ExitNode": false,
+      "ExitNodeOption": false,
+      "Active": true,
+      "PeerAPIURL": [
+        "http://100.96.110.8:56361",
+        "http://[fd7a:115c:a1e0::1101:6e38]:52626"
+      ],
+      "TaildropTarget": 1,
+      "NoFileSharingReason": "",
+      "InNetworkMap": true,
+      "InMagicSock": true,
+      "InEngine": true,
+      "KeyExpiry": "2026-06-04T11:17:47Z"
+    }
+  },
+  "User": {
+    "378073790933361": {
+      "ID": 378073790933361,
+      "LoginName": "streamartmedia@gmail.com",
+      "DisplayName": "Milorad Stevanovic",
+      "ProfilePicURL": "https://lh3.googleusercontent.com/a/ACg8ocJYkQiEotCG66RnOjiePVaBF5fuIRWf4D8AjFDKVPJpIdyWBrE=s96-c"
+    }
+  },
+  "ClientVersion": {
+    "RunningLatest": true
+  }
+}

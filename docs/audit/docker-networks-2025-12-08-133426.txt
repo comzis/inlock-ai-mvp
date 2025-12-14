@@ -1,0 +1,5 @@
+NETWORK ID     NAME              DRIVER    SCOPE
+146b0f7ce642   bridge            bridge    local
+93d70e78d80f   host              host      local
+96f842adbd30   none              null      local
+ae620758c3b0   traefik_default   bridge    local

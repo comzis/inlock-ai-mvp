@@ -1,0 +1,7 @@
+compose-homepage-1
+compose-docker-socket-proxy-1
+compose-traefik-1
+compose-postgres-1
+compose-portainer-1
+compose-n8n-1
+compose-cadvisor-1

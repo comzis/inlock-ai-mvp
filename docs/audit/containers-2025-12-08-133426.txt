@@ -1,0 +1,4 @@
+NAMES       IMAGE                           STATUS
+traefik     traefik:v3.6                    Up 4 hours
+portainer   portainer/portainer-ce:latest   Up 4 hours
+homepage    nginx:alpine                    Up 5 hours
