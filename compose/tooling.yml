@@ -1,0 +1,216 @@
+version: '3.8'
+
+services:
+  # -------------------------------------------------------------------------
+  # STRAPI (Headless CMS)
+  # -------------------------------------------------------------------------
+  strapi:
+    build:
+      context: .
+      dockerfile: strapi.Dockerfile
+    container_name: strapi_app
+    restart: unless-stopped
+    env_file: .env.tooling
+    environment:
+      DATABASE_CLIENT: postgres
+      DATABASE_HOST: strapi_db
+      DATABASE_PORT: 5432
+      DATABASE_NAME: ${STRAPI_DB_NAME:-strapi}
+      DATABASE_USERNAME: ${STRAPI_DB_USER:-strapi}
+      DATABASE_PASSWORD: ${STRAPI_DB_PASSWORD:?Required}
+      DATABASE_SSL: 'false'
+      NODE_ENV: production
+    command: >
+      /bin/sh -c "if [ ! -f package.json ]; then 
+        yes n | npx -y create-strapi-app@latest . --no-run --ts --dbclient=postgres --dbhost=strapi_db --dbport=5432 --dbname=$${DATABASE_NAME} --dbusername=$${DATABASE_USERNAME} --dbpassword=$${DATABASE_PASSWORD} --dbssl=false --skip-cloud; 
+      fi &&  npm install &&  npm run build &&  npm run start"
+    volumes:
+      - strapi_data:/srv/app
+    ports:
+      - "1337:1337"
+    networks:
+      - tooling_net
+      - traefik_public
+    depends_on:
+      - strapi_db
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.strapi.rule=Host(`${CMS_HOSTNAME}`)"
+      - "traefik.http.routers.strapi.entrypoints=websecure"
+      - "traefik.http.routers.strapi.tls.certresolver=letsen"
+      - "traefik.http.services.strapi.loadbalancer.server.port=1337"
+
+  strapi_db:
+    image: postgres:15-alpine
+    container_name: strapi_db
+    restart: unless-stopped
+    env_file: .env.tooling
+    environment:
+      POSTGRES_USER: ${STRAPI_DB_USER:-strapi}
+      POSTGRES_PASSWORD: ${STRAPI_DB_PASSWORD:?Required}
+      POSTGRES_DB: ${STRAPI_DB_NAME:-strapi}
+    volumes:
+      - strapi_pg_data:/var/lib/postgresql/data
+    networks:
+      - tooling_net
+
+  # -------------------------------------------------------------------------
+  # POSTHOG (Product Analytics)
+  # Based on PostHog's standard docker-compose
+  # -------------------------------------------------------------------------
+  posthog_db:
+    image: postgres:15-alpine
+    container_name: posthog_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: ${POSTHOG_DB_PASSWORD:?Required}
+      POSTGRES_DB: posthog
+      POSTGRES_USER: posthog
+    volumes:
+      - posthog_pg_data:/var/lib/postgresql/data
+    networks:
+      - tooling_net
+
+  posthog_redis:
+    image: redis:6-alpine
+    container_name: posthog_redis
+    restart: unless-stopped
+    networks:
+      - tooling_net
+
+  # ClickHouse for analytics data
+  posthog_clickhouse:
+    image: clickhouse/clickhouse-server:24.3-alpine
+    container_name: posthog_clickhouse
+    restart: unless-stopped
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+    volumes:
+      - posthog_clickhouse_data:/var/lib/clickhouse
+    environment:
+      - CLICKHOUSE_USER=default
+      - CLICKHOUSE_PASSWORD=dbbKUiRTs8knEbH5
+      - CLICKHOUSE_DB=posthog
+    networks:
+      - tooling_net
+
+  # Kafka + Zookeeper for event ingestion
+  posthog_zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: posthog_zookeeper
+    restart: unless-stopped
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - tooling_net
+
+  posthog_kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: posthog_kafka
+    restart: unless-stopped
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'posthog_zookeeper:2181'
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://posthog_kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+    depends_on:
+      - posthog_zookeeper
+    networks:
+      - tooling_net
+
+  # PostHog Web (Django app)
+  posthog_web:
+    image: posthog/posthog:latest
+    container_name: posthog_web
+    restart: unless-stopped
+    env_file: .env.tooling
+    environment:
+      - DATABASE_URL=postgres://posthog:${POSTHOG_DB_PASSWORD}@posthog_db:5432/posthog
+      - REDIS_URL=redis://posthog_redis:6379/
+      - CLICKHOUSE_HOST=posthog_clickhouse
+      - CLICKHOUSE_HOST=posthog_clickhouse
+      - CLICKHOUSE_PORT=8123
+      - CLICKHOUSE_SECURE=false
+      - CLICKHOUSE_USER=default
+      - CLICKHOUSE_PASSWORD=dbbKUiRTs8knEbH5
+      - CLICKHOUSE_DATABASE=posthog
+      - KAFKA_URL=kafka://posthog_kafka:9092
+      - SITE_URL=https://${ANALYTICS_HOSTNAME}
+      - IS_BEHIND_PROXY=True
+      - DISABLE_SECURE_SSL_REDIRECT=True # Handled by Traefik
+    depends_on:
+      - posthog_db
+      - posthog_redis
+      - posthog_clickhouse
+      - posthog_kafka
+    networks:
+      - tooling_net
+      - traefik_public
+
+  # PostHog Async Workers
+  posthog_worker:
+    image: posthog/posthog:latest
+    container_name: posthog_worker
+    restart: unless-stopped
+    command: ./bin/docker-worker
+    env_file: .env.tooling
+    environment:
+      - CLICKHOUSE_HOST=posthog_clickhouse
+      - CLICKHOUSE_PORT=8123
+      - CLICKHOUSE_SECURE=false
+      - CLICKHOUSE_USER=default
+      - CLICKHOUSE_PASSWORD=dbbKUiRTs8knEbH5
+      - DATABASE_URL=postgres://posthog:${POSTHOG_DB_PASSWORD}@posthog_db:5432/posthog
+      - REDIS_URL=redis://posthog_redis:6379/
+      - CLICKHOUSE_DATABASE=posthog
+      - KAFKA_URL=kafka://posthog_kafka:9092
+      - SITE_URL=https://${ANALYTICS_HOSTNAME}
+    depends_on:
+      - posthog_db
+      - posthog_redis
+      - posthog_clickhouse
+      - posthog_kafka
+    networks:
+      - tooling_net
+
+  posthog_plugins:
+    image: posthog/posthog:latest
+    container_name: posthog_plugins
+    restart: unless-stopped
+    command: ./bin/docker-plugins-server
+    env_file: .env.tooling
+    environment:
+      - DATABASE_URL=postgres://posthog:${POSTHOG_DB_PASSWORD}@posthog_db:5432/posthog
+      - REDIS_URL=redis://posthog_redis:6379/
+      - CLICKHOUSE_HOST=posthog_clickhouse
+      - CLICKHOUSE_PORT=8123
+      - CLICKHOUSE_SECURE=false
+      - CLICKHOUSE_USER=default
+      - CLICKHOUSE_PASSWORD=dbbKUiRTs8knEbH5
+      - CLICKHOUSE_DATABASE=posthog
+      - KAFKA_URL=kafka://posthog_kafka:9092
+      - SITE_URL=https://${ANALYTICS_HOSTNAME}
+    depends_on:
+      - posthog_db
+      - posthog_redis
+      - posthog_clickhouse
+      - posthog_kafka
+    networks:
+      - tooling_net
+
+networks:
+  tooling_net:
+    driver: bridge
+  traefik_public:
+    external: true
+
+volumes:
+  strapi_pg_data:
+  strapi_data:
+  posthog_pg_data:
+  posthog_clickhouse_data:
