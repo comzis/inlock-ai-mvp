@@ -102,6 +102,8 @@ inlock-ai-mvp/
 - `.env` files with real values
 - Secret files
 - Passwords or tokens
+- SSH private keys (`*.key`, `*_key`, `id_*`)
+- SSH public keys (`*.pub`, `*_key.pub`) - unless intentionally public
 
 ## Deployment Commands
 
