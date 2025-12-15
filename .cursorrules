@@ -70,7 +70,7 @@ inlock-ai-mvp/
    - **Bind Mounts:** For configuration files (e.g. `/overrides/config.inc.php`)
    - **Verify:** Always test `docker compose restart` after changes
 
-3. **Git Workflow**
+4. **Git Workflow**
    ```bash
    # Before making changes
    git pull origin main
@@ -85,7 +85,7 @@ inlock-ai-mvp/
    git push origin feature/<description>
    ```
 
-4. **Documentation Updates**
+5. **Documentation Updates**
    - Update README.md for major changes
    - Add deployment guides to `docs/tooling-deployment/`
    - Status reports go to `docs/reports/<topic>/`
@@ -195,7 +195,6 @@ docker compose -f compose/<service>.yml \
 3. Review this file
 4. Ask before creating new directory structures
 5. Keep it simple - use what exists
-
 
 ---
 
