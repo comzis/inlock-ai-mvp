@@ -34,6 +34,20 @@ http:
         referrerPolicy: no-referrer-when-downgrade
         frameDeny: false
         customFrameOptionsValue: "SAMEORIGIN"
+    coolify-headers:
+      headers:
+        sslRedirect: true
+        stsSeconds: 63072000
+        stsIncludeSubdomains: true
+        stsPreload: true
+        contentTypeNosniff: false
+        referrerPolicy: no-referrer-when-downgrade
+        frameDeny: false
+        customFrameOptionsValue: "SAMEORIGIN"
+        customRequestHeaders:
+          X-Forwarded-Proto: "https"
+        # Don't override Content-Type - let Coolify set it correctly
+        # Coolify uses modern JavaScript that may need different content types
     dashboard-auth:
       basicAuth:
         usersFile: /run/secrets/traefik-basicauth
@@ -116,3 +130,8 @@ http:
         regex: ".*"
         replacement: "https://deploy.inlock.ai/"
         permanent: false
+    coolify-login-to-root:
+      redirectRegex:
+        regex: "^https://deploy.inlock.ai/login"
+        replacement: "https://deploy.inlock.ai/"
+        permanent: true
