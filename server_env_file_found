@@ -1,0 +1,50 @@
+# Domain and contact
+DOMAIN=inlock.ai
+EMAIL=admin@inlock.ai
+
+# Traefik / ACME (Cloudflare DNS) – use a scoped DNS-edit token
+CLOUDFLARE_API_TOKEN=pXzVu-4fCm01wS4vZFSEv54tTKNNuXELODiNOpsg
+
+# Auth0 Configuration (for OAuth2-Proxy and NextAuth.js)
+# Get these from Auth0 Dashboard: https://manage.auth0.com
+AUTH0_ISSUER=https://comzis.eu.auth0.com/
+AUTH0_ADMIN_CLIENT_ID=aI9HhGX6SKQcKEsde2aJ7q2OqpxmnM1o
+AUTH0_ADMIN_CLIENT_SECRET=ZMRvfzfRaXZHpQCySbMfdqlRgacxDGIs8xrR4bNsLjh943qOp3QNjgL4pA9YIYLt
+
+# OAuth2-Proxy
+OAUTH2_PROXY_COOKIE_SECRET=P7Rk+XEt3bIDCZwAPFLwN/iA2najs96H
+
+# Vault (Dev Mode - DO NOT USE IN PRODUCTION)
+# For production, use AppRole authentication instead
+VAULT_ROOT_TOKEN=dev-only-token-change-in-production
+VAULT_ADDR=http://localhost:8200
+
+# Vault AppRole (Production - Optional)
+# VAULT_ROLE_ID=your-role-id
+# VAULT_SECRET_ID=your-secret-id
+
+# n8n database
+N8N_DB=n8n
+N8N_DB_USER=n8n
+# Password provided via secret file n8n-db-password
+
+# Postgres (shared with n8n)
+POSTGRES_DB=${N8N_DB}
+POSTGRES_USER=${N8N_DB_USER}
+# Password via secret file n8n-db-password
+
+
+AUTH0_WEB_CLIENT_ID=40SrVWGjZvCH1wpdukhJI33tpDkeOSTd
+AUTH0_WEB_CLIENT_SECRET=uwT5Eu3Zx2tmKNK2VjiEeI747BMV6z9NAbf0_-Hjo8WqSOTknpuYRU2xouUtI_7T
+NEXTAUTH_URL=https://inlock.ai
+NEXTAUTH_SECRET=Yifljnl3mvEVwIUMjPaKOv7jiXSK5-5Zp-qpJmz7rN8
+
+# Mailu Missing Configuration
+HOSTNAMES=mail.inlock.ai
+POSTMASTER=admin
+TLS_FLAVOR=mail-letsencrypt
+WEBMAIL_ADDRESS=webmail
+ADMIN_ADDRESS=admin
+WEB_WEBMAIL=/webmail
+WEB_ADMIN=/admin
+SUBNET=172.24.0.0/16

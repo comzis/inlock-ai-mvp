@@ -1,0 +1,163 @@
+{
+    "name": "App SRE Agent",
+    "nodes": [
+        {
+            "parameters": {
+                "options": {}
+            },
+            "type": "n8n-nodes-base.chatTrigger",
+            "typeVersion": 1.1,
+            "position": [
+                0,
+                0
+            ],
+            "id": "chat-trigger",
+            "name": "When chat message received",
+            "webhookId": "sre-chat"
+        },
+        {
+            "parameters": {
+                "options": {
+                    "systemMessage": "You are a Site Reliability Engineer (SRE) Agent for Inlock AI.\nYou have access to the host server via SSH.\n\n**Mission**:\nTroubleshoot and fix infrastructure issues. Your **HIGHEST PRIORITY** is ensuring critical services (Mail Server, Webserver/Traefik) are running.\n\n**Capabilities**:\n1. Check Docker status (`docker ps`)\n2. Check Logs (`docker logs <container>`)\n3. Restart Services (`docker restart <container>`)\n\n**Protocol**:\n- If a critical service is down, restart it immediately.\n- Verify the fix after applying it.\n- Be concise."
+                }
+            },
+            "type": "@n8n/n8n-nodes-langchain.agent",
+            "typeVersion": 1.7,
+            "position": [
+                220,
+                0
+            ],
+            "id": "sre-agent",
+            "name": "SRE Agent"
+        },
+        {
+            "parameters": {
+                "model": "gpt-4o",
+                "options": {}
+            },
+            "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "typeVersion": 1,
+            "position": [
+                220,
+                240
+            ],
+            "id": "openai-model",
+            "name": "OpenAI Chat Model",
+            "credentials": {
+                "openAiApi": {
+                    "id": "YOUR_OPENAI_CREDENTIAL_ID",
+                    "name": "OpenAI account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "content": "## Setup Instructions\n1. Double-click **\"Step 2: SSH Connection (Needs Key)\"**\n2. Create New Credential\n3. Select **Private Key** method\n4. Paste the key provided in the chat\n5. User: `comzis`, Host: `100.83.222.69`",
+                "height": 260,
+                "width": 300,
+                "color": 4
+            },
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                580,
+                -80
+            ],
+            "id": "instruction-note",
+            "name": "Sticky Note"
+        },
+        {
+            "parameters": {
+                "name": "ssh_command",
+                "description": "Execute a shell command on the host server via SSH. Use this to run docker commands.",
+                "command": "={{ $fromAI('command') }}"
+            },
+            "type": "n8n-nodes-base.ssh",
+            "typeVersion": 1,
+            "position": [
+                580,
+                240
+            ],
+            "id": "ssh-tool",
+            "name": "Step 2: SSH Connection (Needs Key)",
+            "credentials": {
+                "sshPassword": {
+                    "id": "YOUR_SSH_CREDENTIAL_ID",
+                    "name": "Host SSH"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "toolDescription": "Execute shell commands on the remote server.",
+                "toolName": "execute_command",
+                "parameters": {
+                    "properties": {
+                        "command": {
+                            "type": "string",
+                            "description": "The shell command to execute (e.g., 'docker ps', 'docker restart compose-n8n-1')"
+                        }
+                    },
+                    "required": [
+                        "command"
+                    ]
+                }
+            },
+            "type": "@n8n/n8n-nodes-langchain.toolDynamic",
+            "typeVersion": 1,
+            "position": [
+                460,
+                0
+            ],
+            "id": "dynamic-tool",
+            "name": "Execute Command Tool"
+        }
+    ],
+    "connections": {
+        "When chat message received": {
+            "main": [
+                [
+                    {
+                        "node": "SRE Agent",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "OpenAI Chat Model": {
+            "ai_languageModel": [
+                [
+                    {
+                        "node": "SRE Agent",
+                        "type": "ai_languageModel",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Execute Command Tool": {
+            "ai_tool": [
+                [
+                    {
+                        "node": "SRE Agent",
+                        "type": "ai_tool",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Step 2: SSH Connection (Needs Key)": {
+            "main": [
+                [
+                    {
+                        "node": "Execute Command Tool",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "pinData": {}
+}

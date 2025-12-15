@@ -7,11 +7,14 @@
 secrets-real/
 **/secrets-real/
 *.key
+*.pub
 *.crt
 *.pem
 *.htpasswd
 *-password
 *-secret
+*_key
+*_key.pub
 
 # Logs
 *.log

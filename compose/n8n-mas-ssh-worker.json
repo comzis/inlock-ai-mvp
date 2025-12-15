@@ -1,0 +1,63 @@
+{
+    "active": false,
+    "versionId": "c4b1deb4-3b7d-4bad-9bdd-2b0d7b3dcb7a",
+    "name": "MAS - SSH Worker (The Hands)",
+    "nodes": [
+        {
+            "parameters": {},
+            "type": "n8n-nodes-base.executeWorkflowTrigger",
+            "typeVersion": 1,
+            "position": [
+                0,
+                0
+            ],
+            "name": "When Called by Specialist"
+        },
+        {
+            "parameters": {
+                "command": "={{ $json.command }}"
+            },
+            "type": "n8n-nodes-base.ssh",
+            "typeVersion": 1,
+            "position": [
+                220,
+                0
+            ],
+            "name": "Execute Command on Host",
+            "credentials": {
+                "sshPassword": {
+                    "id": "QRkl5qdLKENhc0Vi",
+                    "name": "Host SSH"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "content": "## 1. Setup SSH Here\nThis is the **ONLY** place you need SSH credentials.\n1. Double-click Node.\n2. Select your SSH Key Credential.\n3. Save.",
+                "height": 200,
+                "width": 300,
+                "color": 4
+            },
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                220,
+                -200
+            ],
+            "name": "Setup Note"
+        }
+    ],
+    "connections": {
+        "When Called by Specialist": {
+            "main": [
+                [
+                    {
+                        "node": "Execute Command on Host",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    }
+}

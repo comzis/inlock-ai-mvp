@@ -91,7 +91,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const results = $('Merge Checks').all();\nconst failures = [];\n\nresults.forEach(item => {\n  const key = Object.keys(item.json)[0]; \n  // n8n merge node might behave differently depending on inputs, simplifying logic\n  // Check for error property or status code != 200\n  if (item.error) {\n      failures.push({ service: 'unknown', error: item.error.message });\n  } \n});\n\n// Check individual node executions\nconst nodesToCheck = ['Check Homepage', 'Check n8n (External)', 'Check Traefik (Internal)', 'Check Portainer (Internal)'];\n\nfor (const nodeName of nodesToCheck) {\n    const items = $items(nodeName);\n    if (items.length > 0) {\n        // If node ran, check if it failed (it continues on fail)\n        // In n8n v1, failed execution with continueOnFail might wrap data\n        const firstItem = items[0];\n        if (firstItem.json.error || (firstItem.json.status && firstItem.json.status !== 200)) {\n             failures.push({\n                 service: nodeName,\n                 status: firstItem.json.status || 'ERROR',\n                 error: firstItem.json.error || 'Unknown Error'\n             });\n        }\n    } else {\n        failures.push({ service: nodeName, error: 'Did not run' });\n    }\n}\n\nreturn { failures, isHealthy: failures.length === 0 };"
+        "jsCode": "const results = $('Merge Checks').all();\nconst failures = [];\n\nresults.forEach(item => {\n  const key = Object.keys(item.json)[0]; \n  // n8n merge node might behave differently depending on inputs, simplifying logic\n  // Check for error property or status code != 200\n  if (item.error) {\n      failures.push({ service: 'unknown', error: item.error.message });\n  } \n});\n\n// Check individual node executions\nconst nodesToCheck = ['Check Homepage', 'Check n8n (External)', 'Check Traefik (Internal)', 'Check Portainer (Internal)'];\n\nfor (const nodeName of nodesToCheck) {\n    let items = [];\n    try {\n        items = $items(nodeName);\n    } catch (e) {\n        // Node did not execute\n        items = [];\n    }\n    \n    if (items.length > 0) {\n        // If node ran, check if it failed (it continues on fail)\n        // In n8n v1, failed execution with continueOnFail might wrap data\n        const firstItem = items[0];\n        if (firstItem.json.error || (firstItem.json.status && firstItem.json.status !== 200)) {\n             failures.push({\n                 service: nodeName,\n                 status: firstItem.json.status || 'ERROR',\n                 error: firstItem.json.error || 'Unknown Error'\n             });\n        }\n    } else {\n        failures.push({ service: nodeName, error: 'Did not run or execution skipped' });\n    }\n}\n\nreturn { failures, isHealthy: failures.length === 0 };"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 1,
@@ -125,10 +125,12 @@
     {
       "parameters": {
         "resource": "chat",
+        "operation": "create",
         "model": "gpt-4o",
         "messages": {
           "values": [
             {
+              "role": "user",
               "content": "=You are a Site Reliability Engineer Agent.\n\nThe following services have failed health checks:\n{{ JSON.stringify($json.failures) }}\n\nPlease analyze the potential causes and suggest 3 specific steps to fix them.\n\nAlso write a short incident report summary."
             }
           ]
@@ -161,15 +163,43 @@
       "name": "Healthy - Do Nothing"
     },
     {
-      "parameters": {},
-      "type": "n8n-nodes-base.noOp",
-      "typeVersion": 1,
+      "parameters": {
+        "fromEmail": "admin@inlock.ai",
+        "toEmail": "admin@inlock.ai",
+        "subject": "=[Alert] App Health Check Failed - {{ $today }}",
+        "html": "={{ $json.content }}\n\n<p><b><a href=\"https://n8n.inlock.ai/webhook/sre-chat\">🛠️ Chat with AI SRE Agent to Fix This</a></b></p>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
       "position": [
         1380,
         460
       ],
-      "id": "send-alert",
-      "name": "Send Alert (Config Required)"
+      "id": "send-email-alert",
+      "name": "Send Email (Needs SMTP Config)",
+      "credentials": {
+        "smtp": {
+          "id": "YOUR_SMTP_CREDENTIAL_ID",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Setup Instructions\n1. Double-click **\"Send Email (Needs SMTP Config)\"**\n2. Create New Credential\n3. User: `admin@inlock.ai`\n4. Pass: (Your Mailu Admin Pass)\n5. Host: `mail.inlock.ai`, Port: 587, Secure: StartTLS",
+        "height": 260,
+        "width": 300,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1380,
+        140
+      ],
+      "id": "instruction-note-email",
+      "name": "Note"
     },
     {
       "parameters": {},
@@ -185,27 +215,125 @@
   ],
   "connections": {
     "Every 1 Hour": {
-        "main": [
-            [
-                { "node": "Check Homepage", "type": "main", "index": 0 },
-                { "node": "Check n8n (External)", "type": "main", "index": 0 },
-                { "node": "Check Traefik (Internal)", "type": "main", "index": 0 },
-                { "node": "Check Portainer (Internal)", "type": "main", "index": 0 }
-            ]
+      "main": [
+        [
+          {
+            "node": "Check Homepage",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Check n8n (External)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Check Traefik (Internal)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Check Portainer (Internal)",
+            "type": "main",
+            "index": 0
+          }
         ]
+      ]
     },
-    "Check Homepage": { "main": [[{ "node": "Merge Checks", "type": "main", "index": 0 }]] },
-    "Check n8n (External)": { "main": [[{ "node": "Merge Checks", "type": "main", "index": 1 }]] },
-    "Check Traefik (Internal)": { "main": [[{ "node": "Merge Checks", "type": "main", "index": 2 }]] },
-    "Check Portainer (Internal)": { "main": [[{ "node": "Merge Checks", "type": "main", "index": 3 }]] },
-    "Merge Checks": { "main": [[{ "node": "Analyze Results", "type": "main", "index": 0 }]] },
-    "Analyze Results": { "main": [[{ "node": "Is Healthy?", "type": "main", "index": 0 }]] },
+    "Check Homepage": {
+      "main": [
+        [
+          {
+            "node": "Merge Checks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check n8n (External)": {
+      "main": [
+        [
+          {
+            "node": "Merge Checks",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Check Traefik (Internal)": {
+      "main": [
+        [
+          {
+            "node": "Merge Checks",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Check Portainer (Internal)": {
+      "main": [
+        [
+          {
+            "node": "Merge Checks",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Merge Checks": {
+      "main": [
+        [
+          {
+            "node": "Analyze Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze Results": {
+      "main": [
+        [
+          {
+            "node": "Is Healthy?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
     "Is Healthy?": {
-        "main": [
-            [{ "node": "Healthy - Do Nothing", "type": "main", "index": 0 }],
-            [{ "node": "AI SRE Agent", "type": "main", "index": 0 }]
+      "main": [
+        [
+          {
+            "node": "Healthy - Do Nothing",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI SRE Agent",
+            "type": "main",
+            "index": 0
+          }
         ]
+      ]
     },
-    "AI SRE Agent": { "main": [[{ "node": "Send Alert (Config Required)", "type": "main", "index": 0 }]] }
+    "AI SRE Agent": {
+      "main": [
+        [
+          {
+            "node": "Send Email (Needs SMTP Config)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
   }
 }

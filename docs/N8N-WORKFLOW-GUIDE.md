@@ -20,11 +20,13 @@ The workflow performs the following actions:
 ### 1. Import the Workflow
 
 1.  Log in to your n8n instance at `https://n8n.inlock.ai`.
-2.  Click on the **Workflows** menu.
-3.  Click the **... (More Options)** button in the top right or "Add Workflow".
-4.  Select **Import from File**.
-5.  Upload the `compose/n8n-health-check-workflow.json` file from this repository.
-    -   *If you are on a different machine, copy the content of the JSON file and use "Import from URL" or "Import from JSON" if available.*
+2.  If you see the "Welcome Admin!" screen:
+    -   Click **Start from scratch**.
+    -   This opens the empty workflow editor.
+3.  Once inside the editor:
+    -   **Method A (Easiest)**: Open `compose/n8n-health-check-workflow.json` in your editor, copy the entire content, click on the n8n canvas, and **PASTE** (Ctrl+V or Cmd+V) directly.
+    -   **Method B**: Click the three dots **(...)** in the top right corner of the n8n editor -> **Import from File** -> Select `compose/n8n-health-check-workflow.json`.
+    -   *If the three dots are not visible: click "Workflow" in the left sidebar first.*
 
 ### 2. Configure OpenAI Credentials
 
@@ -37,17 +39,22 @@ The workflow uses an "AI SRE Agent" node that requires OpenAI credentials.
     -   *Note: Ensure you have credits in your OpenAI account.*
 5.  Save the credential.
 
-### 3. Configure Alerting (Optional)
+### 3. Configure Email Alerting
 
-The workflow ends with a "Send Alert (Config Required)" node which does nothing by default.
+The workflow now includes a "Send Email Alert" node. You need to configure the SMTP credentials for `admin@inlock.ai`.
 
-1.  Delete the "Send Alert" node and replace it with your preferred notification node:
-    -   **Email**: Use the "Send Email" node.
-    -   **Slack**: Use the "Slack" node.
-    -   **Discord**: Use the "Discord" node.
-2.  Connect the output of "AI SRE Agent" to your new notification node.
-3.  Map the output of the AI Agent (the analysis text) to the message body of your notification.
-    -   Expression: `{{ $json.content }}` (or drag and drop the output).
+1.  Double-click the **Send Email Alert** node (at the end of the workflow).
+2.  Under **Credential for SMTP**, select **Create New Credential**.
+3.  Enter the following details:
+    -   **User**: `admin@inlock.ai`
+    -   **Password**: *Enter your Mailu Admin Password* (Use `./scripts/show-credentials.sh` if needed to find where it is stored, or check your password manager).
+    -   **Host**: `mail.inlock.ai`
+    -   **Port**: `587`
+    -   **Secure**: `StartTLS` (or TLS)
+4.  Save the credential.
+5.  Close the node.
+
+*Note: The email will only be sent if the "Is Healthy?" check fails.*
 
 ## Testing
 
@@ -63,3 +70,28 @@ The workflow ends with a "Send Alert (Config Required)" node which does nothing 
 
 -   **Workflow fails immediately**: Check if the "Code" node logic is compatible with your specific n8n version. The provided code is standard JavaScript but n8n sometimes updates data structures.
 -   **AI Agent fails**: Check your OpenAI API Key and quota.
+
+## Part 4: SRE Chat Agent
+
+A second workflow, **App SRE Agent**, allows you to chat with an AI that can run commands on the server to fix issues.
+
+### 1. Import Workflow
+1.  Open the n8n editor.
+2.  Import `compose/n8n-sre-chat-workflow.json` (Copy/Paste or File Import).
+3.  Save the workflow.
+
+### 2. Configure SSH Credential
+The agent needs SSH access to run docker commands.
+
+1.  Double-click the **Host Access (SSH)** node.
+2.  Create a **New Credential** for "SSH Password" (n8n terminology, but supports keys).
+3.  **Host**: `100.83.222.69`
+4.  **User**: `comzis`
+5.  **Authentication Method**: `Private Key`
+6.  **Private Key**: (Copy the key provided in the chat)
+7.  Save.
+
+### 3. Usage
+-   Click **Test Workflow** or **Chat**.
+-   Ask: "Check docker status"
+-   Agent should reply with the output of `docker ps`.

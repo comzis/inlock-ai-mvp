@@ -88,11 +88,22 @@ http:
         - websecure
       rule: Host(`deploy.inlock.ai`)
       middlewares:
-        - secure-headers
+        - coolify-headers
         - admin-forward-auth
         - allowed-admins
         - mgmt-ratelimit
       service: coolify
+      tls:
+        certResolver: le-dns
+    coolify-login-redirect:
+      entryPoints:
+        - websecure
+      rule: Host(`deploy.inlock.ai`) && Path(`/login`)
+      middlewares:
+        - coolify-headers
+        - coolify-login-to-root
+      service: noop@internal
+      priority: 200
       tls:
         certResolver: le-dns
     

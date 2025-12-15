@@ -1,0 +1,189 @@
+{
+    "active": false,
+    "versionId": "38db55aa-a472-46a4-9988-88686d11e5c9",
+    "name": "MAS - Supervisor (The Manager)",
+    "nodes": [
+        {
+            "parameters": {},
+            "type": "n8n-nodes-base.executeWorkflowTrigger",
+            "typeVersion": 1,
+            "position": [
+                0,
+                0
+            ],
+            "name": "When Alert Received"
+        },
+        {
+            "parameters": {
+                "resource": "chat",
+                "operation": "chat",
+                "model": "gpt-3.5-turbo",
+                "messages": {
+                    "values": [
+                        {
+                            "role": "system",
+                            "content": "You are the **SRE Supervisor**.\nOutput ONLY:\n- 'MAIL' (Postfix, Port 25)\n- 'WEB' (Traefik, Nginx)\n- 'UNKNOWN'"
+                        },
+                        {
+                            "role": "user",
+                            "content": "TEST: WEB IS DOWN"
+                        }
+                    ]
+                }
+            },
+            "type": "n8n-nodes-base.openAi",
+            "typeVersion": 1,
+            "position": [
+                220,
+                0
+            ],
+            "name": "Supervisor Brain",
+            "credentials": {
+                "openAiApi": {
+                    "id": "wfkn9ORL7r7ncQYH",
+                    "name": "OpenAi account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "values": {
+                    "string": [
+                        {
+                            "name": "content",
+                            "value": "={{ $('When Alert Received').item.json.content || 'TEST: Mail server is down' }}"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 1,
+            "position": [
+                440,
+                0
+            ],
+            "name": "Restore Content"
+        },
+        {
+            "parameters": {
+                "dataType": "string",
+                "value1": "={{ $json.message.content }}",
+                "rules": {
+                    "rules": [
+                        {
+                            "operation": "contains",
+                            "value2": "MAIL",
+                            "output": 0
+                        },
+                        {
+                            "operation": "contains",
+                            "value2": "WEB",
+                            "output": 1
+                        }
+                    ]
+                },
+                "fallbackOutput": 2
+            },
+            "type": "n8n-nodes-base.switch",
+            "typeVersion": 1,
+            "position": [
+                660,
+                0
+            ],
+            "name": "Dispatch"
+        },
+        {
+            "parameters": {
+                "workflowId": "1qdeSahAXztPIFiz"
+            },
+            "type": "n8n-nodes-base.executeWorkflow",
+            "typeVersion": 1,
+            "position": [
+                880,
+                -100
+            ],
+            "name": "Call Mail Specialist"
+        },
+        {
+            "parameters": {
+                "workflowId": "mrJqlkizwnTc3oTK"
+            },
+            "type": "n8n-nodes-base.executeWorkflow",
+            "typeVersion": 1,
+            "position": [
+                880,
+                100
+            ],
+            "name": "Call Web Specialist"
+        },
+        {
+            "parameters": {
+                "content": "## 3. Link Specialists\n1. Open **Mail Specialist** & **Web Specialist**.\n2. Copy their IDs.\n3. Paste them into **Call Mail/Web Specialist** nodes below.",
+                "height": 200,
+                "width": 300,
+                "color": 4
+            },
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                880,
+                -300
+            ],
+            "name": "Note"
+        }
+    ],
+    "connections": {
+        "When Alert Received": {
+            "main": [
+                [
+                    {
+                        "node": "Supervisor Brain",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Supervisor Brain": {
+            "main": [
+                [
+                    {
+                        "node": "Restore Content",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Restore Content": {
+            "main": [
+                [
+                    {
+                        "node": "Dispatch",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Dispatch": {
+            "main": [
+                [
+                    {
+                        "node": "Call Mail Specialist",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Call Web Specialist",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    }
+}

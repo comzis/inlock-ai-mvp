@@ -1,0 +1,262 @@
+# Security Maintenance Rules for AI Assistants
+
+**Purpose:** Maintain 10/10 security score during system maintenance  
+**Audience:** Cursor AI, Antigravity, and other AI coding assistants  
+**Last Updated:** 2025-12-15
+
+---
+
+## 🚨 CRITICAL: Never Break These Rules
+
+### 1. **NEVER Disable or Weaken These Security Features**
+
+| Feature | Status | Protected Configuration |
+|---------|--------|-------------------------|
+| UFW Firewall | ACTIVE | Must remain enabled |
+| Fail2Ban | ACTIVE | Must remain enabled and monitoring SSH |
+| Unattended-Upgrades | ACTIVE | Must remain enabled for auto-patching |
+| Tailscale SSH Restriction | ACTIVE | Port 22 ONLY accessible via Tailscale (100.64.0.0/10) |
+| Sudo Password Required | ENFORCED | NEVER add NOPASSWD back |
+
+### 2. **User Account Rules**
+
+**Allowed Users:**
+- `root` (system user, unavoidable)
+- `comzis` (primary admin with sudo)
+- `inlock-admin` (secondary admin)
+
+**Disabled Users (KEEP DISABLED):**
+- `ubuntu` (shell: `/usr/sbin/nologin`)
+
+**⚠️ NEVER:**
+- Re-enable shell access for `ubuntu`
+- Create new sudo users without explicit approval
+- Add `NOPASSWD` to any sudoers configuration
+- Grant sudo access to service accounts
+
+### 3. **Firewall Rules - DO NOT MODIFY**
+
+**Protected Rules:**
+```
+Port 22 → ONLY 100.64.0.0/10 (Tailscale)
+Port 80 → Any (HTTPS redirect only via Traefik)
+Port 443 → Any (HTTPS via Traefik)
+Port 41641/UDP → Any (Tailscale)
+```
+
+**Before Opening New Ports:**
+1. Ask user for explicit approval
+2. Document the service requiring the port
+3. Restrict to minimum necessary source IPs
+4. Add firewall rule comment explaining purpose
+
+---
+
+## ✅ Safe Maintenance Practices
+
+### Before Making System Changes
+
+**Pre-flight Checklist:**
+```bash
+# 1. Check security services are running
+systemctl status fail2ban unattended-upgrades ufw
+
+# 2. Verify firewall rules haven't changed
+sudo ufw status numbered
+
+# 3. Confirm sudo requires password
+sudo -k  # Clear sudo cache
+grep -r NOPASSWD /etc/sudoers /etc/sudoers.d/
+
+# 4. Verify ubuntu user is disabled
+grep ubuntu /etc/passwd | cut -d: -f7  # Should show /usr/sbin/nologin
+```
+
+### When Installing New Software
+
+**Safe Pattern:**
+```bash
+# 1. Use non-privileged installation when possible
+# Docker containers, user-space apps, etc.
+
+# 2. If system package needed:
+sudo apt update
+sudo apt install <package>  # Never use -y without reviewing
+
+# 3. After installation, re-verify security:
+systemctl status fail2ban  # Still running?
+sudo ufw status           # Rules unchanged?
+```
+
+### When Modifying Configuration Files
+
+**Protected Files (Require Extra Caution):**
+- `/etc/sudoers` and `/etc/sudoers.d/*`
+- `/etc/ssh/sshd_config`
+- `/etc/ufw/*`
+- `/etc/fail2ban/*`
+
+**Safe Edit Process:**
+1. Backup original: `sudo cp file file.backup.$(date +%Y%m%d)`
+2. Make changes
+3. Validate syntax (if applicable)
+4. Test with non-critical operation
+5. Verify security services still active
+
+---
+
+## 🔍 Security Verification Commands
+
+### Quick Security Check
+```bash
+# Run this after ANY system maintenance
+cat << 'EOF' | bash
+echo "=== Security Status ==="
+echo "Firewall: $(sudo ufw status | grep -c 'Status: active' && echo '✅ ACTIVE' || echo '❌ INACTIVE')"
+echo "Fail2Ban: $(systemctl is-active fail2ban)"
+echo "Auto-Updates: $(systemctl is-active unattended-upgrades)"
+echo "Ubuntu disabled: $(grep ubuntu /etc/passwd | grep -c nologin && echo '✅' || echo '❌')"
+echo "NOPASSWD: $(sudo grep -r NOPASSWD /etc/sudoers* 2>/dev/null | wc -l) findings (should be 0)"
+EOF
+```
+
+### Monthly Security Audit
+```bash
+# Check fail2ban activity
+sudo fail2ban-client status sshd
+
+# Review security updates
+cat /var/log/unattended-upgrades/unattended-upgrades.log | tail -20
+
+# Check for unauthorized sudo usage
+sudo grep COMMAND /var/log/auth.log | tail -20
+```
+
+---
+
+## 🛡️ Security Score Preservation
+
+**Current Score:** 10.0/10
+
+**Components Contributing to Score:**
+
+| Component | Points | How to Preserve |
+|-----------|--------|-----------------|
+| Firewall | 0.9 | Keep UFW active, don't add risky rules |
+| User Mgmt | 0.9 | No new users, keep ubuntu disabled |
+| Auth | 0.9 | Maintain password requirement for sudo |
+| Network | 0.9 | Keep SSH Tailscale-only |
+| Patching | 0.9 | Let unattended-upgrades run |
+| IDS | 0.5 | Keep fail2ban monitoring SSH |
+| Auto-Sec | 0.5 | Keep unattended-upgrades enabled |
+
+**If Score Drops Below 9.5:**
+1. Stop all maintenance
+2. Run security verification commands above
+3. Review recent changes
+4. Report to user before proceeding
+
+---
+
+## 📋 Common Maintenance Scenarios
+
+### Scenario 1: Installing a New Docker Service
+**Safe:** ✅
+- Docker containers run in isolated namespaces
+- No firewall changes if using Traefik reverse proxy
+- No sudo modifications needed
+
+**Action:** Proceed without special security considerations
+
+---
+
+### Scenario 2: Opening a New Port
+**Risky:** ⚠️
+
+**Required Steps:**
+1. Ask user: "What service needs port X and from which IPs?"
+2. Add MINIMAL rule: `sudo ufw allow from <specific-ip> to any port X`
+3. Document in comment: `sudo ufw rule comment X 'Purpose: <reason>'`
+4. Verify: `sudo ufw status numbered`
+
+---
+
+### Scenario 3: Creating a New System User
+**Risky:** ⚠️
+
+**Required Steps:**
+1. Explicitly ask user for approval
+2. Create without sudo: `sudo useradd -m -s /bin/bash username`
+3. Do NOT add to sudo group unless explicitly requested
+4. Document purpose in `/etc/passwd` comment or separate doc
+
+---
+
+### Scenario 4: Modifying SSH Configuration
+**High Risk:** 🔴
+
+**STOP and Ask User First**
+
+Common requests that are DANGEROUS:
+- ❌ Enabling password authentication
+- ❌ Allowing root login
+- ❌ Changing SSH port (breaks Tailscale integration)
+- ❌ Disabling key-only auth
+
+---
+
+## 🔧 Emergency Security Restore
+
+If security is accidentally degraded:
+
+```bash
+# 1. Re-enable firewall
+sudo ufw --force enable
+
+# 2. Restart fail2ban
+sudo systemctl restart fail2ban
+
+# 3. Remove NOPASSWD if added
+sudo sed -i '/NOPASSWD/d' /etc/sudoers.d/*
+
+# 4. Re-disable ubuntu user
+sudo usermod -s /usr/sbin/nologin ubuntu
+
+# 5. Verify restoration
+systemctl status fail2ban ufw unattended-upgrades
+```
+
+---
+
+## 📞 When to Escalate to User
+
+**Always ask user before:**
+- Opening new firewall ports
+- Creating sudo users
+- Disabling any security service (even temporarily)
+- Modifying SSH configuration
+- Installing system-level security tools
+
+**Never ask (safe to proceed):**
+- Installing Docker containers
+- Updating application code
+- Restarting application services (not security services)
+- Viewing logs or status
+
+---
+
+## 📚 Reference Documents
+
+- **Full Security Audit:** `Security_Audit_Final.md`
+- **Security Roadmap:** `Security_10_10_Roadmap.md`
+- **SRE Knowledge Base:** `SRE_Knowledge_Base.md`
+
+---
+
+## Version History
+
+| Date | Change | Score Impact |
+|------|--------|--------------|
+| 2025-12-15 | Initial security rules documented | N/A |
+| 2025-12-15 | Ubuntu user disabled, NOPASSWD removed | 9.0 → 10.0 |
+| 2025-12-12 | Fail2ban and auto-updates enabled | 7.5 → 9.0 |

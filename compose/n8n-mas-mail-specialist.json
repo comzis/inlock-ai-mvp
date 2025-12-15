@@ -1,0 +1,118 @@
+{
+    "active": false,
+    "versionId": "cd67bf21-bab8-420c-95c3-9006f26c28c4",
+    "name": "MAS - Mail Specialist",
+    "nodes": [
+        {
+            "parameters": {},
+            "type": "n8n-nodes-base.executeWorkflowTrigger",
+            "typeVersion": 1,
+            "position": [
+                0,
+                0
+            ],
+            "name": "When Dispatched"
+        },
+        {
+            "parameters": {
+                "text": "={{ $json.content }}",
+                "options": {
+                    "systemMessage": "You are the **Mail Specialist SRE** for the Mailu stack.\\nDomain: **Mailu** (Front/Nginx, Admin, Postfix, Webmail, Rspamd).\\n\\n**CRITICAL CHECKS** (Run First):\\n1. **502 Bad Gateway**: Check `docker ps | grep mailu-front`. If down, check logs for `nginx: [emerg]`.\\n   - Fix: Verify `.env` has `WEBMAIL_ADDRESS=webmail`, `ADMIN_ADDRESS=admin`, `WEB_WEBMAIL=/webmail`, `WEB_ADMIN=/admin`.\\n   - Deploy: `cd /home/comzis/projects/inlock-ai-mvp/compose && docker compose -f mailu.yml up -d --force-recreate`\\n2. **500 Internal Error**: Check logs for `no host in upstream`. This means incorrect hostname in .env (e.g., `/admin` instead of `admin`).\\n3. **IP Conflict (Address already in use)**: `docker network inspect mail` -> find container on 172.24.0.10 -> `docker stop [that container]` -> restart mailu-front.\\n\\n**Your Tools**:\\n- SSH Worker (use for all commands on server 100.83.222.69)\\n\\n**Protocol**:\\n1. Check container status & logs\\n2. Diagnose root cause\\n3. Apply fix\\n4. Verify\\n5. Report\""
+                }
+            },
+            "type": "@n8n/n8n-nodes-langchain.agent",
+            "typeVersion": 1.7,
+            "position": [
+                220,
+                0
+            ],
+            "name": "Mail Agent Brain"
+        },
+        {
+            "parameters": {
+                "model": "gpt-4o",
+                "options": {
+                    "temperature": 0,
+                    "maxTokens": 4096
+                }
+            },
+            "credentials": {
+                "openAiApi": {
+                    "id": "wfkn9ORL7r7ncQYH",
+                    "name": "OpenAi account"
+                }
+            },
+            "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "typeVersion": 1,
+            "position": [
+                220,
+                240
+            ],
+            "name": "OpenAI Model"
+        },
+        {
+            "parameters": {
+                "workflowId": "R8yxeQwThM9GOX6c",
+                "name": "ssh_tool",
+                "description": "Execute command on server."
+            },
+            "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+            "typeVersion": 1,
+            "position": [
+                460,
+                240
+            ],
+            "name": "Use SSH Worker"
+        },
+        {
+            "parameters": {
+                "content": "## 2. Link to Worker\n1. Open **MAS - SSH Worker (The Hands)**.\n2. Copy its ID.\n3. Paste ID into **\"Use SSH Worker\"** node below.",
+                "height": 200,
+                "width": 300,
+                "color": 4
+            },
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                460,
+                -100
+            ],
+            "name": "Note"
+        }
+    ],
+    "connections": {
+        "When Dispatched": {
+            "main": [
+                [
+                    {
+                        "node": "Mail Agent Brain",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "OpenAI Model": {
+            "ai_languageModel": [
+                [
+                    {
+                        "node": "Mail Agent Brain",
+                        "type": "ai_languageModel",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Use SSH Worker": {
+            "ai_tool": [
+                [
+                    {
+                        "node": "Mail Agent Brain",
+                        "type": "ai_tool",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    }
+}
