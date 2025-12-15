@@ -70,3 +70,28 @@ The workflow now includes a "Send Email Alert" node. You need to configure the S
 
 -   **Workflow fails immediately**: Check if the "Code" node logic is compatible with your specific n8n version. The provided code is standard JavaScript but n8n sometimes updates data structures.
 -   **AI Agent fails**: Check your OpenAI API Key and quota.
+
+## Part 4: SRE Chat Agent
+
+A second workflow, **App SRE Agent**, allows you to chat with an AI that can run commands on the server to fix issues.
+
+### 1. Import Workflow
+1.  Open the n8n editor.
+2.  Import `compose/n8n-sre-chat-workflow.json` (Copy/Paste or File Import).
+3.  Save the workflow.
+
+### 2. Configure SSH Credential
+The agent needs SSH access to run docker commands.
+
+1.  Double-click the **Host Access (SSH)** node.
+2.  Create a **New Credential** for "SSH Password" (n8n terminology, but supports keys).
+3.  **Host**: `100.83.222.69`
+4.  **User**: `comzis`
+5.  **Authentication Method**: `Private Key`
+6.  **Private Key**: (Copy the key provided in the chat)
+7.  Save.
+
+### 3. Usage
+-   Click **Test Workflow** or **Chat**.
+-   Ask: "Check docker status"
+-   Agent should reply with the output of `docker ps`.

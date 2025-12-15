@@ -22,10 +22,17 @@ services:
       - N8N_PROXY_HOPS=1
       - N8N_SECURE_COOKIE=true
       - N8N_SAMESITE_COOKIE=none
+      - N8N_EMAIL_MODE=smtp
+      - N8N_SMTP_HOST=front
+      - N8N_SMTP_PORT=10025
+      - N8N_SMTP_SSL=false
+      - N8N_SMTP_USER=n8n@inlock.ai
+      - N8N_SMTP_PASS_FILE=/run/secrets/n8n-smtp-password
+      - N8N_SMTP_SENDER=n8n@inlock.ai
     volumes:
       - n8n_data:/home/node/.n8n
     extra_hosts:
-      - "mail.inlock.ai:172.24.0.7"
+      - "mail.inlock.ai:100.83.222.69"
     networks:
       - mgmt
       - mail
@@ -34,6 +41,7 @@ services:
     secrets:
       - n8n-db-password
       - n8n-encryption-key
+      - n8n-smtp-password
     # Traefik router defined in traefik/dynamic/routers.yml (file provider)
     # No Docker labels required because Traefik no longer watches the Docker API
     healthcheck:
@@ -79,3 +87,5 @@ secrets:
     file: /home/comzis/apps/secrets-real/n8n-db-password
   n8n-encryption-key:
     file: /home/comzis/apps/secrets-real/n8n-encryption-key
+  n8n-smtp-password:
+    file: /home/comzis/apps/secrets-real/n8n-smtp-password

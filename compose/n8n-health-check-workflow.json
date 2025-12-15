@@ -125,6 +125,7 @@
     {
       "parameters": {
         "resource": "chat",
+        "operation": "create",
         "model": "gpt-4o",
         "messages": {
           "values": [
@@ -166,7 +167,7 @@
         "fromEmail": "admin@inlock.ai",
         "toEmail": "admin@inlock.ai",
         "subject": "=[Alert] App Health Check Failed - {{ $today }}",
-        "text": "={{ $json.content }}",
+        "html": "={{ $json.content }}\n\n<p><b><a href=\"https://n8n.inlock.ai/webhook/sre-chat\">🛠️ Chat with AI SRE Agent to Fix This</a></b></p>",
         "options": {}
       },
       "type": "n8n-nodes-base.emailSend",
@@ -176,13 +177,29 @@
         460
       ],
       "id": "send-email-alert",
-      "name": "Send Email Alert",
+      "name": "Send Email (Needs SMTP Config)",
       "credentials": {
         "smtp": {
           "id": "YOUR_SMTP_CREDENTIAL_ID",
           "name": "SMTP account"
         }
       }
+    },
+    {
+      "parameters": {
+        "content": "## Setup Instructions\n1. Double-click **\"Send Email (Needs SMTP Config)\"**\n2. Create New Credential\n3. User: `admin@inlock.ai`\n4. Pass: (Your Mailu Admin Pass)\n5. Host: `mail.inlock.ai`, Port: 587, Secure: StartTLS",
+        "height": 260,
+        "width": 300,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1380,
+        140
+      ],
+      "id": "instruction-note-email",
+      "name": "Note"
     },
     {
       "parameters": {},
@@ -311,7 +328,7 @@
       "main": [
         [
           {
-            "node": "Send Alert (Config Required)",
+            "node": "Send Email (Needs SMTP Config)",
             "type": "main",
             "index": 0
           }

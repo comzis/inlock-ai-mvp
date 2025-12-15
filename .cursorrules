@@ -45,6 +45,12 @@ inlock-ai-mvp/
    - Traefik configs go in `traefik/dynamic/`
    - Documentation goes in `docs/` (organized by topic)
    - Scripts go in `scripts/`
+   
+5. **DO NOT rely on ephemeral fixes**
+   - No `docker exec` to patch files in running containers
+   - No manual changes inside containers that are lost on restart
+   - No relying on container local filesystem for config
+   - ALWAYS use custom Docker images or bind mounts for persistence
 
 ### ✅ Best Practices - Always Follow
 
@@ -58,6 +64,11 @@ inlock-ai-mvp/
    - Services: `<service-name>.yml` (e.g., `mailu.yml`, `tooling.yml`)
    - Scripts: `<action>-<target>.sh` (e.g., `test-mailu-quick.sh`)
    - Docs: Descriptive names in CAPS with hyphens
+   
+3. **Docker Persistence**
+   - **Custom Images:** For code changes / patches (e.g. `mailu-admin-patched`)
+   - **Bind Mounts:** For configuration files (e.g. `/overrides/config.inc.php`)
+   - **Verify:** Always test `docker compose restart` after changes
 
 3. **Git Workflow**
    ```bash
@@ -183,7 +194,41 @@ docker compose -f compose/<service>.yml \
 4. Ask before creating new directory structures
 5. Keep it simple - use what exists
 
+
 ---
 
 *Last Updated: 2024-12-14*
 *Maintain this file as project evolves*
+
+---
+
+## 🔒 SECURITY MAINTENANCE RULES (10/10 Score)
+
+⚠️ **CRITICAL:** Server maintains 10/10 security score. See `.cursorrules-security` for detailed rules.
+
+### Quick Security Rules - NEVER Break
+
+**NEVER:**
+- Disable UFW, fail2ban, or unattended-upgrades
+- Add NOPASSWD to any sudoers configuration
+- Re-enable ubuntu user shell access (`/usr/sbin/nologin`)
+- Open firewall ports without explicit user approval
+- Modify SSH config (`/etc/ssh/sshd_config`) without user approval
+- Change Tailscale SSH restrictions (Port 22 → 100.64.0.0/10 ONLY)
+
+**ALWAYS:**
+- Maintain password requirement for sudo commands
+- Keep fail2ban monitoring SSH (no disabling even temporarily)
+- Preserve UFW firewall rules for SSH (Tailscale only)
+- Run security verification after system-level changes
+
+**Before System Changes:**
+```bash
+# Quick security check
+systemctl status fail2ban ufw unattended-upgrades
+sudo ufw status numbered
+grep -r NOPASSWD /etc/sudoers*
+```
+
+**Full Security Guide:** `.cursorrules-security`  
+**Current Score:** 10.0/10 (A+ - Enterprise Grade)

@@ -1,0 +1,117 @@
+{
+    "active": false,
+    "versionId": "e9b1deb4-3b7d-4bad-9bdd-2b0d7b3dcb7c",
+    "name": "MAS - Web Specialist",
+    "nodes": [
+        {
+            "parameters": {},
+            "type": "n8n-nodes-base.executeWorkflowTrigger",
+            "typeVersion": 1,
+            "position": [
+                0,
+                0
+            ],
+            "name": "When Dispatched"
+        },
+        {
+            "parameters": {
+                "text": "={{ $json.content }}",
+                "options": {
+                    "systemMessage": "You are the **Web Specialist SRE**.\nDomain: **Web** (Traefik, Nginx).\n\n**Protocol**:\n1. Check logs.\n2. Restart service if needed.\n3. Report.\n\n**CRITICAL**:\nWhen using 'ssh_tool', YOU MUST provide the JSON argument: { \"command\": \"docker restart compose-inlock-ai-1\" }."
+                }
+            },
+            "type": "@n8n/n8n-nodes-langchain.agent",
+            "typeVersion": 1.7,
+            "position": [
+                220,
+                0
+            ],
+            "name": "Web Agent Brain"
+        },
+        {
+            "parameters": {
+                "model": "gpt-4o",
+                "options": {
+                    "temperature": 0
+                }
+            },
+            "credentials": {
+                "openAiApi": {
+                    "id": "wfkn9ORL7r7ncQYH",
+                    "name": "OpenAi account"
+                }
+            },
+            "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "typeVersion": 1,
+            "position": [
+                220,
+                240
+            ],
+            "name": "OpenAI Model"
+        },
+        {
+            "parameters": {
+                "workflowId": "R8yxeQwThM9GOX6c",
+                "name": "ssh_tool",
+                "description": "Execute command on server."
+            },
+            "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+            "typeVersion": 1,
+            "position": [
+                460,
+                240
+            ],
+            "name": "Use SSH Worker"
+        },
+        {
+            "parameters": {
+                "content": "## 2. Link to Worker\n1. Open **MAS - SSH Worker (The Hands)**.\n2. Copy its ID.\n3. Paste ID into **\"Use SSH Worker\"** node below.",
+                "height": 200,
+                "width": 300,
+                "color": 4
+            },
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                460,
+                -100
+            ],
+            "name": "Note"
+        }
+    ],
+    "connections": {
+        "When Dispatched": {
+            "main": [
+                [
+                    {
+                        "node": "Web Agent Brain",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "OpenAI Model": {
+            "ai_languageModel": [
+                [
+                    {
+                        "node": "Web Agent Brain",
+                        "type": "ai_languageModel",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Use SSH Worker": {
+            "ai_tool": [
+                [
+                    {
+                        "node": "Web Agent Brain",
+                        "type": "ai_tool",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    }
+}

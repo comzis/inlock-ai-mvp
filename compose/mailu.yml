@@ -6,6 +6,10 @@ networks:
   mail:
     name: mail
     driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.24.0.0/16
   internal:
     external: true
     name: internal
@@ -69,7 +73,7 @@ services:
       - TZ=UTC
       - SUBNET=172.24.0.0/16
       - LOG_LEVEL=INFO
-      - TLS_FLAVOR=mail-letsencrypt
+      - TLS_FLAVOR=notls
       - POSTMASTER=${POSTMASTER:-admin}
       - MESSAGE_SIZE_LIMIT=52428800
       - WEBROOT=/
@@ -81,10 +85,12 @@ services:
       - mailu-webmail:webmail
     networks:
       mail:
+        ipv4_address: 172.24.0.10
         aliases:
           - front
           - mailu-front
       mgmt:
+
     secrets:
       - mailu-secret-key
       - mailu-db-password
@@ -93,22 +99,18 @@ services:
       interval: 30s
       timeout: 5s
       retries: 3
-      # /var/lib/nginx moved to volume mount (nginx_logs)
-    # read_only: true  # Disabled - Mailu needs to write config files at startup
-    # cap_drop: ALL removed - nginx needs capabilities to load modules and write logs
     cap_add:
       - NET_BIND_SERVICE
       - CHOWN
       - SETGID
       - SETUID
-      - DAC_OVERRIDE  # Required for file access and module loading
-    # No user override - let container run as root and drop privileges internally
+      - DAC_OVERRIDE
     security_opt:
-      - no-new-privileges:false  # Allow privilege dropping
+      - no-new-privileges:false
     <<: [*default-logging, *resource-hints]
 
   # Mailu Postfix - SMTP Server
-  # Ports 25, 465, 587 exposed directly (restricted via firewall allowlists)
+  # Ports 25, 465, 587 exposed directly
   mailu-postfix:
     image: ghcr.io/mailu/postfix@sha256:5f92276dc5af71e130847fb43d6e4519b2c7f6c38b926b36374c63df8d52674f
     restart: always
@@ -127,7 +129,7 @@ services:
       - TZ=UTC
       - SUBNET=172.24.0.0/16
       - LOG_LEVEL=INFO
-      - TLS_FLAVOR=mail-letsencrypt
+      - TLS_FLAVOR=notls
       - POSTMASTER=${POSTMASTER:-admin}
       - MESSAGE_SIZE_LIMIT=52428800
       - WEBROOT=/
@@ -139,7 +141,10 @@ services:
       - mailu_mail_data:/mail
       - mailu_dkim_data:/dkim
     networks:
-      - mail
+      mail:
+        ipv4_address: 172.24.0.7
+        aliases:
+          - postfix
     secrets:
       - mailu-secret-key
       - mailu-db-password
@@ -152,21 +157,17 @@ services:
       - /tmp
       - /var/spool/postfix
       - /var/run
-    # read_only: true  # Disabled - Mailu needs to write config files at startup
-    # cap_drop: ALL removed - postfix needs capabilities for queue directory operations
     cap_add:
       - NET_BIND_SERVICE
       - CHOWN
       - SETGID
       - SETUID
-      - DAC_OVERRIDE  # Required for queue directory operations
-    # user: "1000:1000"  # Removed - Mailu needs root to write config files at startup
+      - DAC_OVERRIDE
     security_opt:
-      - no-new-privileges:false  # Allow privilege dropping
+      - no-new-privileges:false
     <<: [*default-logging, *resource-hints]
 
   # Mailu Dovecot - IMAP Server
-  # Ports 143, 993 exposed directly (restricted via firewall allowlists)
   mailu-imap:
     image: ghcr.io/mailu/dovecot@sha256:d089c32e3118479191ae17c3b973f014f1bdc0ebd5db192d1e4f7e41425803c5
     restart: always
@@ -185,7 +186,7 @@ services:
       - TZ=UTC
       - SUBNET=172.24.0.0/16
       - LOG_LEVEL=INFO
-      - TLS_FLAVOR=mail-letsencrypt
+      - TLS_FLAVOR=notls
       - POSTMASTER=${POSTMASTER:-admin}
       - MESSAGE_SIZE_LIMIT=52428800
       - WEBROOT=/
@@ -194,8 +195,15 @@ services:
       - "993:993"  # IMAPS
     volumes:
       - mailu_mail_data:/mail
+      - /etc/localtime:/etc/localtime:ro
+      - ./config/dovecot.conf:/overrides/dovecot.conf:ro
+      - ./config/dummy.crt:/overrides/dummy.crt:ro
+      - ./config/dummy.key:/overrides/dummy.key:ro
     networks:
-      - mail
+      mail:
+        ipv4_address: 172.24.0.6
+        aliases:
+          - imap
     secrets:
       - mailu-secret-key
       - mailu-db-password
@@ -207,19 +215,18 @@ services:
     tmpfs:
       - /tmp
       - /var/run
-    # read_only: true  # Disabled - Mailu needs to write config files at startup
     cap_drop:
       - ALL
     cap_add:
       - NET_BIND_SERVICE
       - CHOWN
+      - FOWNER
       - SETGID
       - SETUID
       - SYS_CHROOT
       - DAC_OVERRIDE
-    # No user override - let container run as root and drop privileges internally
     security_opt:
-      - no-new-privileges:false  # Allow privilege dropping
+      - no-new-privileges:false
     <<: [*default-logging, *resource-hints]
 
   # Mailu Rspamd - Spam Filtering
@@ -241,14 +248,26 @@ services:
       - TZ=UTC
       - SUBNET=172.24.0.0/16
       - LOG_LEVEL=INFO
-      - TLS_FLAVOR=mail-letsencrypt
+      - TLS_FLAVOR=notls
       - POSTMASTER=${POSTMASTER:-admin}
       - MESSAGE_SIZE_LIMIT=52428800
       - WEBROOT=/
     volumes:
       - mailu_rspamd_data:/var/lib/rspamd
+      - ../mailu/overrides/rspamd:/etc/rspamd/override.d
+    extra_hosts:
+      - "redis:172.24.0.5"
+      - "mailu-redis:172.24.0.5"
+      - "mailu-postgres:172.24.0.9" # Optional if it interacts with DB
+      - "admin:172.24.0.8" # Rspamd needs to reach admin
+    depends_on:
+      - mailu-front
+      - mailu-redis
     networks:
-      - mail
+      mail:
+        ipv4_address: 172.24.0.4
+        aliases:
+          - antispam
     secrets:
       - mailu-secret-key
       - mailu-db-password
@@ -261,24 +280,26 @@ services:
     tmpfs:
       - /tmp
       - /var/run
-    # read_only: true  # Disabled - Mailu needs to write config files at startup
-    # cap_drop:
-    #   - ALL
     cap_add:
       - NET_BIND_SERVICE
       - CHOWN
       - SETGID
       - SETUID
       - DAC_OVERRIDE
-    # user: "1000:1000"  # Removed - Mailu needs root to write config files at startup
     security_opt:
-      - no-new-privileges:false  # Override hardening - Mailu needs to read secrets and write configs
+      - no-new-privileges:false
     <<: [*default-logging, *resource-hints]
 
-  # Mailu Admin - Admin API
+  # Mailu Admin - Web UI and SSO
+  # Using custom image with SSO homepage redirect fix
   mailu-admin:
-    image: ghcr.io/mailu/admin@sha256:97bc9dc7259c485fcf20bf86809b17e3aee1b236662c2ebee1f2d6c825801400
+    build:
+      context: ./docker/mailu-admin
+      dockerfile: Dockerfile
+    image: mailu-admin-patched:2.0
+    # Original image: ghcr.io/mailu/admin@sha256:97bc9dc7259c485fcf20bf86809b17e3aee1b236662c2ebee1f2d6c825801400
     restart: always
+    # DNSSEC Required for Admin to start
     dns:
       - 1.1.1.1
       - 1.0.0.1
@@ -299,16 +320,33 @@ services:
       - TZ=UTC
       - SUBNET=172.24.0.0/16
       - LOG_LEVEL=INFO
-      - TLS_FLAVOR=mail-letsencrypt
+      - TLS_FLAVOR=notls
       - POSTMASTER=${POSTMASTER:-admin}
       - MESSAGE_SIZE_LIMIT=52428800
       - WEBROOT=/
     volumes:
       - mailu_mail_data:/mail
       - mailu_dkim_data:/dkim
+    extra_hosts:
+      # Crucial: Override internal hostname resolution because public DNS (1.1.1.1) is used
+      - "mailu-redis:172.24.0.5"
+      - "redis:172.24.0.5"
+      - "mailu-postgres:172.24.0.9"
+      - "mailu-imap:172.24.0.6"
+      - "imap:172.24.0.6"
+      - "mailu-front:172.24.0.10"
+      - "front:172.24.0.10"
+      - "mailu-postfix:172.24.0.7"
+      - "postfix:172.24.0.7"
+      - "smtp:172.24.0.7" # Fix internal resolution
+      - "mailu-rspamd:172.24.0.4"
+      - "antispam:172.24.0.4"
     networks:
-      - mail
-      - mgmt
+      mail:
+        ipv4_address: 172.24.0.8
+        aliases:
+          - admin
+      mgmt:
     secrets:
       - mailu-secret-key
       - mailu-admin-password
@@ -321,16 +359,13 @@ services:
     tmpfs:
       - /tmp
       - /var/run
-    # read_only: true  # Disabled - Mailu needs to write config files at startup
-    # cap_drop: ALL removed - admin needs capabilities for setgroups and chown operations
     cap_add:
       - CHOWN
       - SETGID
       - SETUID
       - DAC_OVERRIDE
-    # No user override - let container run as root and drop privileges internally
     security_opt:
-      - no-new-privileges:false  # Allow privilege dropping (setgroups)
+      - no-new-privileges:false
     <<: [*default-logging, *resource-hints]
 
   # Mailu Redis - Cache and Session Storage
@@ -344,7 +379,10 @@ services:
     volumes:
       - mailu_redis_data:/data
     networks:
-      - mail
+      mail:
+        ipv4_address: 172.24.0.5
+        aliases:
+          - redis
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 30s
@@ -352,15 +390,12 @@ services:
       retries: 3
     tmpfs:
       - /tmp
-    # read_only: true  # Disabled - Redis needs to write appendonly files
-    # cap_drop: ALL removed - redis needs capabilities to switch users
     cap_add:
       - SETGID
       - SETUID
       - CHOWN
-    # No user override - let container run as root and switch to redis user internally
     security_opt:
-      - no-new-privileges:false  # Allow user switching
+      - no-new-privileges:false
     <<: [*default-logging]
 
   # Mailu Postgres - Database
@@ -374,8 +409,11 @@ services:
     volumes:
       - mailu_postgres_data:/var/lib/postgresql/data
     networks:
-      - mail
-      - internal
+      mail:
+        ipv4_address: 172.24.0.9
+        aliases:
+          - postgres # Generic alias if needed
+      internal:
     secrets:
       - mailu-db-password
     healthcheck:
@@ -397,16 +435,20 @@ services:
       - no-new-privileges:false
     <<: [*default-logging, *resource-hints]
 
-
   # Webmail (Roundcube)
+  # Using custom image with symlinks pre-configured
   mailu-webmail:
-    image: ghcr.io/mailu/webmail:2.0
+    build:
+      context: ./docker/mailu-webmail
+      dockerfile: Dockerfile
+    image: mailu-webmail-custom:2.0
+    # Original image: ghcr.io/mailu/webmail:2.0
     restart: always
     env_file:
       - ../.env
     environment:
-      - DOMAIN=inlock.ai
-      - HOSTNAMES=mail.inlock.ai
+      - DOMAIN=${DOMAIN:-inlock.ai}
+      - HOSTNAMES=mail.${DOMAIN:-inlock.ai}
       - SECRET_KEY_FILE=/run/secrets/mailu-secret-key
       - DB_HOST=mailu-postgres
       - DB_USER=mailu
@@ -417,14 +459,16 @@ services:
       - TZ=UTC
       - SUBNET=172.24.0.0/16
       - LOG_LEVEL=INFO
-      - TLS_FLAVOR=mail-letsencrypt
+      - TLS_FLAVOR=notls
       - POSTMASTER=admin
       - MESSAGE_SIZE_LIMIT=52428800
       - WEBROOT=/
     volumes:
       - mailu_webmail_data:/data
+      - ./config/roundcube-smtp-config.inc.php:/overrides/roundcube-smtp.inc.php:ro
     networks:
       mail:
+        ipv4_address: 172.24.0.3
         aliases:
           - webmail
     secrets:
@@ -435,7 +479,6 @@ services:
       interval: 30s
       timeout: 5s
       retries: 3
-    # read_only: true
     security_opt:
       - no-new-privileges:true
     <<: [*default-logging]

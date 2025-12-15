@@ -1,0 +1,46 @@
+{
+    "active": false,
+    "versionId": "test-email-simple",
+    "name": "Test Email - Simple",
+    "nodes": [
+        {
+            "parameters": {},
+            "type": "n8n-nodes-base.manualTrigger",
+            "typeVersion": 1,
+            "position": [
+                0,
+                0
+            ],
+            "name": "Start"
+        },
+        {
+            "parameters": {
+                "fromEmail": "admin@inlock.ai",
+                "toEmail": "admin@inlock.ai",
+                "subject": "N8N Workflow Verify - {{ $now }}",
+                "text": "This is a verification email from the N8N Workflow to admin@inlock.ai.",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.emailSend",
+            "typeVersion": 2,
+            "position": [
+                200,
+                0
+            ],
+            "name": "Send Test Email"
+        }
+    ],
+    "connections": {
+        "Start": {
+            "main": [
+                [
+                    {
+                        "node": "Send Test Email",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    }
+}
