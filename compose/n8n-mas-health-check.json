@@ -1,6 +1,7 @@
 {
+    "id": "HealthCheckFinal01",
+    "versionId": "7b432e5c-196d-4633-aa28-69b7d5bcd3f2",
     "active": false,
-    "versionId": "38db55aa-a472-46a4-9988-88686d11e5c9",
     "name": "MAS - Proactive Health Check & Report",
     "nodes": [
         {
@@ -348,6 +349,14 @@
         },
         "Call Supervisor": {
             "main": [
+                [
+                    {
+                        "node": "Wait for Fix",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [],
                 [
                     {
                         "node": "Wait for Fix",
