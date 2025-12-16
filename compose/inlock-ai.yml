@@ -25,9 +25,10 @@ services:
       - /opt/inlock-ai-secure-mvp/.env.production
       - ../.env
     networks:
-      - edge
-      - internal
-      - mail
+      edge: {}
+      internal: {}
+      mail:
+        ipv4_address: 172.24.0.50
     depends_on:
       inlock-db:
         condition: service_healthy

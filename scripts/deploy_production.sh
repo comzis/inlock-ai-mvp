@@ -37,7 +37,7 @@ if [ ! -f "$ENV_FILE" ]; then
 fi
 
 # Deploy Stack and N8N
-docker compose -f "$COMPOSE_DIR/stack.yml" -f "$COMPOSE_DIR/n8n.yml" --env-file "$ENV_FILE" up -d --build --remove-orphans >> "$LOG_FILE" 2>&1
+docker compose -f "$COMPOSE_DIR/stack.yml" -f "$COMPOSE_DIR/mailu.yml" -f "$COMPOSE_DIR/n8n.yml" --env-file "$ENV_FILE" up -d --build --remove-orphans >> "$LOG_FILE" 2>&1
 
 EXIT_CODE=$?
 
