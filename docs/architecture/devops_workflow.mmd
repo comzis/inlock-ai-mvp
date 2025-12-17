@@ -1,0 +1,52 @@
+graph TD
+    subgraph Local_Environment["💻 Local Environment (Mac)"]
+        LocalFile[".env.development"]
+        LocalCompose["docker-compose.local.yml"]
+        Dev[("Developer")] --> |Writes Code| LocalCode["Source Code"]
+        LocalCode --> |Test| LocalStack["Local Docker Stack"]
+        LocalStack -.-> LocalFile
+        LocalStack -.-> LocalCompose
+    end
+
+    subgraph GitHub_Ecosystem["☁️ GitHub Ecosystem"]
+        Repo["Git Repository (Main)"]
+        Actions["GitHub Actions (CI/CD)"]
+        GHSecrets[("GitHub Secrets")]
+        
+        Dev --> |git push| Repo
+        Repo --> |Trigger| Actions
+        Actions -.-> |Read Creds| GHSecrets
+        Actions --> |1. Trivy Scan| SecurityReport["Security Audit"]
+        Actions --> |2. SSH Deploy| RemoteServer
+        Actions --> |3. Verify Health| HealthCheck["Health Check Script"]
+    end
+
+    subgraph Production_Server["🏢 Remote Server (100.83.222.69)"]
+        subgraph Host_OS["Host OS (Ubuntu)"]
+            DeployScript["scripts/deploy_production.sh"]
+            EnvFile[".env (Production)"]
+            HostSecrets["/apps/secrets-real/"]
+            
+            Actions -.-> |Execute| DeployScript
+        end
+        
+        subgraph Docker_Swarm["🐳 Docker Runtime"]
+            Stack["Docker Compose Stack"]
+            Containers["Services (N8N, Mailu, Traefik)"]
+            
+            DeployScript --> |docker compose up| Stack
+            Stack --> Containers
+            Containers -.-> |Mount Read-Only| HostSecrets
+            Containers -.-> |Read Env| EnvFile
+        end
+    end
+
+    %% Security & Flow Lines
+    GHSecrets -- "SSH_KEY, SSH_HOST" --> Actions
+    DeployScript -- "Pull Updates" --> Repo
+    
+    style Local_Environment fill:#e1f5fe,stroke:#01579b
+    style GitHub_Ecosystem fill:#f3e5f5,stroke:#4a148c
+    style Production_Server fill:#e8f5e9,stroke:#1b5e20
+    style HostSecrets fill:#ffcdd2,stroke:#b71c1c,stroke-width:2px
+    style GHSecrets fill:#ffcdd2,stroke:#b71c1c,stroke-width:2px
