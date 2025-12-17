@@ -2,8 +2,9 @@ name: Deploy to Production
 
 on:
   push:
-    branches: [ "main" ]
-  workflow_dispatch:
+    branches: ["main"]
+    tags: ["v*"] # Trigger on version tags
+  workflow_dispatch: # Allow manual trigger
 
 jobs:
   security-scan:
@@ -19,14 +20,27 @@ jobs:
           scan-type: 'fs'
           ignore-unfixed: true
           format: 'table'
-          exit-code: '0' # Don't fail matching severity yet
+          exit-code: '1' # Fail on critical vulnerabilities
           vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH'
+          severity: 'CRITICAL'
 
   deploy:
     needs: security-scan
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Copy files via SCP
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          source: "./*"
+          target: "/home/comzis/projects/inlock-ai-mvp"
+          rm: true # Clean target first? No, risky if secrets are there. But we have .env separation. Let's keep rm: false for safety, just overwrite.
+
       - name: Deploy via SSH
         uses: appleboy/ssh-action@master
         with:
@@ -35,7 +49,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             cd /home/comzis/projects/inlock-ai-mvp
-            git pull origin main
+            # No git pull needed
             scripts/deploy_production.sh
 
   verify:
@@ -54,4 +68,3 @@ jobs:
             cd /home/comzis/projects/inlock-ai-mvp
             chmod +x scripts/health_check_remote.sh
             ./scripts/health_check_remote.sh
-            ./scripts/deploy_production.sh

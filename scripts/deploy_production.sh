@@ -20,9 +20,10 @@ else
     exit 1
 fi
 
-# 2. Pull Latest Code
-echo "Pulling latest changes from git..." | tee -a "$LOG_FILE"
-git pull origin main || { echo "Git pull failed"; exit 1; }
+# 2. (Skipped) Pull Latest Code
+# echo "Pulling latest changes from git..." | tee -a "$LOG_FILE"
+# git pull origin main || { echo "Git pull failed"; exit 1; }
+echo "Skipping git pull (handled by CI/CD atomicity)..." | tee -a "$LOG_FILE"
 
 # 3. Update/Restart Containers
 # We use multiple compose files as per the verified environment

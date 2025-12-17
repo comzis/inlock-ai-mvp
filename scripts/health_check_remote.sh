@@ -13,20 +13,32 @@ URLS=(
     "https://n8n.inlock.ai"
 )
 
-echo "Starting Remote Health Check..."
-
-ERRORS=0
+MAX_RETRIES=18 # 18 * 10s = 3 minutes
+SLEEP_TIME=10
 
 for url in "${URLS[@]}"; do
-    echo -n "Checking $url ... "
-    # Using curl to fetch headers only, following redirects, max time 10s, insecure (internal check)
-    HTTP_CODE=$(curl -k -s -o /dev/null -w "%{http_code}" -L --max-time 10 "$url")
+    echo "Checking $url ..."
+    
+    ATTEMPT=1
+    SUCCESS=false
 
-    if [[ "$HTTP_CODE" == "200" ]] || [[ "$HTTP_CODE" == "302" ]] || [[ "$HTTP_CODE" == "401" ]] || [[ "$HTTP_CODE" == "403" ]]; then
-        # 401/403 are acceptable for protected endpoints (means server is up)
-        echo "OK ($HTTP_CODE)"
-    else
-        echo "FAIL ($HTTP_CODE)"
+    while [ $ATTEMPT -le $MAX_RETRIES ]; do
+        # Using curl to fetch headers only, following redirects, max time 10s, insecure (internal check)
+        HTTP_CODE=$(curl -k -s -o /dev/null -w "%{http_code}" -L --max-time 10 "$url")
+
+        if [[ "$HTTP_CODE" == "200" ]] || [[ "$HTTP_CODE" == "302" ]] || [[ "$HTTP_CODE" == "401" ]] || [[ "$HTTP_CODE" == "403" ]]; then
+            echo "  ✅ OK ($HTTP_CODE)"
+            SUCCESS=true
+            break
+        else
+            echo "  ⚠️  Attempt $ATTEMPT/$MAX_RETRIES: Failed ($HTTP_CODE). Retrying in ${SLEEP_TIME}s..."
+            sleep $SLEEP_TIME
+            ATTEMPT=$((ATTEMPT+1))
+        fi
+    done
+
+    if [ "$SUCCESS" = false ]; then
+        echo "❌ Failed to reach $url after $MAX_RETRIES attempts."
         ERRORS=$((ERRORS+1))
     fi
 done
