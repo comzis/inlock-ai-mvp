@@ -247,9 +247,8 @@ systemctl status fail2ban ufw unattended-upgrades
 
 ## 📚 Reference Documents
 
-- **Full Security Audit:** `Security_Audit_Final.md`
-- **Security Roadmap:** `Security_10_10_Roadmap.md`
-- **SRE Knowledge Base:** `SRE_Knowledge_Base.md`
+- **Server Provisioning:** `docs/guides/SERVER-PROVISIONING-GUIDE.md` (Defines 10/10 Score)
+- **Firewall Config:** `docs/guides/PROVISIONING-FIREWALL-ANSIBLE.md`
 
 ---
 

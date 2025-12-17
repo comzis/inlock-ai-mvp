@@ -11,11 +11,12 @@ inlock-ai-mvp/
 ├── traefik/              # ALL Traefik configurations
 │   └── dynamic/          # Dynamic configs (routers, middlewares, services)
 ├── docs/                 # ALL documentation
-│   ├── reports/          # Status reports by topic (auth0, mailu, ssh, sso, incidents)
-│   ├── audit/            # System audit logs
-│   └── tooling-deployment/  # Deployment guides
+│   ├── guides/           # Usage & Deployment Guides (Day 2)
+│   ├── architecture/     # High-level design & diagrams
+│   ├── reference/        # API refs, cheat sheets
+│   └── reports/          # Status reports & Audit logs
 ├── scripts/              # ALL automation scripts
-├── ansible/              # Infrastructure automation
+├── ansible/              # Infrastructure automation (Provisioning)
 ├── grafana/              # Monitoring dashboards
 ├── secrets/              # Secret templates (NOT actual secrets)
 └── env.example           # Environment variable template
@@ -57,8 +58,8 @@ inlock-ai-mvp/
 1. **File Organization**
    - Docker Compose: `compose/<service>.yml`
    - Traefik routers: `traefik/dynamic/routers.yml`
-   - Status reports: `docs/reports/<topic>/`
-   - Deployment guides: `docs/tooling-deployment/`
+   - Deployment Guides: `docs/guides/`
+   - Provisioning Guides: `docs/guides/SERVER-PROVISIONING-GUIDE.md`
 
 2. **Naming Conventions**
    - Services: `<service-name>.yml` (e.g., `mailu.yml`, `tooling.yml`)
@@ -86,9 +87,9 @@ inlock-ai-mvp/
    ```
 
 5. **Documentation Updates**
-   - Update README.md for major changes
-   - Add deployment guides to `docs/tooling-deployment/`
-   - Status reports go to `docs/reports/<topic>/`
+   - Update `docs/index.md` for major changes
+   - Guides go to `docs/guides/`
+   - Architecture docs go to `docs/architecture/`
    - Keep root directory clean (only README, QUICK-START, etc.)
 
 ## Environment & Secrets
@@ -105,12 +106,15 @@ inlock-ai-mvp/
 - SSH private keys (`*.key`, `*_key`, `id_*`)
 - SSH public keys (`*.pub`, `*_key.pub`) - unless intentionally public
 
-## Deployment Commands
+## Deployment Commands (CI/CD)
 
-**Standard workflow:**
+**Primary Method:**
+- **Automated**: Push a tag (e.g. `v1.0.0`) to trigger GitHub Actions.
+- **Manual (Emergency)**: See `docs/guides/DEPLOYMENT.md`.
+
+**Local Testing / Development:**
 ```bash
-cd /home/comzis/inlock
-docker compose -f compose/<service>.yml up -d
+docker compose -f docker-compose.local.yml up -d
 ```
 
 **With environment file:**
