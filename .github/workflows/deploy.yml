@@ -6,7 +6,25 @@ on:
   workflow_dispatch:
 
 jobs:
+  security-scan:
+    name: Security Scan (Trivy)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Run Trivy vulnerability scanner in repo mode
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          ignore-unfixed: true
+          format: 'table'
+          exit-code: '0' # Don't fail matching severity yet
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+
   deploy:
+    needs: security-scan
     runs-on: ubuntu-latest
     steps:
       - name: Deploy via SSH

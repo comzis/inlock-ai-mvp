@@ -60,7 +60,7 @@ x-resource-hints: &resource-hints
 
 services:
   traefik:
-    image: traefik:latest
+    image: traefik:v3.6.4
     restart: always
     env_file:
       - ../.env
@@ -213,7 +213,7 @@ services:
   # This prevents maintaining an unused nginx service with stale volumes
 
   portainer:
-    image: portainer/portainer-ce:latest
+    image: portainer/portainer-ce:2.33.5
     restart: always
     command:
       - "-H"
@@ -251,7 +251,7 @@ services:
     <<: [*hardening, *default-logging, *resource-hints]
 
   prometheus:
-    image: prom/prometheus:latest
+    image: prom/prometheus:v3.8.0
     restart: always
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
