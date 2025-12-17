@@ -26,6 +26,7 @@ http:
         - secure-headers
         - admin-forward-auth
         - allowed-admins
+        - admin-ip-allowlist
         - mgmt-ratelimit
       service: api@internal
       priority: 100
@@ -51,6 +52,7 @@ http:
         - secure-headers
         - admin-forward-auth
         - allowed-admins
+        - admin-ip-allowlist
         - mgmt-ratelimit
       service: portainer
       tls:
@@ -78,6 +80,7 @@ http:
         - secure-headers
         - admin-forward-auth
         - allowed-admins
+        - admin-ip-allowlist
         - mgmt-ratelimit
       service: grafana
       tls:
@@ -91,6 +94,7 @@ http:
         - coolify-headers
         - admin-forward-auth
         - allowed-admins
+        - admin-ip-allowlist
         - mgmt-ratelimit
       service: coolify
       tls:
@@ -115,6 +119,7 @@ http:
         - secure-headers
         - admin-forward-auth
         - allowed-admins
+        - admin-ip-allowlist
       service: homarr
       tls:
         certResolver: le-dns
@@ -127,6 +132,7 @@ http:
         - cockpit-headers
         - admin-forward-auth
         - allowed-admins
+        - admin-ip-allowlist
         - mgmt-ratelimit
       service: cockpit
       tls:
@@ -186,6 +192,7 @@ http:
         - secure-headers
         - admin-forward-auth
         - allowed-admins
+        - admin-ip-allowlist
         - mgmt-ratelimit
       service: mailu-front
       tls:

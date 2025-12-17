@@ -106,7 +106,7 @@ services:
       - SETUID
       - DAC_OVERRIDE
     security_opt:
-      - no-new-privileges:false
+      - no-new-privileges:true
     <<: [*default-logging, *resource-hints]
 
   # Mailu Postfix - SMTP Server
@@ -164,7 +164,7 @@ services:
       - SETUID
       - DAC_OVERRIDE
     security_opt:
-      - no-new-privileges:false
+      - no-new-privileges:true
     <<: [*default-logging, *resource-hints]
 
   # Mailu Dovecot - IMAP Server
@@ -226,7 +226,7 @@ services:
       - SYS_CHROOT
       - DAC_OVERRIDE
     security_opt:
-      - no-new-privileges:false
+      - no-new-privileges:true
     <<: [*default-logging, *resource-hints]
 
   # Mailu Rspamd - Spam Filtering
@@ -287,7 +287,7 @@ services:
       - SETUID
       - DAC_OVERRIDE
     security_opt:
-      - no-new-privileges:false
+      - no-new-privileges:true
     <<: [*default-logging, *resource-hints]
 
   # Mailu Admin - Web UI and SSO
@@ -365,7 +365,7 @@ services:
       - SETUID
       - DAC_OVERRIDE
     security_opt:
-      - no-new-privileges:false
+      - no-new-privileges:true
     <<: [*default-logging, *resource-hints]
 
   # Mailu Redis - Cache and Session Storage
@@ -395,7 +395,7 @@ services:
       - SETUID
       - CHOWN
     security_opt:
-      - no-new-privileges:false
+      - no-new-privileges:true
     <<: [*default-logging]
 
   # Mailu Postgres - Database
@@ -432,7 +432,7 @@ services:
       - SETUID
       - DAC_OVERRIDE
     security_opt:
-      - no-new-privileges:false
+      - no-new-privileges:true
     <<: [*default-logging, *resource-hints]
 
   # Webmail (Roundcube)
