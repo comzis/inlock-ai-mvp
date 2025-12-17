@@ -19,8 +19,8 @@ ERRORS=0
 
 for url in "${URLS[@]}"; do
     echo -n "Checking $url ... "
-    # Using curl to fetch headers only, following redirects, max time 10s
-    HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -L --max-time 10 "$url")
+    # Using curl to fetch headers only, following redirects, max time 10s, insecure (internal check)
+    HTTP_CODE=$(curl -k -s -o /dev/null -w "%{http_code}" -L --max-time 10 "$url")
 
     if [[ "$HTTP_CODE" == "200" ]] || [[ "$HTTP_CODE" == "302" ]] || [[ "$HTTP_CODE" == "401" ]] || [[ "$HTTP_CODE" == "403" ]]; then
         # 401/403 are acceptable for protected endpoints (means server is up)
