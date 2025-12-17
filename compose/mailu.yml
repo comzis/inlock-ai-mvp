@@ -365,7 +365,7 @@ services:
       - SETUID
       - DAC_OVERRIDE
     security_opt:
-      - no-new-privileges:true
+      - no-new-privileges:false
     <<: [*default-logging, *resource-hints]
 
   # Mailu Redis - Cache and Session Storage
