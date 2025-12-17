@@ -21,8 +21,8 @@ How-to guides for specific services.
 ## 🏗 Architecture
 High-level design documentation.
 - [DevOps Workflow (Diagram)](architecture/DEVOPS-WORKFLOW.md)
-- [Container Structure](architecture/CONTAINER-STRUCTURE.md) (To be created)
-- [Network Layout](architecture/NETWORK-LAYOUT.md) (To be created)
+- [Container Structure](architecture/CONTAINER-STRUCTURE.md) (Service stacks & Volumes)
+- [Network Layout](architecture/NETWORK-LAYOUT.md) (Isolation & Security)
 
 ## 📖 Reference
 Technical specifications and cheat sheets.
