@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1.0.0
+        uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
@@ -36,5 +36,22 @@ jobs:
           script: |
             cd /home/comzis/projects/inlock-ai-mvp
             git pull origin main
-            chmod +x scripts/deploy_production.sh
+            scripts/deploy_production.sh
+
+  verify:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify Health via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            # Give services 30s to stabilize
+            sleep 30
+            cd /home/comzis/projects/inlock-ai-mvp
+            chmod +x scripts/health_check_remote.sh
+            ./scripts/health_check_remote.sh
             ./scripts/deploy_production.sh
