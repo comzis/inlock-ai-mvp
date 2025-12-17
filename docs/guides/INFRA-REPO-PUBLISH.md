@@ -1,3 +1,10 @@
+# Infrastructure Repository Publishing Guide
+
+> [!IMPORTANT]
+> **Repository Distinction**
+> *   This guide is for the **Infrastructure** repository (`inlock-infra`), which contains Ansible playbooks and provisioning scripts.
+> *   The **Application** code lives in `inlock-ai-mvp`.
+
 # Git Publishing Guide - Inlock AI
 
 Guide for publishing the Inlock AI codebase to Git repositories.
@@ -39,6 +46,9 @@ git status
 git log --oneline -5
 ```
 
+
+
+# Publishing inlock-infra to GitHub
 ### 2. Infrastructure Repository
 
 **Current Status:** New repository, ready for initial commit

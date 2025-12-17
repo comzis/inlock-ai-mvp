@@ -1,3 +1,12 @@
+# Server Provisioning Guide (Day 0)
+
+> [!IMPORTANT]
+> **Provisioning vs. Deployment**
+> *   **This Guide**: Covers "Day 0" server setup (OS hardening, firewall, base dependencies) using the `inlock-infra` repository.
+> *   **Application Updates**: For deploying the `inlock-ai-mvp` application code, see [DEPLOYMENT.md](DEPLOYMENT.md).
+>
+> This guide references scripts in `/home/comzis/inlock-infra`, which is a distinct repository from the application code.
+
 # Achieving 10/10 Security Score - Complete Guide
 
 ## Quick Start

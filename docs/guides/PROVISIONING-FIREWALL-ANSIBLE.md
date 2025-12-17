@@ -1,3 +1,8 @@
+# Provisioning Firewall with Ansible
+
+> [!NOTE]
+> **Context**: This guide describes using Ansible to configure the base OS firewall. This is typically done once during server provisioning via the `inlock-infra` repository.
+
 # Securing Firewall with Ansible
 
 This guide explains how to secure the firewall using Ansible automation.

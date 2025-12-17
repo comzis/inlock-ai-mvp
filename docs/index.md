@@ -2,15 +2,25 @@
 
 Welcome to the centralized documentation for the Inlock AI MVP infrastructure.
 
-## 📚 Guides & How-Tos
-Practical steps for common tasks.
+## 📚 Deployment (Day 2)
+Guides for updating the application.
 - [Deployment Guide](guides/DEPLOYMENT.md)
-- [Security Hardening](guides/SECURITY-HARDENING-GUIDE.md)
+- [Secret Management](guides/SECRET-MANAGEMENT.md)
+
+## 🛠 Provisioning (Day 0)
+Guides for initial server setup (inlock-infra).
+- [Server Provisioning Guide](guides/SERVER-PROVISIONING-GUIDE.md) (formerly 10-10 Security)
+- [Firewall Setup (Ansible)](guides/PROVISIONING-FIREWALL-ANSIBLE.md)
+- [Infra Repo Publishing](guides/INFRA-REPO-PUBLISH.md)
+
+## 🔧 Service Guides
+How-to guides for specific services.
 - [Mailu Implementation](guides/MAILU-ACCESS-GUIDE.md)
 - [Adding New Services](guides/ADDING-NEW-SERVICE.md)
 
 ## 🏗 Architecture
 High-level design documentation.
+- [DevOps Workflow (Diagram)](architecture/DEVOPS-WORKFLOW.md)
 - [Container Structure](architecture/CONTAINER-STRUCTURE.md) (To be created)
 - [Network Layout](architecture/NETWORK-LAYOUT.md) (To be created)
 
