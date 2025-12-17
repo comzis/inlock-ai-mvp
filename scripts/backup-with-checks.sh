@@ -39,6 +39,16 @@ export GPG_RECIPIENT="admin@inlock.ai"
 # Run backup
 log "Starting encrypted backup..."
 cd "$SCRIPT_DIR"
+
+# 1. Database Logical Backups (Safety)
+if ./scripts/backup-databases.sh >> "$LOG_FILE" 2>&1; then
+    log "✅ Database logical backups completed"
+else
+    error "Database backup failed - see $LOG_FILE. Aborting to preserve previous backups."
+fi
+
+# 2. Volume Backups (Assets & Redundancy)
+log "Starting volume backup..."
 if ./scripts/backup-volumes.sh >> "$LOG_FILE" 2>&1; then
     log "✅ Backup completed successfully"
     
