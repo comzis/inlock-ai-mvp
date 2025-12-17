@@ -2,11 +2,27 @@
 
 **Created:** 2025-12-13 01:20 UTC  
 **Agent:** Browser E2E Support (Agent 4)  
-**Purpose:** Headless browser setup and failure signature catalog
+**Purpose:** Headless browser setup and failure signature catalog.
+**Status:** ✅ Implemented in `e2e/` directory and active in CI/CD pipeline.
 
 ---
 
-## Test Harness Options
+## Current Implementation (Dec 2025)
+The active test suite is located in `e2e/` and runs via Playwright.
+
+**To Run Locally:**
+```bash
+cd e2e
+npm install
+npx playwright test
+```
+
+**CI/CD Integration:**
+Tests run automatically in the `.github/workflows/deploy.yml` pipeline (job: `e2e-test`) after every deployment verification.
+
+---
+
+## Test Harness Options (Reference)
 
 ### Option 1: Playwright (Recommended)
 

@@ -98,37 +98,25 @@ Now you can use:
 
 ---
 
-## Deployment Workflow
+## CI/CD Deployment Workflow
 
-### Deploy Tooling (Strapi + PostHog)
+Deployments are now fully automated via a GitHub Actions CI/CD pipeline. The workflow is triggered automatically whenever new commits are pushed to the `main` branch.
 
-```bash
-cd /home/comzis/inlock
+### How It Works
 
-docker compose -f compose/tooling.yml \
-  --env-file /home/comzis/deployments/.env.tooling \
-  up -d
-```
+1.  **Push to `main`**: A `git push origin main` command triggers the deployment workflow defined in `.github/workflows/deploy.yml`.
+2.  **Automated Script**: The workflow connects to the production server via SSH and executes the `scripts/deploy_production.sh` script.
+3.  **Deployment**: The script runs the necessary `docker compose` commands to update the running services with the latest changes from the repository.
 
-### Deploy Main Stack
+This automated process eliminates the need for manual `docker compose` commands and ensures that the production environment is always in sync with the `main` branch.
 
-```bash
-cd /home/comzis/inlock
+### Required GitHub Secrets
 
-docker compose -f compose/stack.yml \
-  --env-file /home/comzis/deployments/.env.production \
-  up -d
-```
+For the CI/CD pipeline to access the production server, the following secrets must be configured in the GitHub repository settings under `Settings > Secrets and variables > Actions`:
 
-### Deploy Email (Mailu)
-
-```bash
-cd /home/comzis/inlock
-
-docker compose -f compose/mailu.yml \
-  --env-file /home/comzis/deployments/.env.mailu \
-  up -d
-```
+- `SSH_HOST`: The IP address or hostname of the production server.
+- `SSH_USER`: The username for SSH login (e.g., `comzis`).
+- `SSH_KEY`: The private SSH key used for authentication.
 
 ---
 
@@ -279,14 +267,14 @@ git pull
 - Keep in `/home/comzis/deployments/`
 - Use `apps/secrets-real/` for Docker secrets
 
-### 3. Version Control Everything
+### 3. Push to Deploy
+All changes to the `main` branch are automatically deployed to production.
+
 ```bash
-# Make changes
-cd /home/comzis/inlock
-git add .
-git commit -m "Update configuration"
+# After making and committing changes:
 git push origin main
 ```
+This command now triggers the CI/CD pipeline, which handles the deployment for you.
 
 ### 4. Backup Before Major Changes
 ```bash
