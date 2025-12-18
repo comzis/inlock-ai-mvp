@@ -45,8 +45,8 @@ tcp:
         proxyProtocol:
           version: 2
         servers:
-          # Forward decrypted 587 traffic to 25 (Plaintext SMTP)
-          - address: "mailu-postfix:25"
+          # Forward to Nginx which handles STARTTLS on port 587
+          - address: "mailu-front:587"
     mailu-imap-svc:
       loadBalancer:
         proxyProtocol:
