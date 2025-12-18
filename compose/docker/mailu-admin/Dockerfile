@@ -12,3 +12,6 @@ RUN grep -q "if False and 'homepage'" /app/mailu/sso/views/base.py || (echo "SSO
 LABEL maintainer="inlock.ai"
 LABEL description="Mailu admin with SSO homepage redirect fix"
 LABEL version="2.0-patched"
+
+# Apply Dovecot Authentication Fix (external IP access + correct password lookup)
+COPY dovecot.py /app/mailu/internal/views/dovecot.py

@@ -1,0 +1,51 @@
+
+tcp:
+  routers:
+    mailu-smtp:
+      entryPoints:
+        - smtp
+      rule: "HostSNI(`*`)"
+      service: mailu-smtp-svc
+    mailu-smtps:
+      entryPoints:
+        - smtps
+      rule: "HostSNI(`*`)"
+      service: mailu-smtps-svc
+      tls: {}
+    mailu-submission:
+      entryPoints:
+        - submission
+      rule: "HostSNI(`*`)"
+      service: mailu-submission-svc
+    mailu-imap:
+      entryPoints:
+        - imap
+      rule: "HostSNI(`*`)"
+      service: mailu-imap-svc
+      tls: {}
+
+  services:
+    mailu-smtp-svc:
+      loadBalancer:
+        proxyProtocol:
+          version: 2
+        servers:
+          - address: "mailu-postfix:25"
+    mailu-smtps-svc:
+      loadBalancer:
+        proxyProtocol:
+          version: 2
+        servers:
+          - address: "mailu-postfix:465"
+    mailu-submission-svc:
+      loadBalancer:
+        proxyProtocol:
+          version: 2
+        servers:
+          - address: "mailu-postfix:587"
+    mailu-imap-svc:
+      loadBalancer:
+        proxyProtocol:
+          version: 2
+        servers:
+          - address: "mailu-imap:993"

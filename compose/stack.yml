@@ -76,6 +76,10 @@ services:
       - "443:443"
       # Metrics port only exposed to mgmt network, not public
       - "127.0.0.1:9100:9100"
+      - "25:25"
+      - "465:465"
+      - "587:587"
+      - "993:993"
     volumes:
       # SECURITY: Removed direct docker.sock mount - using socket-proxy instead
       # - /var/run/docker.sock:/var/run/docker.sock:ro

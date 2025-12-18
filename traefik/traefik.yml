@@ -35,6 +35,14 @@ entryPoints:
     address: :8080
   metrics:
     address: :9100
+  smtp:
+    address: :25
+  smtps:
+    address: :465
+  submission:
+    address: :587
+  imap:
+    address: :993
 
 serversTransport:
   insecureSkipVerify: false

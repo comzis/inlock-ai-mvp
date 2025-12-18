@@ -190,13 +190,13 @@ http:
       rule: Host(`mail.inlock.ai`) && PathPrefix(`/admin`)
       middlewares:
         - secure-headers
-        - admin-ip-allowlist
-        - admin-forward-auth
-        - allowed-admins
+        # - admin-ip-allowlist  # Disabled to allow public admin access
+        # - admin-forward-auth  # Disabled - Mailu has its own auth
+        # - allowed-admins      # Disabled - Mailu has its own auth
         - mgmt-ratelimit
       service: mailu-front
       tls:
-        certResolver: le-dns
+        certResolver: le-tls
 
     # Mailu Webmail - Public access with rate limiting (users authenticate via Mailu)
     mailu-webmail:
@@ -208,4 +208,4 @@ http:
         - mgmt-ratelimit
       service: mailu-front
       tls:
-        certResolver: le-dns
+        certResolver: le-tls

@@ -16,6 +16,9 @@ networks:
   mgmt:
     external: true
     name: mgmt
+  edge:
+    external: true
+    name: edge
 
 secrets:
   mailu-secret-key:
@@ -63,6 +66,7 @@ services:
     environment:
       - DOMAIN=${DOMAIN:-inlock.ai}
       - HOSTNAMES=mail.${DOMAIN:-inlock.ai}
+      - ADMIN=true
       - SECRET_KEY_FILE=/run/secrets/mailu-secret-key
       - DB_HOST=mailu-postgres
       - DB_USER=mailu
@@ -74,6 +78,8 @@ services:
       - SUBNET=172.24.0.0/16
       - LOG_LEVEL=INFO
       - TLS_FLAVOR=notls
+      - DB_FLAVOR=postgresql
+      - SQLALCHEMY_DATABASE_URI=postgresql://mailu:${MAILU_DB_PASSWORD}@mailu-postgres/mailu
       - POSTMASTER=${POSTMASTER:-admin}
       - MESSAGE_SIZE_LIMIT=52428800
       - WEBROOT=/
@@ -81,15 +87,13 @@ services:
       - mailu_mail_data:/mail
       - mailu_dkim_data:/dkim
       - nginx_logs:/var/lib/nginx  # Writable directory for nginx logs and modules
-    links:
-      - mailu-webmail:webmail
     networks:
       mail:
-        ipv4_address: 172.24.0.10
         aliases:
           - front
           - mailu-front
       mgmt:
+      edge:
 
     secrets:
       - mailu-secret-key
@@ -130,21 +134,20 @@ services:
       - SUBNET=172.24.0.0/16
       - LOG_LEVEL=INFO
       - TLS_FLAVOR=notls
+      - DB_FLAVOR=postgresql
+      - SQLALCHEMY_DATABASE_URI=postgresql://mailu:${MAILU_DB_PASSWORD}@mailu-postgres/mailu
       - POSTMASTER=${POSTMASTER:-admin}
       - MESSAGE_SIZE_LIMIT=52428800
       - WEBROOT=/
-    ports:
-      - "25:25"    # SMTP
-      - "465:465"  # SMTPS
-      - "587:587"  # Submission
+      - WEBROOT=/
     volumes:
       - mailu_mail_data:/mail
       - mailu_dkim_data:/dkim
     networks:
       mail:
-        ipv4_address: 172.24.0.7
         aliases:
           - postfix
+      edge:
     secrets:
       - mailu-secret-key
       - mailu-db-password
@@ -187,12 +190,11 @@ services:
       - SUBNET=172.24.0.0/16
       - LOG_LEVEL=INFO
       - TLS_FLAVOR=notls
+      - DB_FLAVOR=postgresql
+      - SQLALCHEMY_DATABASE_URI=postgresql://mailu:${MAILU_DB_PASSWORD}@mailu-postgres/mailu
       - POSTMASTER=${POSTMASTER:-admin}
       - MESSAGE_SIZE_LIMIT=52428800
       - WEBROOT=/
-    ports:
-      - "143:143"  # IMAP
-      - "993:993"  # IMAPS
     volumes:
       - mailu_mail_data:/mail
       - /etc/localtime:/etc/localtime:ro
@@ -201,9 +203,9 @@ services:
       - ./config/dummy.key:/overrides/dummy.key:ro
     networks:
       mail:
-        ipv4_address: 172.24.0.6
         aliases:
           - imap
+      edge:
     secrets:
       - mailu-secret-key
       - mailu-db-password
@@ -255,17 +257,11 @@ services:
     volumes:
       - mailu_rspamd_data:/var/lib/rspamd
       - ../mailu/overrides/rspamd:/etc/rspamd/override.d
-    extra_hosts:
-      - "redis:172.24.0.5"
-      - "mailu-redis:172.24.0.5"
-      - "mailu-postgres:172.24.0.9" # Optional if it interacts with DB
-      - "admin:172.24.0.8" # Rspamd needs to reach admin
     depends_on:
       - mailu-front
       - mailu-redis
     networks:
       mail:
-        ipv4_address: 172.24.0.4
         aliases:
           - antispam
     secrets:
@@ -321,29 +317,16 @@ services:
       - SUBNET=172.24.0.0/16
       - LOG_LEVEL=INFO
       - TLS_FLAVOR=notls
+      - DB_FLAVOR=postgresql
+      - SQLALCHEMY_DATABASE_URI=postgresql://mailu:${MAILU_DB_PASSWORD}@mailu-postgres/mailu
       - POSTMASTER=${POSTMASTER:-admin}
       - MESSAGE_SIZE_LIMIT=52428800
       - WEBROOT=/
     volumes:
       - mailu_mail_data:/mail
       - mailu_dkim_data:/dkim
-    extra_hosts:
-      # Crucial: Override internal hostname resolution because public DNS (1.1.1.1) is used
-      - "mailu-redis:172.24.0.5"
-      - "redis:172.24.0.5"
-      - "mailu-postgres:172.24.0.9"
-      - "mailu-imap:172.24.0.6"
-      - "imap:172.24.0.6"
-      - "mailu-front:172.24.0.10"
-      - "front:172.24.0.10"
-      - "mailu-postfix:172.24.0.7"
-      - "postfix:172.24.0.7"
-      - "smtp:172.24.0.7" # Fix internal resolution
-      - "mailu-rspamd:172.24.0.4"
-      - "antispam:172.24.0.4"
     networks:
       mail:
-        ipv4_address: 172.24.0.8
         aliases:
           - admin
       mgmt:
@@ -365,7 +348,7 @@ services:
       - SETUID
       - DAC_OVERRIDE
     security_opt:
-      - no-new-privileges:false
+      - no-new-privileges:true
     <<: [*default-logging, *resource-hints]
 
   # Mailu Redis - Cache and Session Storage
@@ -380,7 +363,6 @@ services:
       - mailu_redis_data:/data
     networks:
       mail:
-        ipv4_address: 172.24.0.5
         aliases:
           - redis
     healthcheck:
@@ -394,6 +376,7 @@ services:
       - SETGID
       - SETUID
       - CHOWN
+    read_only: true
     security_opt:
       - no-new-privileges:true
     <<: [*default-logging]
@@ -410,7 +393,6 @@ services:
       - mailu_postgres_data:/var/lib/postgresql/data
     networks:
       mail:
-        ipv4_address: 172.24.0.9
         aliases:
           - postgres # Generic alias if needed
       internal:
@@ -431,6 +413,7 @@ services:
       - SETGID
       - SETUID
       - DAC_OVERRIDE
+    read_only: true
     security_opt:
       - no-new-privileges:true
     <<: [*default-logging, *resource-hints]
@@ -468,7 +451,6 @@ services:
       - ./config/roundcube-smtp-config.inc.php:/overrides/roundcube-smtp.inc.php:ro
     networks:
       mail:
-        ipv4_address: 172.24.0.3
         aliases:
           - webmail
     secrets:
