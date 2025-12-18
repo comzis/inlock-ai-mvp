@@ -42,10 +42,8 @@ tcp:
           - address: "mailu-postfix:10025"
     mailu-submission-svc:
       loadBalancer:
-        proxyProtocol:
-          version: 2
         servers:
-          # Forward to Nginx which handles STARTTLS on port 587
+          # Forward to Nginx which handles STARTTLS on port 587 (no Proxy Protocol)
           - address: "mailu-front:587"
     mailu-imap-svc:
       loadBalancer:
