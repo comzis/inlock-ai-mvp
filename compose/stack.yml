@@ -78,7 +78,6 @@ services:
       - "127.0.0.1:9100:9100"
       - "25:25"
       - "465:465"
-      - "587:587"
       - "993:993"
     volumes:
       # SECURITY: Removed direct docker.sock mount - using socket-proxy instead

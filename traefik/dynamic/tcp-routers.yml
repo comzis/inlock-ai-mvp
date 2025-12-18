@@ -13,11 +13,6 @@ tcp:
       service: mailu-smtps-svc
       tls:
         certResolver: le-dns
-    mailu-submission:
-      entryPoints:
-        - submission
-      rule: "HostSNI(`*`)"
-      service: mailu-submission-svc
     mailu-imap:
       entryPoints:
         - imap
@@ -40,11 +35,6 @@ tcp:
         servers:
           # Forward decrypted 465 traffic to 10025 (Plaintext Auth)
           - address: "mailu-postfix:10025"
-    mailu-submission-svc:
-      loadBalancer:
-        servers:
-          # Forward to Nginx which handles STARTTLS on port 587 (no Proxy Protocol)
-          - address: "mailu-front:587"
     mailu-imap-svc:
       loadBalancer:
         proxyProtocol:

@@ -39,8 +39,6 @@ entryPoints:
     address: :25
   smtps:
     address: :465
-  submission:
-    address: :587
   imap:
     address: :993
 
