@@ -50,7 +50,6 @@ http:
       rule: Host(`portainer.inlock.ai`)
       middlewares:
         - secure-headers
-        - admin-ip-allowlist
         - admin-forward-auth
         - allowed-admins
         - mgmt-ratelimit
@@ -130,7 +129,6 @@ http:
       rule: Host(`cockpit.inlock.ai`)
       middlewares:
         - cockpit-headers
-        - admin-ip-allowlist
         - admin-forward-auth
         - allowed-admins
         - mgmt-ratelimit
@@ -191,7 +189,7 @@ http:
       middlewares:
         - secure-headers
         # - admin-ip-allowlist  # Disabled to allow public admin access
-        # - admin-forward-auth  # Disabled - Mailu has its own auth
+        - admin-forward-auth  # Secured by Auth0
         # - allowed-admins      # Disabled - Mailu has its own auth
         - mgmt-ratelimit
       service: mailu-front

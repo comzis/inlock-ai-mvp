@@ -9,9 +9,10 @@ tcp:
     mailu-smtps:
       entryPoints:
         - smtps
-      rule: "HostSNI(`*`)"
+      rule: "HostSNI(`mail.inlock.ai`)"
       service: mailu-smtps-svc
-      tls: {}
+      tls:
+        certResolver: le-dns
     mailu-submission:
       entryPoints:
         - submission
@@ -20,9 +21,10 @@ tcp:
     mailu-imap:
       entryPoints:
         - imap
-      rule: "HostSNI(`*`)"
+      rule: "HostSNI(`mail.inlock.ai`)"
       service: mailu-imap-svc
-      tls: {}
+      tls:
+        certResolver: le-dns
 
   services:
     mailu-smtp-svc:
@@ -36,16 +38,19 @@ tcp:
         proxyProtocol:
           version: 2
         servers:
-          - address: "mailu-postfix:465"
+          # Forward decrypted 465 traffic to 10025 (Plaintext Auth)
+          - address: "mailu-postfix:10025"
     mailu-submission-svc:
       loadBalancer:
         proxyProtocol:
           version: 2
         servers:
-          - address: "mailu-postfix:587"
+          # Forward decrypted 587 traffic to 25 (Plaintext SMTP)
+          - address: "mailu-postfix:25"
     mailu-imap-svc:
       loadBalancer:
         proxyProtocol:
           version: 2
         servers:
-          - address: "mailu-imap:993"
+          # Forward decrypted 993 traffic to 143 (Plaintext Auth)
+          - address: "mailu-imap:143"

@@ -157,9 +157,8 @@ services:
       - --whitelist-domain=n8n.inlock.ai
       - --whitelist-domain=dashboard.inlock.ai
       - --whitelist-domain=grafana.inlock.ai
-      - --whitelist-domain=portainer.inlock.ai
-      - --whitelist-domain=traefik.inlock.ai
       - --whitelist-domain=cockpit.inlock.ai
+      - --email-domain=inlock.ai
     networks:
       - mgmt
     healthcheck:
