@@ -201,6 +201,7 @@ http:
       rule: Host(`mail.inlock.ai`) && !PathPrefix(`/admin`)
       middlewares:
         - secure-headers
+        - proto-header
         - mgmt-ratelimit
       service: mailu-front
       tls:

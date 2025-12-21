@@ -10,6 +10,10 @@ http:
         referrerPolicy: no-referrer-when-downgrade
         frameDeny: true
         permissionsPolicy: "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()"
+    proto-header:
+      headers:
+        customRequestHeaders:
+          X-Forwarded-Proto: "https"
     n8n-headers:
       headers:
         sslRedirect: true

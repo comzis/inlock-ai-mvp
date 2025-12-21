@@ -16,16 +16,6 @@ http:
       tls:
         certResolver: le-dns
 
-    mailu-web:
-      rule: "Host(`mail.inlock.ai`)"
-      service: mailu-front
-      entryPoints:
-        - websecure
-      tls:
-        certResolver: le-dns
-      middlewares:
-        - proto-header
-
   services:
     strapi:
       loadBalancer:
@@ -36,14 +26,3 @@ http:
       loadBalancer:
         servers:
           - url: "http://posthog_web:8000"
-
-    mailu-front:
-      loadBalancer:
-        servers:
-          - url: "http://mailu-mailu-front-1:80"
-
-  middlewares:
-    proto-header:
-      headers:
-        customRequestHeaders:
-          X-Forwarded-Proto: "https"
