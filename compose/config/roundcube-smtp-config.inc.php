@@ -7,6 +7,11 @@
  * persistent SMTP configuration that works with notls mode.
  */
 
+// FORCE HTTPS detection for Reverse Proxy
+if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https') {
+    $_SERVER['HTTPS'] = 'on';
+}
+
 // SMTP server configuration
 // Use 'front' container which handles mail routing
 $config['smtp_server'] = 'front';
@@ -16,8 +21,8 @@ $config['smtp_port'] = 25;
 // This is required because we're using TLS_FLAVOR=notls
 $config['smtp_conn_options'] = array(
     'ssl' => array(
-        'verify_peer'       => false,
-        'verify_peer_name'  => false,
+        'verify_peer' => false,
+        'verify_peer_name' => false,
         'allow_self_signed' => true
     ),
 );
