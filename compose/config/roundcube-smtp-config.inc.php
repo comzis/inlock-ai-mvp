@@ -34,5 +34,6 @@ $config['smtp_user'] = '%u';
 $config['smtp_pass'] = '%p';
 
 // Force File Session Storage (Redis extension missing in image)
+// Use /tmp for reliability
 $config['session_storage'] = 'php';
-$config['session_save_path'] = '/var/www/roundcube/temp';
+$config['session_save_path'] = '/tmp';
