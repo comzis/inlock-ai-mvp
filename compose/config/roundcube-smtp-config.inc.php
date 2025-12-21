@@ -10,6 +10,9 @@
 // FORCE HTTPS unconditionally for Traefik
 $_SERVER['HTTPS'] = 'on';
 
+// DISABLE IP CHECK to prevent session invalidation loops
+$config['ip_check'] = false;
+
 // SMTP server configuration
 
 
