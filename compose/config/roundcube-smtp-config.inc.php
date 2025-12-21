@@ -10,6 +10,9 @@
 // FORCE HTTPS unconditionally for Traefik
 $_SERVER['HTTPS'] = 'on';
 
+// DEBUG HEADERS
+file_put_contents('/var/www/roundcube/logs/headers.log', date('Y-m-d H:i:s') . " REQUEST:\n" . print_r($_SERVER, true) . "\n\n", FILE_APPEND);
+
 // SMTP server configuration
 // Use 'front' container which handles mail routing
 $config['smtp_server'] = 'front';
