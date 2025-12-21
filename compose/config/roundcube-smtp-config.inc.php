@@ -14,10 +14,6 @@ $_SERVER['HTTPS'] = 'on';
 $config['ip_check'] = false;
 
 // SMTP server configuration
-
-
-
-// SMTP server configuration
 // Use 'front' container which handles mail routing
 $config['smtp_server'] = 'front';
 $config['smtp_port'] = 25;
@@ -37,7 +33,6 @@ $config['smtp_conn_options'] = array(
 $config['smtp_user'] = '%u';
 $config['smtp_pass'] = '%p';
 
-// Force Redis Session Storage
-$config['session_storage'] = 'redis';
-$config['redis_hosts'] = ['redis:6379'];
-
+// Force File Session Storage (Redis extension missing in image)
+$config['session_storage'] = 'php';
+$config['session_save_path'] = '/var/www/roundcube/temp';
