@@ -87,6 +87,7 @@ services:
       - mailu_mail_data:/mail
       - mailu_dkim_data:/dkim
       - nginx_logs:/var/lib/nginx  # Writable directory for nginx logs and modules
+      - ./config/nginx-front.conf:/etc/nginx/nginx.conf:ro
     ports:
       # SMTP submission - exposed directly (bypasses Traefik to avoid protocol issues)
       - "587:587"
