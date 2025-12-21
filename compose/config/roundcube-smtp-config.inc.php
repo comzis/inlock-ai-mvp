@@ -7,10 +7,8 @@
  * persistent SMTP configuration that works with notls mode.
  */
 
-// FORCE HTTPS detection for Reverse Proxy
-if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https') {
-    $_SERVER['HTTPS'] = 'on';
-}
+// FORCE HTTPS unconditionally for Traefik
+$_SERVER['HTTPS'] = 'on';
 
 // SMTP server configuration
 // Use 'front' container which handles mail routing
