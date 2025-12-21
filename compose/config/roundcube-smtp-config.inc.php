@@ -10,9 +10,7 @@
 // FORCE HTTPS unconditionally for Traefik
 $_SERVER['HTTPS'] = 'on';
 
-// FORCE LOGGING TO FILE (Application logs only)
-$config['log_driver'] = 'file';
-$config['log_dir'] = '/var/www/roundcube/logs';
+// SMTP server configuration
 
 
 
