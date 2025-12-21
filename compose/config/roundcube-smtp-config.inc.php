@@ -36,3 +36,8 @@ $config['smtp_conn_options'] = array(
 // %u = username (email), %p = password
 $config['smtp_user'] = '%u';
 $config['smtp_pass'] = '%p';
+
+// Force Redis Session Storage
+$config['session_storage'] = 'redis';
+$config['redis_hosts'] = ['redis:6379'];
+
