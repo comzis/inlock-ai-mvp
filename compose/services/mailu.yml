@@ -9,7 +9,7 @@ networks:
     ipam:
       driver: default
       config:
-        - subnet: 172.25.0.0/16
+        - subnet: 172.30.0.0/16
   internal:
     external: true
     name: internal
@@ -75,7 +75,7 @@ services:
       - REDIS_HOST=mailu-redis
       - REDIS_PORT=6379
       - TZ=UTC
-      - SUBNET=172.25.0.0/16
+      - SUBNET=172.30.0.0/16
       - LOG_LEVEL=INFO
       - TLS_FLAVOR=notls
       - DB_FLAVOR=postgresql
@@ -87,7 +87,7 @@ services:
       - mailu_mail_data:/mail
       - mailu_dkim_data:/dkim
       - nginx_logs:/var/lib/nginx  # Writable directory for nginx logs and modules
-      - ./config/nginx-front.conf:/etc/nginx/nginx.conf:ro
+      - ../../config/nginx/front.conf:/etc/nginx/nginx.conf:ro
     ports:
       # SMTP submission - exposed directly (bypasses Traefik to avoid protocol issues)
       - "587:587"
@@ -135,7 +135,7 @@ services:
       - REDIS_HOST=mailu-redis
       - REDIS_PORT=6379
       - TZ=UTC
-      - SUBNET=172.25.0.0/16
+      - SUBNET=172.30.0.0/16
       - LOG_LEVEL=INFO
       - TLS_FLAVOR=notls
       - DB_FLAVOR=postgresql
@@ -191,7 +191,7 @@ services:
       - REDIS_HOST=mailu-redis
       - REDIS_PORT=6379
       - TZ=UTC
-      - SUBNET=172.25.0.0/16
+      - SUBNET=172.30.0.0/16
       - LOG_LEVEL=INFO
       - TLS_FLAVOR=notls
       - DB_FLAVOR=postgresql
@@ -202,7 +202,7 @@ services:
     volumes:
       - mailu_mail_data:/mail
       - /etc/localtime:/etc/localtime:ro
-      - ./config/dovecot.conf:/overrides/dovecot.conf:ro
+      - ../../config/mailu/dovecot.conf:/overrides/dovecot.conf:ro
       - ./config/dummy.crt:/overrides/dummy.crt:ro
       - ./config/dummy.key:/overrides/dummy.key:ro
     networks:
@@ -252,7 +252,7 @@ services:
       - REDIS_HOST=mailu-redis
       - REDIS_PORT=6379
       - TZ=UTC
-      - SUBNET=172.25.0.0/16
+      - SUBNET=172.30.0.0/16
       - LOG_LEVEL=INFO
       - TLS_FLAVOR=notls
       - POSTMASTER=${POSTMASTER:-admin}
@@ -318,7 +318,7 @@ services:
       - REDIS_HOST=mailu-redis
       - REDIS_PORT=6379
       - TZ=UTC
-      - SUBNET=172.25.0.0/16
+      - SUBNET=172.30.0.0/16
       - LOG_LEVEL=INFO
       - TLS_FLAVOR=notls
       - DB_FLAVOR=postgresql
@@ -444,7 +444,7 @@ services:
       - REDIS_HOST=mailu-redis
       - REDIS_PORT=6379
       - TZ=UTC
-      - SUBNET=172.25.0.0/16
+      - SUBNET=172.30.0.0/16
       - LOG_LEVEL=INFO
       - TLS_FLAVOR=notls
       - POSTMASTER=admin
