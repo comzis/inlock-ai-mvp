@@ -8,6 +8,10 @@ RUN cd /var/www && \
     echo "Symlinks created successfully" && \
     ls -la /var/www/ | head -20
 
+# Copy SMTP config to overrides and secure it for Snuffleupagus
+COPY roundcube-smtp.inc.php /overrides/roundcube-smtp.inc.php
+RUN chown root:root /overrides/roundcube-smtp.inc.php && chmod 644 /overrides/roundcube-smtp.inc.php
+
 # Verify critical symlinks were created
 RUN test -L /var/www/sso.php || (echo "sso.php symlink missing!" && exit 1)
 RUN test -L /var/www/index.php || (echo "index.php symlink missing!" && exit 1)

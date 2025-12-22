@@ -9,7 +9,7 @@ networks:
     ipam:
       driver: default
       config:
-        - subnet: 172.24.0.0/16
+        - subnet: 172.25.0.0/16
   internal:
     external: true
     name: internal
@@ -75,7 +75,7 @@ services:
       - REDIS_HOST=mailu-redis
       - REDIS_PORT=6379
       - TZ=UTC
-      - SUBNET=172.24.0.0/16
+      - SUBNET=172.25.0.0/16
       - LOG_LEVEL=INFO
       - TLS_FLAVOR=notls
       - DB_FLAVOR=postgresql
@@ -135,7 +135,7 @@ services:
       - REDIS_HOST=mailu-redis
       - REDIS_PORT=6379
       - TZ=UTC
-      - SUBNET=172.24.0.0/16
+      - SUBNET=172.25.0.0/16
       - LOG_LEVEL=INFO
       - TLS_FLAVOR=notls
       - DB_FLAVOR=postgresql
@@ -191,7 +191,7 @@ services:
       - REDIS_HOST=mailu-redis
       - REDIS_PORT=6379
       - TZ=UTC
-      - SUBNET=172.24.0.0/16
+      - SUBNET=172.25.0.0/16
       - LOG_LEVEL=INFO
       - TLS_FLAVOR=notls
       - DB_FLAVOR=postgresql
@@ -252,7 +252,7 @@ services:
       - REDIS_HOST=mailu-redis
       - REDIS_PORT=6379
       - TZ=UTC
-      - SUBNET=172.24.0.0/16
+      - SUBNET=172.25.0.0/16
       - LOG_LEVEL=INFO
       - TLS_FLAVOR=notls
       - POSTMASTER=${POSTMASTER:-admin}
@@ -318,7 +318,7 @@ services:
       - REDIS_HOST=mailu-redis
       - REDIS_PORT=6379
       - TZ=UTC
-      - SUBNET=172.24.0.0/16
+      - SUBNET=172.25.0.0/16
       - LOG_LEVEL=INFO
       - TLS_FLAVOR=notls
       - DB_FLAVOR=postgresql
@@ -444,7 +444,7 @@ services:
       - REDIS_HOST=mailu-redis
       - REDIS_PORT=6379
       - TZ=UTC
-      - SUBNET=172.24.0.0/16
+      - SUBNET=172.25.0.0/16
       - LOG_LEVEL=INFO
       - TLS_FLAVOR=notls
       - POSTMASTER=admin
@@ -452,7 +452,7 @@ services:
       - WEBROOT=/
     volumes:
       - mailu_webmail_data:/data
-      - ./config/roundcube-smtp-config.inc.php:/overrides/roundcube-smtp.inc.php:ro
+
     networks:
       mail:
         aliases:
