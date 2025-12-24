@@ -15,7 +15,7 @@ networks:
 include:
   - inlock-db.yml
   - inlock-ai.yml
-  - logging.yml
+  - ../config/monitoring/logging.yml
   - cockpit-proxy.yml
 
 secrets:
@@ -76,15 +76,14 @@ services:
       - "443:443"
       # Metrics port only exposed to mgmt network, not public
       - "127.0.0.1:9100:9100"
-      - "25:25"
       - "465:465"
       - "993:993"
     volumes:
       # SECURITY: Removed direct docker.sock mount - using socket-proxy instead
       # - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ../traefik/traefik.yml:/etc/traefik/traefik.yml:ro
-      - ../traefik/dynamic:/etc/traefik/dynamic:ro
-      - ../traefik/acme:/etc/traefik/acme
+      - ../../config/traefik/traefik.yml:/etc/traefik/traefik.yml:ro
+      - ../../traefik/dynamic:/etc/traefik/dynamic:ro
+      - ../../traefik/acme:/etc/traefik/acme
     extra_hosts:
       - "host.docker.internal:host-gateway"
     networks:
@@ -235,7 +234,7 @@ services:
     <<: [*hardening, *default-logging, *resource-hints]
 
   cadvisor:
-    image: gcr.io/cadvisor/cadvisor:latest
+    image: gcr.io/cadvisor/cadvisor:v0.49.1
     restart: always
     command:
       - "--disable_metrics=percpu,udp,process,sched"
@@ -263,8 +262,8 @@ services:
       - '--web.enable-lifecycle'
     volumes:
       - prometheus_data:/prometheus
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      - ./prometheus/rules:/etc/prometheus/rules:ro
+      - ../../config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ../../config/prometheus/rules:/etc/prometheus/rules:ro
     networks:
       - mgmt
     healthcheck:
@@ -279,7 +278,7 @@ services:
     <<: [*hardening, *default-logging, *resource-hints]
 
   grafana:
-    image: grafana/grafana:latest
+    image: grafana/grafana:11.1.0
     restart: always
     environment:
       - GF_SERVER_DOMAIN=grafana.${DOMAIN}
@@ -307,7 +306,7 @@ services:
     <<: [*hardening, *default-logging, *resource-hints]
 
   alertmanager:
-    image: prom/alertmanager:latest
+    image: prom/alertmanager:v0.27.0
     restart: always
     command:
       - "--config.file=/etc/alertmanager/alertmanager.yml"
@@ -315,7 +314,7 @@ services:
       - "--cluster.listen-address="
     volumes:
       - alertmanager_data:/alertmanager
-      - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - ../../config/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
     networks:
       - mgmt
     healthcheck:
@@ -326,7 +325,7 @@ services:
     <<: [*hardening, *default-logging, *resource-hints]
 
   node-exporter:
-    image: prom/node-exporter:latest
+    image: prom/node-exporter:v1.8.2
     restart: always
     command:
       - "--path.procfs=/host/proc"
@@ -352,12 +351,12 @@ services:
     <<: [*default-logging]
 
   blackbox-exporter:
-    image: prom/blackbox-exporter:latest
+    image: prom/blackbox-exporter:v0.27.0
     restart: always
     command:
       - "--config.file=/etc/blackbox/blackbox.yml"
     volumes:
-      - ./monitoring/blackbox.yml:/etc/blackbox/blackbox.yml:ro
+      - ../../config/monitoring/blackbox.yml:/etc/blackbox/blackbox.yml:ro
     networks:
       - mgmt
     healthcheck:

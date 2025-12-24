@@ -91,7 +91,7 @@ services:
       - posthog_clickhouse_data:/var/lib/clickhouse
     environment:
       - CLICKHOUSE_USER=default
-      - CLICKHOUSE_PASSWORD=dbbKUiRTs8knEbH5
+      - CLICKHOUSE_PASSWORD=${POSTHOG_CLICKHOUSE_PASSWORD:?Required}
       - CLICKHOUSE_DB=posthog
     networks:
       - tooling_net
@@ -137,7 +137,7 @@ services:
       - CLICKHOUSE_PORT=8123
       - CLICKHOUSE_SECURE=false
       - CLICKHOUSE_USER=default
-      - CLICKHOUSE_PASSWORD=dbbKUiRTs8knEbH5
+      - CLICKHOUSE_PASSWORD=${POSTHOG_CLICKHOUSE_PASSWORD:?Required}
       - CLICKHOUSE_DATABASE=posthog
       - KAFKA_URL=kafka://posthog_kafka:9092
       - SITE_URL=https://${ANALYTICS_HOSTNAME}
@@ -191,7 +191,7 @@ services:
       - CLICKHOUSE_PORT=8123
       - CLICKHOUSE_SECURE=false
       - CLICKHOUSE_USER=default
-      - CLICKHOUSE_PASSWORD=dbbKUiRTs8knEbH5
+      - CLICKHOUSE_PASSWORD=${POSTHOG_CLICKHOUSE_PASSWORD:?Required}
       - CLICKHOUSE_DATABASE=posthog
       - KAFKA_URL=kafka://posthog_kafka:9092
       - SITE_URL=https://${ANALYTICS_HOSTNAME}

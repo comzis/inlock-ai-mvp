@@ -75,7 +75,6 @@ http:
       rule: Host(`grafana.inlock.ai`)
       middlewares:
         - secure-headers
-        - admin-ip-allowlist
         - admin-forward-auth
         - allowed-admins
         - mgmt-ratelimit
