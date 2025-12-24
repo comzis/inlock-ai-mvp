@@ -27,8 +27,7 @@ services:
     networks:
       edge: {}
       internal: {}
-      mail:
-        ipv4_address: 172.30.0.50
+      mail: {}
     depends_on:
       inlock-db:
         condition: service_healthy
