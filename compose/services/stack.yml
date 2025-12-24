@@ -356,7 +356,7 @@ services:
     command:
       - "--config.file=/etc/blackbox/blackbox.yml"
     volumes:
-      - ../../config/monitoring/blackbox.yml:/etc/blackbox/blackbox.yml:ro
+      - /home/comzis/inlock/compose/config/monitoring/blackbox.yml:/etc/blackbox/blackbox.yml:ro
     networks:
       - mgmt
     healthcheck:

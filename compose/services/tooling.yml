@@ -164,7 +164,7 @@ services:
       - CLICKHOUSE_PORT=8123
       - CLICKHOUSE_SECURE=false
       - CLICKHOUSE_USER=default
-      - CLICKHOUSE_PASSWORD=dbbKUiRTs8knEbH5
+      - CLICKHOUSE_PASSWORD=${POSTHOG_CLICKHOUSE_PASSWORD:?Required}
       - DATABASE_URL=postgres://posthog:${POSTHOG_DB_PASSWORD}@posthog_db:5432/posthog
       - REDIS_URL=redis://posthog_redis:6379/
       - CLICKHOUSE_DATABASE=posthog
