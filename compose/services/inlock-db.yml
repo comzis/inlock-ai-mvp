@@ -26,7 +26,7 @@ services:
     environment:
       - POSTGRES_DB=${INLOCK_DB_NAME:-inlock}
       - POSTGRES_USER=${INLOCK_DB_USER:-inlock}
-      - POSTGRES_PASSWORD=${INLOCK_DB_PASSWORD:-$(cat /home/comzis/apps/secrets-real/inlock-db-password 2>/dev/null | tr -d '\n\r' || echo '')}
+      - POSTGRES_PASSWORD_FILE=/run/secrets/inlock-db-password
     volumes:
       - inlock_db_data:/var/lib/postgresql/data
     networks:
@@ -47,7 +47,9 @@ services:
       - SETUID
       - DAC_OVERRIDE
     security_opt:
-      - no-new-privileges:false
+      - no-new-privileges:true
+    secrets:
+      - inlock-db-password
     <<: [*default-logging, *resource-hints]
 
 networks:
@@ -58,3 +60,6 @@ networks:
 volumes:
   inlock_db_data:
 
+secrets:
+  inlock-db-password:
+    file: /home/comzis/apps/secrets-real/inlock-db-password

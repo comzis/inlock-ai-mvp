@@ -7,19 +7,49 @@ This is the Inlock AI infrastructure repository containing Docker Compose config
 
 ```
 inlock-ai-mvp/
-├── compose/              # ALL Docker Compose service definitions
-├── traefik/              # ALL Traefik configurations
-│   └── dynamic/          # Dynamic configs (routers, middlewares, services)
-├── docs/                 # ALL documentation
-│   ├── guides/           # Usage & Deployment Guides (Day 2)
-│   ├── architecture/     # High-level design & diagrams
-│   ├── reference/        # API refs, cheat sheets
-│   └── reports/          # Status reports & Audit logs
-├── scripts/              # ALL automation scripts
 ├── ansible/              # Infrastructure automation (Provisioning)
-├── grafana/              # Monitoring dashboards
+├── compose/              # ALL Docker Compose service definitions
+│   ├── services/         # Service compose files
+│   │   └── stack.yml     # Main aggregator (include-based stack)
+│   ├── config/           # Shared config fragments for compose
+│   ├── scripts/          # Build/deploy scripts for compose services
+│   ├── docker/           # Custom Docker images (Dockerfiles)
+│   ├── n8n/              # n8n workflow definitions
+│   ├── grafana/          # Grafana dashboards and provisioning
+│   ├── cockpit-proxy/    # Cockpit proxy configuration
+│   ├── mailu/            # Mailu overrides and configs
+│   ├── stack-fallback.yml.example  # Example fallback stack
+│   └── stack.yml.new     # Sample stack file
+├── config/               # Service configuration files (templates only, no secrets)
+│   ├── alertmanager/     # Alertmanager configuration
+│   ├── grafana/          # Grafana dashboards and provisioning
+│   ├── mailu/            # Mailu configuration templates
+│   ├── monitoring/       # Monitoring service configs
+│   ├── nginx/            # Nginx configuration templates
+│   ├── prometheus/       # Prometheus config and alert rules
+│   └── traefik/          # Traefik base/static config and cert templates
+├── traefik/              # Runtime Traefik data
+│   ├── acme/             # ACME certificate storage
+│   └── dynamic/          # Dynamic routing configs (routers, middlewares)
+├── docs/                 # ALL documentation
+│   ├── architecture/     # High-level design & diagrams
+│   ├── audit/            # Audit logs
+│   ├── deployment/       # Deployment guides
+│   ├── guides/           # Day-2 operations guides
+│   ├── reference/        # API refs, cheat sheets
+│   ├── reports/          # Status reports
+│   ├── security/         # Security documentation
+│   ├── services/         # Service-specific documentation
+│   ├── tooling-deployment/  # Tooling deployment guides
+│   └── index.md          # Documentation entry point
+├── e2e/                  # Playwright end-to-end tests
+├── mailu/                # Mailu build assets and overrides
+├── scripts/              # ALL automation scripts
 ├── secrets/              # Secret templates (NOT actual secrets)
-└── env.example           # Environment variable template
+├── env.example           # Environment variable template
+├── README.md             # Main repository documentation
+├── QUICK-START.md        # Quick start guide
+└── .agent/workflows/     # Workflow documentation (if present)
 ```
 
 ## CRITICAL RULES - Never Break These
@@ -56,10 +86,17 @@ inlock-ai-mvp/
 ### ✅ Best Practices - Always Follow
 
 1. **File Organization**
-   - Docker Compose: `compose/<service>.yml`
+   - Docker Compose: `compose/services/<service>.yml` (or fragments in `compose/config/`)
+   - Main stack: `compose/services/stack.yml` (include-based aggregator)
    - Traefik routers: `traefik/dynamic/routers.yml`
-   - Deployment Guides: `docs/guides/`
-   - Provisioning Guides: `docs/guides/SERVER-PROVISIONING-GUIDE.md`
+   - Deployment Guides: `docs/deployment/` and `docs/tooling-deployment/`
+   - Day-2 Operations: `docs/guides/`
+   - Architecture/Design: `docs/architecture/`
+   - References/Cheat Sheets: `docs/reference/`
+   - Reports/Status: `docs/reports/`
+   - Security Docs: `docs/security/`
+   - Service Docs: `docs/services/`
+   - Documentation Index: `docs/index.md`
 
 2. **Naming Conventions**
    - Services: `<service-name>.yml` (e.g., `mailu.yml`, `tooling.yml`)
@@ -87,9 +124,14 @@ inlock-ai-mvp/
    ```
 
 5. **Documentation Updates**
-   - Update `docs/index.md` for major changes
-   - Guides go to `docs/guides/`
-   - Architecture docs go to `docs/architecture/`
+   - Update `docs/index.md` for major changes (entry point)
+   - Deployment guides → `docs/deployment/` and `docs/tooling-deployment/`
+   - Day-2/Operations guides → `docs/guides/`
+   - Architecture/Design docs → `docs/architecture/`
+   - References/Cheat sheets → `docs/reference/`
+   - Reports/Status → `docs/reports/`
+   - Security docs → `docs/security/`
+   - Service-specific docs → `docs/services/`
    - Keep root directory clean (only README, QUICK-START, etc.)
 
 ## Environment & Secrets
@@ -110,7 +152,7 @@ inlock-ai-mvp/
 
 **Primary Method:**
 - **Automated**: Push a tag (e.g. `v1.0.0`) to trigger GitHub Actions.
-- **Manual (Emergency)**: See `docs/guides/DEPLOYMENT.md`.
+- **Manual (Emergency)**: See `docs/deployment/DEPLOYMENT.md`.
 
 **Local Testing / Development:**
 ```bash
@@ -141,6 +183,11 @@ docker compose -f compose/<service>.yml \
    - Read-only filesystems where possible
    - Load secrets via Docker secrets
 
+4. **System Security**
+   - Full security rules live in `.cursorrules-security`
+   - NEVER open firewall ports, change sudo config, or modify SSH without explicit user approval
+   - Server maintains 10/10 security score - preserve it
+
 ## Code Style
 
 **Docker Compose:**
@@ -160,20 +207,21 @@ docker compose -f compose/<service>.yml \
 
 ### Adding a New Service
 
-1. Create `compose/<service>.yml`
-2. Add to `compose/stack.yml` includes (if part of main stack)
-3. Create deployment guide in `docs/tooling-deployment/`
-4. Add Traefik routers to `traefik/dynamic/routers.yml`
-5. Update `env.example` with new variables
-6. Test deployment
-7. Update README.md
+1. Create `compose/services/<service>.yml` (or reusable fragment in `compose/config/`)
+2. Add to `compose/services/stack.yml` includes (if part of main stack)
+3. Validate: `docker compose -f compose/services/stack.yml config`
+4. Create deployment guide in `docs/tooling-deployment/` or `docs/deployment/`
+5. Add Traefik routers to `traefik/dynamic/routers.yml`
+6. Update `env.example` with new variables
+7. Test deployment
+8. Update README.md
 
 ### Modifying Existing Service
 
 1. Check current state: `docker compose ps <service>`
-2. Edit `compose/<service>.yml`
-3. Validate: `docker compose -f compose/<service>.yml config`
-4. Deploy: `docker compose -f compose/<service>.yml up -d`
+2. Edit `compose/services/<service>.yml` (or fragment in `compose/config/`)
+3. Validate: `docker compose -f compose/services/stack.yml config` (or individual file)
+4. Deploy: `docker compose -f compose/services/stack.yml up -d` (or individual service)
 5. Verify: Check logs and health
 6. Document changes
 
@@ -181,9 +229,16 @@ docker compose -f compose/<service>.yml \
 
 - **Status reports** → `docs/reports/<topic>/`
 - **Audit logs** → `docs/audit/`
-- **Deployment guides** → `docs/tooling-deployment/`
+- **Deployment guides** → `docs/deployment/` and `docs/tooling-deployment/`
+- **Day-2 Operations** → `docs/guides/`
+- **Architecture/Design** → `docs/architecture/`
+- **References/Cheat sheets** → `docs/reference/`
+- **Security docs** → `docs/security/`
+- **Service docs** → `docs/services/`
 - **Scripts** → `scripts/`
-- **Configs** → Appropriate subdirectory
+- **Service configs** → `config/<service>/` (templates only)
+- **Traefik static config** → `config/traefik/`
+- **Traefik dynamic config** → `traefik/dynamic/`
 
 ## Quick Reference
 
@@ -200,40 +255,46 @@ docker compose -f compose/<service>.yml \
 4. Ask before creating new directory structures
 5. Keep it simple - use what exists
 
+## Compose/Stack Architecture
+
+**Main Stack:** `compose/services/stack.yml` is the include-based aggregator that:
+- Defines shared networks: `edge`, `mgmt`, `internal`, `socket-proxy`
+- Manages shared secrets and volumes
+- Includes individual service compose files via `include:` directive
+
+**Adding a Service:**
+1. Create compose file: `compose/services/<service>.yml` (or reusable fragment in `compose/config/`)
+2. Add to `include:` list in `compose/services/stack.yml`
+3. Validate before deploy: `docker compose -f compose/services/stack.yml config`
+4. Deploy: `docker compose -f compose/services/stack.yml up -d`
+
+**Service Configs:**
+- Individual service compose files go in `compose/services/`
+- Reusable config fragments (shared volumes, networks) go in `compose/config/`
+- Custom Docker images (Dockerfiles) go in `compose/docker/`
+
+## Config vs Traefik Directories
+
+**`config/traefik/`:**
+- Base/static Traefik configuration files
+- Certificate templates for Traefik container
+- Configuration consumed by compose via bind mounts
+
+**`traefik/dynamic/`:**
+- Live dynamic routing definitions (routers, middlewares, services)
+- Runtime configuration that Traefik watches for changes
+- Used for service discovery and route management
+
+**`traefik/acme/`:**
+- ACME certificate storage (Let's Encrypt certificates)
+- Runtime certificate data persisted in volumes
+
+**Other `config/` subdirectories:**
+- Service-specific configuration templates (alertmanager, grafana, mailu, monitoring, nginx, prometheus)
+- Consumed by compose services via bind mounts
+- Templates only - never commit actual secrets
+
 ---
 
-*Last Updated: 2024-12-14*
+*Last Updated: 2025-12-24*
 *Maintain this file as project evolves*
-
----
-
-## 🔒 SECURITY MAINTENANCE RULES (10/10 Score)
-
-⚠️ **CRITICAL:** Server maintains 10/10 security score. See `.cursorrules-security` for detailed rules.
-
-### Quick Security Rules - NEVER Break
-
-**NEVER:**
-- Disable UFW, fail2ban, or unattended-upgrades
-- Add NOPASSWD to any sudoers configuration
-- Re-enable ubuntu user shell access (`/usr/sbin/nologin`)
-- Open firewall ports without explicit user approval
-- Modify SSH config (`/etc/ssh/sshd_config`) without user approval
-- Change Tailscale SSH restrictions (Port 22 → 100.64.0.0/10 ONLY)
-
-**ALWAYS:**
-- Maintain password requirement for sudo commands
-- Keep fail2ban monitoring SSH (no disabling even temporarily)
-- Preserve UFW firewall rules for SSH (Tailscale only)
-- Run security verification after system-level changes
-
-**Before System Changes:**
-```bash
-# Quick security check
-systemctl status fail2ban ufw unattended-upgrades
-sudo ufw status numbered
-grep -r NOPASSWD /etc/sudoers*
-```
-
-**Full Security Guide:** `.cursorrules-security`  
-**Current Score:** 10.0/10 (A+ - Enterprise Grade)
