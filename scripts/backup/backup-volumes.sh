@@ -23,15 +23,7 @@ echo "Starting backup at $(date)"
 # 
 # Included volumes:
 # - Core services: postgres, n8n, grafana, prometheus, alertmanager
-# - Mailu email stack (CRITICAL - contains mail data and DKIM keys):
-#   * mailu_mail_data: Mail storage and user data
-#   * mailu_dkim_data: DKIM private keys (CRITICAL - must be backed up)
-#   * mailu_rspamd_data: Spam filter data and statistics
-#   * mailu_redis_data: Cache and session storage
-#   * mailu_postgres_data: Mailu database
-#
 echo "Backing up Docker volumes (will be encrypted directly)..."
-echo "  Including Mailu volumes: mailu_mail_data, mailu_dkim_data, mailu_rspamd_data, mailu_redis_data, mailu_postgres_data"
 
 # Encrypt backup with GPG (REQUIRED - no plaintext backups allowed)
 if ! command -v gpg &> /dev/null; then
@@ -91,4 +83,3 @@ find "$backup_dir" -name "volumes-*.tar.gz*" -mtime +7 -delete
 find "$encrypted_dir" -name "volumes-*.tar.gz.gpg" -mtime +30 -delete
 
 echo "Backup completed at $(date)"
-

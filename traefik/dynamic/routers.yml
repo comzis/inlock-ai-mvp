@@ -178,30 +178,22 @@ http:
         options: default  # Uses Positive SSL certificate
       priority: 50  # Lower priority allows labels to override if needed
 
-    # Mailu Admin UI - Requires OAuth2 authentication
-    mailu-admin:
+    # Mailcow UI (web + admin)
+    mailcow-http:
       entryPoints:
-        - websecure
-      rule: Host(`mail.inlock.ai`) && PathPrefix(`/admin`)
+        - web
+      rule: Host(`mail.inlock.ai`)
+      service: mailcow
       middlewares:
         - secure-headers
-        # - admin-ip-allowlist  # Disabled to allow public admin access
-        - admin-forward-auth  # Secured by Auth0
-        # - allowed-admins      # Disabled - Mailu has its own auth
-        - mgmt-ratelimit
-      service: mailu-front
-      tls:
-        certResolver: le-tls
+      # HTTP is only used for ACME/health; Traefik handles TLS on websecure
 
-    # Mailu Webmail - Public access with rate limiting (users authenticate via Mailu)
-    mailu-webmail:
+    mailcow:
       entryPoints:
         - websecure
-      rule: Host(`mail.inlock.ai`) && !PathPrefix(`/admin`)
+      rule: Host(`mail.inlock.ai`)
       middlewares:
         - secure-headers
-        - proto-header
-        - mgmt-ratelimit
-      service: mailu-front
+      service: mailcow
       tls:
         certResolver: le-tls

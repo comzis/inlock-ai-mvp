@@ -67,9 +67,4 @@ backup_postgres "inlock-db" "inlock" "db-inlock"
 # We'll look for common names or rely on the helper's grep.
 backup_postgres "compose-postgres-1" "n8n" "db-n8n"
 
-# 3. Mailu DB
-# Service: mailu-postgres (-f compose/mailu.yml)
-# User: 'mailu' (default in Mailu)
-backup_postgres "mailu-postgres" "mailu" "db-mailu"
-
 echo "Database Backup Completed."

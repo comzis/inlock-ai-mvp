@@ -39,11 +39,11 @@ groups:
           summary: "Inlock AI Down"
           description: "Main website is unreachable"
 
-      - alert: MailuServiceDown
-        expr: up{job="blackbox-mailu-web"} == 0
+      - alert: MailcowServiceDown
+        expr: up{job="blackbox-mailcow-web"} == 0
         for: 2m
         labels:
           severity: critical
         annotations:
-          summary: "Mailu Service Down"
-          description: "Webmail/Admin interface unreachable"
+          summary: "Mailcow Service Down"
+          description: "Mail UI is unreachable"

@@ -10,7 +10,7 @@ receivers:
     email_configs:
       - to: 'admin@inlock.ai'
         from: 'alerts@inlock.ai'
-        smarthost: 'mailu-front:587'
+        smarthost: 'mail.inlock.ai:587'
         auth_username: 'admin@inlock.ai'
         auth_password: '{{ .Secrets.email_password }}' # Placeholder, needs secret handling
         require_tls: true

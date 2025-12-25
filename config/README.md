@@ -15,10 +15,8 @@ Nginx configuration files:
 - `live.conf` - Live configuration
 - `front.conf` - Frontend configuration
 
-### `mailu/`
-Mail server configuration:
-- `config.py` - Mailu configuration
-- `dovecot.conf` - Dovecot IMAP configuration
+### Mail server
+Mailcow is the active mail stack and lives outside this repo at `/home/comzis/mailcow`.
 
 ### `prometheus/`
 Prometheus monitoring configuration (from compose/config/prometheus)

@@ -10,7 +10,6 @@ Individual service compose files:
 - `inlock-ai.yml` - Inlock AI application
 - `postgres.yml` - PostgreSQL databases
 - `n8n.yml` - N8N workflow automation
-- `mailu.yml` - Mail server
 - `coolify.yml` - Coolify deployment platform
 - `tooling.yml` - Development tools
 

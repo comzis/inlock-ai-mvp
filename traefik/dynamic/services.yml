@@ -43,7 +43,7 @@ http:
       loadBalancer:
         servers:
           - url: http://oauth2-proxy:4180
-    mailu-front:
+    mailcow:
       loadBalancer:
         servers:
-          - url: http://mailu-front:80
+          - url: http://host.docker.internal:8080

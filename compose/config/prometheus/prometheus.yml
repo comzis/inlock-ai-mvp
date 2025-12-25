@@ -98,16 +98,8 @@ scrape_configs:
           service: 'oauth2-proxy'
     metrics_path: /metrics
 
-  # Mailu Rspamd metrics (spam filtering statistics)
-  - job_name: 'mailu-rspamd'
-    static_configs:
-      - targets: ['mailu-rspamd:11334']
-        labels:
-          service: 'mailu-rspamd'
-    metrics_path: '/metrics'
-
-  # Blackbox exporter for Mailu SMTP ports
-  - job_name: 'blackbox-mailu-smtp'
+  # Blackbox exporter for Mailcow SMTP ports
+  - job_name: 'blackbox-mailcow-smtp'
     metrics_path: /probe
     params:
       module: [tcp_connect]
@@ -124,8 +116,8 @@ scrape_configs:
       - target_label: __address__
         replacement: blackbox-exporter:9115
 
-  # Blackbox exporter for Mailu IMAP ports
-  - job_name: 'blackbox-mailu-imap'
+  # Blackbox exporter for Mailcow IMAP ports
+  - job_name: 'blackbox-mailcow-imap'
     metrics_path: /probe
     params:
       module: [tcp_connect]
@@ -141,8 +133,8 @@ scrape_configs:
       - target_label: __address__
         replacement: blackbox-exporter:9115
 
-  # Blackbox exporter for Mailu webmail/admin UI
-  - job_name: 'blackbox-mailu-web'
+  # Blackbox exporter for Mailcow web UI
+  - job_name: 'blackbox-mailcow-web'
     metrics_path: /probe
     params:
       module: [http_2xx]
