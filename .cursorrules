@@ -1,7 +1,7 @@
 # Inlock AI Infrastructure - Cursor AI Rules
 
 ## Project Overview
-This is the Inlock AI infrastructure repository containing Docker Compose configurations, Traefik reverse proxy setup, deployment scripts, and comprehensive documentation.
+This is the Inlock AI infrastructure repository containing Docker Compose configurations, Traefik reverse proxy setup, deployment scripts, and comprehensive documentation. Mailcow is the production mail stack and lives outside the repo at `/home/comzis/mailcow`.
 
 ## Directory Structure - DO NOT DEVIATE
 
@@ -17,13 +17,11 @@ inlock-ai-mvp/
 │   ├── n8n/              # n8n workflow definitions
 │   ├── grafana/          # Grafana dashboards and provisioning
 │   ├── cockpit-proxy/    # Cockpit proxy configuration
-│   ├── mailu/            # Mailu overrides and configs
 │   ├── stack-fallback.yml.example  # Example fallback stack
 │   └── stack.yml.new     # Sample stack file
 ├── config/               # Service configuration files (templates only, no secrets)
 │   ├── alertmanager/     # Alertmanager configuration
 │   ├── grafana/          # Grafana dashboards and provisioning
-│   ├── mailu/            # Mailu configuration templates
 │   ├── monitoring/       # Monitoring service configs
 │   ├── nginx/            # Nginx configuration templates
 │   ├── prometheus/       # Prometheus config and alert rules
@@ -43,7 +41,6 @@ inlock-ai-mvp/
 │   ├── tooling-deployment/  # Tooling deployment guides
 │   └── index.md          # Documentation entry point
 ├── e2e/                  # Playwright end-to-end tests
-├── mailu/                # Mailu build assets and overrides
 ├── scripts/              # ALL automation scripts
 ├── secrets/              # Secret templates (NOT actual secrets)
 ├── env.example           # Environment variable template
@@ -99,8 +96,8 @@ inlock-ai-mvp/
    - Documentation Index: `docs/index.md`
 
 2. **Naming Conventions**
-   - Services: `<service-name>.yml` (e.g., `mailu.yml`, `tooling.yml`)
-   - Scripts: `<action>-<target>.sh` (e.g., `test-mailu-quick.sh`)
+   - Services: `<service-name>.yml` (e.g., `tooling.yml`, `n8n.yml`)
+   - Scripts: `<action>-<target>.sh` (e.g., `test-service-quick.sh`)
    - Docs: Descriptive names in CAPS with hyphens
    
 3. **Docker Persistence**
@@ -147,6 +144,10 @@ inlock-ai-mvp/
 - Passwords or tokens
 - SSH private keys (`*.key`, `*_key`, `id_*`)
 - SSH public keys (`*.pub`, `*_key.pub`) - unless intentionally public
+
+**Mailcow authentication (production):**
+- Mailcow lives at `/home/comzis/mailcow`; set `MAILCOW_PASS_SCHEME=BLF-CRYPT` in `mailcow.conf`.
+- Validate logins with `docker compose exec dovecot-mailcow doveadm auth test <user> '<pass>'`.
 
 ## Deployment Commands (CI/CD)
 
@@ -244,6 +245,7 @@ docker compose -f compose/<service>.yml \
 
 **Repository:** https://github.com/comzis/inlock-ai-mvp
 **Server path:** /home/comzis/inlock (symlink to /home/comzis/projects/inlock-ai-mvp)
+**Mailcow path:** /home/comzis/mailcow
 **Deployments:** /home/comzis/deployments/
 **Secrets:** /home/comzis/apps/secrets-real/
 
@@ -296,5 +298,5 @@ docker compose -f compose/<service>.yml \
 
 ---
 
-*Last Updated: 2025-12-24*
+*Last Updated: 2025-12-25*
 *Maintain this file as project evolves*
