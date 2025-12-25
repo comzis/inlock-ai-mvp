@@ -20,7 +20,6 @@ graph TD
     subgraph "Mgmt Network (Restricted)"
         Portainer
         Grafana
-        MailuAdmin[Mailu Admin]
     end
     
     subgraph "Internal Network (Private)"
@@ -40,7 +39,7 @@ graph TD
 
 ### 1. `edge` (Public-Facing)
 *   **Purpose**: The DMZ. Only the Load Balancer lives here.
-*   **Members**: `traefik`, `mailu-front`.
+*   **Members**: `traefik`.
 *   **Exposure**: Large attack surface, heavily monitored.
 *   **Rules**: 
     *   NO database access allowed.
@@ -58,6 +57,8 @@ graph TD
 *   **Security**: 
     *   ALL generic http access is blocked by Traefik Middleware (`admin-ip-allowlist`).
     *   ALL access requires Auth0 authentication.
+
+Mailcow runs outside this stack on its own Docker network under `/home/comzis/mailcow`.
 
 ## 🛡 Security Layers
 

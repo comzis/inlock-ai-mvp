@@ -64,14 +64,15 @@ The core business logic and automation engine.
 | `inlock-db` | `postgres:15` | Application Database | - |
 | `postgres` | `postgres:14` | N8N Database | - |
 
-### 3. Mailu Stack (Email)
-A complete, self-hosted email solution.
+### 3. Mailcow Stack (Email)
+Mailcow runs outside this repo at `/home/comzis/mailcow`.
 
-*   **Front**: Nginx reverse proxy for the mail stack.
-*   **Admin**: Web interface for managing domains/users.
-*   **Imap**: Dovecot & Postfix for mail handling.
+*   **Nginx**: Web UI and admin access.
+*   **Postfix**: SMTP handling.
+*   **Dovecot**: IMAP/POP handling.
 *   **Rspamd**: Spam filtering.
-*   **Redis**: Caching and rate limiting.
+*   **MySQL/Redis**: Backend services.
+*   **SOGo**: Webmail/groupware.
 
 ### 4. Monitoring Stack
 Observability and health tracking.
@@ -93,10 +94,10 @@ These are backed up nightly via `scripts/backup-volumes.sh`.
 |-------------|---------|---------|
 | `inlock_db_data` | App DB | Main application data |
 | `n8n_data` | N8N | Workflow execution history |
-| `mailu_mail_data` | Mailu | **CRITICAL**: User emails |
-| `mailu_dkim_data` | Mailu | **CRITICAL**: DKIM signing keys |
 | `prometheus_data` | Monitoring | Metric history |
 | `grafana_data` | Monitoring | Dashboard definitions |
+
+Mailcow data lives under `/home/comzis/mailcow/data` and is managed separately.
 
 ### Bind Mounts (Config)
 These map to files in the git repository or host secrets.

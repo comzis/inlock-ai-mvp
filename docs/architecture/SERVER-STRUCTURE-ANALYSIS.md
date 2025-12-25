@@ -25,7 +25,7 @@
 #### 1. `/home/comzis/inlock-infra/` (320 files)
 **Status**: OLD - Appears to be pre-reorganization state
 - Contains similar structure to GitHub repo but OLDER
-- Has scattered status reports in root (AUTH0-*, MAILU-*, etc.)
+- Has scattered status reports in root (AUTH0-*, legacy service reports)
 - compose/, traefik/, ansible/, scripts/, docs/
 
 **Issues**:
@@ -193,4 +193,3 @@ ln -s /home/comzis/projects/inlock-ai-mvp /home/comzis/inlock
 4. Migrate env files to deployments/
 5. Remove old directories
 6. Update documentation
-

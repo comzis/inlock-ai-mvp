@@ -24,7 +24,7 @@ The infrastructure demonstrates strong security fundamentals but has **critical 
 - ✅ **OAuth2 Forward-Auth:** Enabled on all admin routers (portainer, grafana, n8n, coolify, homarr, cockpit, dashboard)
 - ✅ **IP Allowlist:** `allowed-admins` middleware applied to all admin services
 - ⚠️ **Redundancy:** `admin-ip-allowlist` still referenced in coolify and homarr (redundant with `allowed-admins`)
-- ✅ **Public Services:** inlock-ai, mailu-webmail use secure-headers only (appropriate for public access)
+- ✅ **Public Services:** inlock-ai, mail.inlock.ai use secure-headers only (appropriate for public access)
 - ✅ **Mailu Admin:** Protected by `admin-forward-auth` (Auth0)
 
 ### Exposed Ports
@@ -540,4 +540,3 @@ Once these critical issues are addressed, the security score should improve to *
 **Audit Completed:** December 24, 2025  
 **Next Audit:** January 24, 2026  
 **Auditor:** Infrastructure Security Review
-

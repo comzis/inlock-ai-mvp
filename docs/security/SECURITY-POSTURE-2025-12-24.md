@@ -123,7 +123,7 @@ Admin Services (mgmt network only)
 - `edge`: Traefik, Cockpit-Proxy (public-facing)
 - `mgmt`: All admin services (OAuth2-Proxy, Portainer, Grafana, n8n, etc.)
 - `internal`: Databases, internal services
-- `mail`: Mailu services
+- `mail`: Legacy network (mailcow is outside this stack)
 - `socket-proxy`: Docker socket proxy
 
 ### Secrets Management
@@ -136,7 +136,6 @@ Admin Services (mgmt network only)
 - `/home/comzis/apps/secrets-real/n8n-db-password`
 - `/home/comzis/apps/secrets-real/n8n-encryption-key`
 - `/home/comzis/apps/secrets-real/grafana-admin-password`
-- `/home/comzis/apps/secrets-real/mailu-*` (various Mailu secrets)
 
 **Environment Variables:**
 - Templates in `env.example`
