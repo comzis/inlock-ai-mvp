@@ -3,9 +3,8 @@ http:
     admin-ip-allowlist:
       ipWhiteList:
         sourceRange:
-          - "127.0.0.1/32"       # Localhost
-          - "100.64.0.0/10"      # Tailscale (CGNAT range commonly used)
-          - "100.0.0.0/8"        # Tailscale (Alternative/Legacy)
-          - "172.16.0.0/12"      # Docker Private Networks
-          - "192.168.0.0/16"     # Standard Private Network
-          - "10.0.0.0/8"         # Standard Private Network
+          - "100.64.0.0/10"      # Tailscale (tailnet range)
+          - "100.96.110.8/32"    # Tailscale client (MacBook)
+          - "100.83.222.69/32"   # Tailscale server
+          - "172.18.0.0/16"      # Docker mgmt network
+          - "172.20.0.0/16"      # Docker edge network

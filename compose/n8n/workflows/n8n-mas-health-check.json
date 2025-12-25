@@ -69,7 +69,7 @@
         },
         {
             "parameters": {
-                "url": "https://mail.inlock.ai/webmail/",
+                "url": "https://mail.inlock.ai",
                 "options": {
                     "timeout": 5000,
                     "allowUnauthorizedCerts": true,
@@ -82,12 +82,12 @@
                 220,
                 300
             ],
-            "name": "Check Mailu",
+            "name": "Check Mailcow",
             "continueOnFail": true
         },
         {
             "parameters": {
-                "jsCode": "const checks = [\n  { name: 'Check Homepage', item: $('Check Homepage').first() },\n  { name: 'Check N8N', item: $('Check N8N').first() },\n  { name: 'Check Mailu', item: $('Check Mailu').first() }\n];\n\nconst failures = [];\n\nfor (const check of checks) {\n  const item = check.item;\n\n  // Default status to 503 if missing (Network Error)\n  let status = 503;\n  if (item && item.json && (item.json.statusCode || item.json.status)) {\n      status = item.json.statusCode || item.json.status;\n  }\n\n  if (status != 200 && status != 302) {\n     failures.push(`${check.name} Failed (Status: ${status})`);\n  }\n}\n\nconst isHealthy = failures.length === 0;\nconst summary = isHealthy ? 'All Systems Operational' : 'Failures detected: ' + failures.join(', ');\n\nreturn {\n  isHealthy,\n  summary,\n  content: 'ALERT: ' + summary + '. Please investigate.'\n};"
+                "jsCode": "const checks = [\n  { name: 'Check Homepage', item: $('Check Homepage').first() },\n  { name: 'Check N8N', item: $('Check N8N').first() },\n  { name: 'Check Mailcow', item: $('Check Mailcow').first() }\n];\n\nconst failures = [];\n\nfor (const check of checks) {\n  const item = check.item;\n\n  // Default status to 503 if missing (Network Error)\n  let status = 503;\n  if (item && item.json && (item.json.statusCode || item.json.status)) {\n      status = item.json.statusCode || item.json.status;\n  }\n\n  if (status != 200 && status != 302) {\n     failures.push(`${check.name} Failed (Status: ${status})`);\n  }\n}\n\nconst isHealthy = failures.length === 0;\nconst summary = isHealthy ? 'All Systems Operational' : 'Failures detected: ' + failures.join(', ');\n\nreturn {\n  isHealthy,\n  summary,\n  content: 'ALERT: ' + summary + '. Please investigate.'\n};"
             },
             "type": "n8n-nodes-base.code",
             "typeVersion": 1,
@@ -147,7 +147,7 @@
                 "fromEmail": "n8n@inlock.ai",
                 "toEmail": "admin@inlock.ai",
                 "subject": "[Inlock AI] System Status: HEALTHY - {{ $today }}",
-                "text": "REPORT SUMMARY:\n------------------\nStatus: ✅ All Systems Operational\nTime: {{ $now }}\n\nCHECKS PERFORMED:\n- Homepage: 200 OK\n- N8N: 200 OK\n- Mailu: 200/302 OK\n\nNo action required.",
+                "text": "REPORT SUMMARY:\n------------------\nStatus: ✅ All Systems Operational\nTime: {{ $now }}\n\nCHECKS PERFORMED:\n- Homepage: 200 OK\n- N8N: 200 OK\n- Mailcow: 200/302 OK\n\nNo action required.",
                 "options": {}
             },
             "type": "n8n-nodes-base.emailSend",
@@ -257,7 +257,7 @@
                         "index": 0
                     },
                     {
-                        "node": "Check Mailu",
+                        "node": "Check Mailcow",
                         "type": "main",
                         "index": 0
                     }
@@ -278,7 +278,7 @@
                         "index": 0
                     },
                     {
-                        "node": "Check Mailu",
+                        "node": "Check Mailcow",
                         "type": "main",
                         "index": 0
                     }
@@ -307,7 +307,7 @@
                 ]
             ]
         },
-        "Check Mailu": {
+        "Check Mailcow": {
             "main": [
                 [
                     {

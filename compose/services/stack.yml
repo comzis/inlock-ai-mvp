@@ -260,8 +260,9 @@ services:
       - '--web.enable-lifecycle'
     volumes:
       - prometheus_data:/prometheus
-      - ../../config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      - ../../config/prometheus/rules:/etc/prometheus/rules:ro
+      - ../config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ../config/prometheus/rules.yml:/etc/prometheus/rules.yml:ro
+      - ../config/prometheus/rules:/etc/prometheus/rules:ro
     networks:
       - mgmt
     healthcheck:

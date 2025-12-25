@@ -2,10 +2,7 @@ services:
   coolify:
     image: ghcr.io/coollabsio/coolify:latest
     restart: always
-    # Changed from host network mode to bridge network to avoid port 80 conflict
-    # Port 8080 exposed and routed through Traefik
-    ports:
-      - "127.0.0.1:8080:8080"
+    # Exposed only through Traefik (no host port bindings)
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /data/coolify:/data/coolify

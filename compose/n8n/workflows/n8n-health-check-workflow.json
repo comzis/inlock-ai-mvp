@@ -187,7 +187,7 @@
     },
     {
       "parameters": {
-        "content": "## Setup Instructions\n1. Double-click **\"Send Email (Needs SMTP Config)\"**\n2. Create New Credential\n3. User: `admin@inlock.ai`\n4. Pass: (Your Mailu Admin Pass)\n5. Host: `mail.inlock.ai`, Port: 587, Secure: StartTLS",
+        "content": "## Setup Instructions\n1. Double-click **\"Send Email (Needs SMTP Config)\"**\n2. Create New Credential\n3. User: `admin@inlock.ai`\n4. Pass: (Your Mailcow Admin Pass)\n5. Host: `mail.inlock.ai`, Port: 587, Secure: StartTLS",
         "height": 260,
         "width": 300,
         "color": 4

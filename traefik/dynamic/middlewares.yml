@@ -94,13 +94,9 @@ http:
     allowed-admins:
       ipAllowList:
         sourceRange:
-          - "100.83.222.69/32"  # Device 1 - Tailscale IP (Server)
-          - "100.96.110.8/32"   # Device 2 - Tailscale IP (MacBook)
-          - "156.67.29.52/32"   # Server public IP (for Cockpit access)
-          - "2a09:bac3:1e53:2664::3d3:2f/128"  # MacBook public IPv6
-          - "31.10.147.220/32"  # MacBook public IPv4
-          - "172.71.147.142/32"  # MacBook public IPv4 (alternate)
-          - "172.71.146.180/32"  # MacBook public IPv4 (alternate)
+          - "100.64.0.0/10"      # Tailscale (tailnet range)
+          - "100.96.110.8/32"    # Tailscale client (MacBook)
+          - "100.83.222.69/32"   # Tailscale server
           - "172.18.0.0/16"      # Docker mgmt network (for Traefik forwardAuth)
           - "172.20.0.0/16"      # Docker edge network (for Traefik forwardAuth)
     dashboard-redirect:

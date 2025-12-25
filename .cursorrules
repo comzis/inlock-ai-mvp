@@ -59,7 +59,7 @@ inlock-ai-mvp/
    - Use existing `compose/`, `traefik/`, `docs/` structure
 
 2. **DO NOT duplicate configuration files**
-   - No `email.yml` AND `mailu.yml` for same service
+   - No `email.yml` AND duplicate mail service configs for same service
    - No `main-stack.yml` AND `stack.yml`
    - One authoritative file per service
 
@@ -101,11 +101,16 @@ inlock-ai-mvp/
    - Docs: Descriptive names in CAPS with hyphens
    
 3. **Docker Persistence**
-   - **Custom Images:** For code changes / patches (e.g. `mailu-admin-patched`)
+   - **Custom Images:** For code changes / patches (e.g. custom service images)
    - **Bind Mounts:** For configuration files (e.g. `/overrides/config.inc.php`)
    - **Verify:** Always test `docker compose restart` after changes
 
 4. **Git Workflow**
+   - **Before any git update (pull/commit/push), verify system functionality:**
+     - `docker ps` and `docker ps -a` for unhealthy/stopped containers
+     - Check Traefik routes for admin apps (portainer, grafana, n8n, cockpit)
+     - Check mail stack access (mailcow UI + key mail ports)
+     - Document any failures and proposed fixes in the working notes
    ```bash
    # Before making changes
    git pull origin main
@@ -292,7 +297,7 @@ docker compose -f compose/<service>.yml \
 - Runtime certificate data persisted in volumes
 
 **Other `config/` subdirectories:**
-- Service-specific configuration templates (alertmanager, grafana, mailu, monitoring, nginx, prometheus)
+- Service-specific configuration templates (alertmanager, grafana, monitoring, nginx, prometheus)
 - Consumed by compose services via bind mounts
 - Templates only - never commit actual secrets
 

@@ -6,7 +6,7 @@ global:
     replica: 'prometheus-1'
 
 rule_files:
-  - /etc/prometheus/prometheus.yml  # Self-ref if needed, usually we mount rules specifically
+  - /etc/prometheus/rules/*.yml
   - /etc/prometheus/rules.yml
 
 alerting:
