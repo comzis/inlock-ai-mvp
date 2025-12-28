@@ -122,11 +122,13 @@ sudo visudo -c -f /etc/sudoers.d/coolify-comzis
 After configuring sudo, use these settings in Coolify:
 
 - **User:** `comzis`
-- **IP Address:** `100.83.222.69` (Tailscale IP)
+- **IP Address:** `172.18.0.1` (Docker gateway IP - use this from containers)
 - **Port:** `22`
-- **SSH Key:** `deploy-inlock-ai-key`
+- **SSH Key:** `deploy-inlock-ai-key` (or `inlock-ai-infrastructure` in Coolify UI)
 
 Validation should now succeed.
+
+**Note:** Use Docker gateway IP (`172.18.0.1`) when configuring from Coolify container, not Tailscale IP. See [Coolify IP Address Guide](./COOLIFY-IP-ADDRESS-GUIDE.md) for details.
 
 ---
 
