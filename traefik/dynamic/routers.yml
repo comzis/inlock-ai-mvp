@@ -49,7 +49,6 @@ http:
       middlewares:
         - secure-headers
         - admin-forward-auth
-        - allowed-admins
         - mgmt-ratelimit
       service: portainer
       tls:
@@ -62,7 +61,6 @@ http:
       middlewares:
         - n8n-headers
         - admin-forward-auth
-        - allowed-admins
         # mgmt-ratelimit removed - was causing 429 errors on asset loading
       service: n8n
       tls:
@@ -76,7 +74,6 @@ http:
       middlewares:
         - secure-headers
         - admin-forward-auth
-        - allowed-admins
         - mgmt-ratelimit
       service: grafana
       tls:
@@ -88,9 +85,7 @@ http:
       rule: Host(`deploy.inlock.ai`)
       middlewares:
         - coolify-headers
-        - admin-ip-allowlist
         - admin-forward-auth
-        - allowed-admins
         - mgmt-ratelimit
       service: coolify
       tls:
@@ -113,9 +108,7 @@ http:
       rule: Host(`dashboard.inlock.ai`)
       middlewares:
         - secure-headers
-        - admin-ip-allowlist
         - admin-forward-auth
-        - allowed-admins
       service: homarr
       tls:
         certResolver: le-dns
@@ -127,7 +120,6 @@ http:
       middlewares:
         - cockpit-headers
         - admin-forward-auth
-        - allowed-admins
         - mgmt-ratelimit
       service: cockpit
       tls:

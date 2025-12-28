@@ -104,3 +104,5 @@ echo "Review changes with: git status"
 echo "Commit with: git commit -m 'docs: reorganize documentation per cursor rules'"
 
 
+
+

@@ -180,7 +180,9 @@ docker compose -f compose/<service>.yml \
 
 2. **Authentication**
    - All admin interfaces behind Auth0 + OAuth2-Proxy
-   - IP allowlists as secondary layer
+   - **CRITICAL**: Never place IP allowlist middleware (`allowed-admins`) AFTER `admin-forward-auth` middleware
+     - This causes 403 errors for authenticated users
+     - Auth0 authentication is sufficient - IP allowlists after auth are redundant and block legitimate users
    - No direct service exposure
 
 3. **Hardening**
@@ -218,6 +220,9 @@ docker compose -f compose/<service>.yml \
 3. Validate: `docker compose -f compose/services/stack.yml config`
 4. Create deployment guide in `docs/tooling-deployment/` or `docs/deployment/`
 5. Add Traefik routers to `traefik/dynamic/routers.yml`
+   - For admin services: Use `admin-forward-auth` middleware (Auth0)
+   - **DO NOT** add `allowed-admins` IP allowlist middleware after `admin-forward-auth`
+   - Correct order: `secure-headers`, `admin-forward-auth`, `mgmt-ratelimit`
 6. Update `env.example` with new variables
 7. Test deployment
 8. Update README.md
@@ -303,5 +308,35 @@ docker compose -f compose/<service>.yml \
 
 ---
 
-*Last Updated: 2025-12-25*
+## Auth0 Middleware Configuration
+
+**CRITICAL RULE**: When configuring Traefik routers for admin services using Auth0:
+
+1. **Correct middleware order:**
+   ```yaml
+   middlewares:
+     - secure-headers
+     - admin-forward-auth      # Auth0 authentication
+     - mgmt-ratelimit          # Rate limiting (optional)
+   ```
+
+2. **NEVER do this (blocks authenticated users):**
+   ```yaml
+   middlewares:
+     - secure-headers
+     - admin-forward-auth      # Auth0 authentication
+     - allowed-admins          # ❌ WRONG - blocks authenticated users
+   ```
+
+3. **Why this matters:**
+   - IP allowlist middleware after authentication causes 403 Forbidden errors
+   - Auth0 authentication is sufficient security
+   - IP allowlists should only be used BEFORE authentication if needed
+   - After successful Auth0 auth, users should have access regardless of IP
+
+4. **Fixed date:** 2025-12-28
+   - Issue: Users getting 403 after Auth0 authentication
+   - Solution: Removed `allowed-admins` middleware from all services using `admin-forward-auth`
+
+*Last Updated: 2025-12-28*
 *Maintain this file as project evolves*

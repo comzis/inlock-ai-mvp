@@ -22,11 +22,15 @@
 
 ### Authentication & Authorization
 - All admin services **MUST** use Auth0 + OAuth2-Proxy
-- IP allowlists are **mandatory** for admin interfaces
+- **CRITICAL**: IP allowlist middlewares (`allowed-admins`) must **NEVER** be placed AFTER `admin-forward-auth` middleware
+  - IP allowlists block authenticated users if placed after authentication middleware
+  - Auth0 authentication provides sufficient security - IP allowlists are redundant after auth
+  - If IP restrictions are needed, they should be placed BEFORE authentication (blocks before auth, not after)
 - Never bypass authentication for convenience
-- Never remove IP restrictions without explicit approval
+- Never remove authentication middleware without explicit approval
 - Always verify Auth0 configuration before deploying changes
 - Test authentication flows after any changes
+- When configuring Traefik routers with `admin-forward-auth`, do NOT include `allowed-admins` middleware
 
 ### Container Security
 - Always drop **ALL** capabilities (`cap_drop: ALL`)
