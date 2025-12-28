@@ -62,8 +62,7 @@ sudo ufw status numbered | grep -E "22|SSH|Coolify|Docker" || sudo ufw status | 
 
 echo ""
 echo "Testing SSH connection from Coolify container..."
-cd /home/comzis/inlock-infra
-if docker compose -f compose/coolify.yml --env-file .env exec coolify nc -zv -w 5 156.67.29.52 22 2>&1 | grep -q "succeeded\|open"; then
+if docker exec services-coolify-1 nc -zv -w 5 100.83.222.69 22 2>&1 | grep -q "succeeded\|open"; then
     echo "✅ SUCCESS: SSH port 22 is now accessible from Coolify container!"
     echo ""
     echo "You can now retry the server validation in Coolify UI."
