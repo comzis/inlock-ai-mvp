@@ -1,3 +1,0 @@
-# This file contains the SSH public key to add to root's authorized_keys
-# Run the commands below to set up root access for Coolify
-

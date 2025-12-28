@@ -1,0 +1,74 @@
+2025-12-28T21:22:16+01:00	INFO	[vuln] Vulnerability scanning is enabled
+2025-12-28T21:22:16+01:00	INFO	[secret] Secret scanning is enabled
+2025-12-28T21:22:16+01:00	INFO	[secret] If your scanning is slow, please try '--scanners vuln' to disable secret scanning
+2025-12-28T21:22:16+01:00	INFO	[secret] Please see https://trivy.dev/docs/v0.68/guide/scanner/secret#recommendation for faster secret detection
+2025-12-28T21:22:17+01:00	WARN	[secret] The size of the scanned file is too large. It is recommended to use `--skip-files` for this file to avoid high memory consumption.	file_path="public/main.6a325975a04737de36b4.js.map" size (MB)=11
+2025-12-28T21:22:18+01:00	WARN	[secret] The size of the scanned file is too large. It is recommended to use `--skip-files` for this file to avoid high memory consumption.	file_path="public/vendor.04ae6a3afd54620f8f34.js.map" size (MB)=19
+2025-12-28T21:22:20+01:00	INFO	Number of language-specific files	num=2
+2025-12-28T21:22:20+01:00	INFO	[gobinary] Detecting vulnerabilities...
+2025-12-28T21:22:20+01:00	WARN	Using severities from other vendors for some vulnerabilities. Read https://trivy.dev/docs/v0.68/guide/scanner/vulnerability#severity-selection for details.
+
+Report Summary
+
+┌───────────┬──────────┬─────────────────┬─────────┐
+│  Target   │   Type   │ Vulnerabilities │ Secrets │
+├───────────┼──────────┼─────────────────┼─────────┤
+│ docker    │ gobinary │        2        │    -    │
+├───────────┼──────────┼─────────────────┼─────────┤
+│ portainer │ gobinary │        7        │    -    │
+└───────────┴──────────┴─────────────────┴─────────┘
+Legend:
+- '-': Not scanned
+- '0': Clean (no security findings detected)
+
+
+docker (gobinary)
+=================
+Total: 2 (UNKNOWN: 0, LOW: 0, MEDIUM: 1, HIGH: 1, CRITICAL: 0)
+
+┌─────────┬────────────────┬──────────┬────────┬───────────────────┬─────────────────┬─────────────────────────────────────────────────────────────┐
+│ Library │ Vulnerability  │ Severity │ Status │ Installed Version │  Fixed Version  │                            Title                            │
+├─────────┼────────────────┼──────────┼────────┼───────────────────┼─────────────────┼─────────────────────────────────────────────────────────────┤
+│ stdlib  │ CVE-2025-61729 │ HIGH     │ fixed  │ v1.25.3           │ 1.24.11, 1.25.5 │ crypto/x509: Excessive resource consumption when printing   │
+│         │                │          │        │                   │                 │ error string for host certificate validation...             │
+│         │                │          │        │                   │                 │ https://avd.aquasec.com/nvd/cve-2025-61729                  │
+│         ├────────────────┼──────────┤        │                   │                 ├─────────────────────────────────────────────────────────────┤
+│         │ CVE-2025-61727 │ MEDIUM   │        │                   │                 │ golang: crypto/x509: excluded subdomain constraint does not │
+│         │                │          │        │                   │                 │ restrict wildcard SANs                                      │
+│         │                │          │        │                   │                 │ https://avd.aquasec.com/nvd/cve-2025-61727                  │
+└─────────┴────────────────┴──────────┴────────┴───────────────────┴─────────────────┴─────────────────────────────────────────────────────────────┘
+
+portainer (gobinary)
+====================
+Total: 7 (UNKNOWN: 0, LOW: 0, MEDIUM: 5, HIGH: 2, CRITICAL: 0)
+
+┌────────────────────────────────┬────────────────┬──────────┬──────────┬──────────────────────────────────────────┬─────────────────┬─────────────────────────────────────────────────────────────┐
+│            Library             │ Vulnerability  │ Severity │  Status  │            Installed Version             │  Fixed Version  │                            Title                            │
+├────────────────────────────────┼────────────────┼──────────┼──────────┼──────────────────────────────────────────┼─────────────────┼─────────────────────────────────────────────────────────────┤
+│ github.com/gorilla/csrf        │ CVE-2025-47909 │ MEDIUM   │ affected │ v1.7.3                                   │                 │ Hosts listed in TrustedOrigins implicitly allow requests    │
+│                                │                │          │          │                                          │                 │ from the corr ...                                           │
+│                                │                │          │          │                                          │                 │ https://avd.aquasec.com/nvd/cve-2025-47909                  │
+├────────────────────────────────┼────────────────┼──────────┼──────────┼──────────────────────────────────────────┼─────────────────┼─────────────────────────────────────────────────────────────┤
+│ github.com/portainer/portainer │ CVE-2024-33662 │ HIGH     │ fixed    │ v0.0.0-20251126230327-127411b06b1a+dirty │ 2.20.2          │ Portainer improperly uses an encryption algorithm in the    │
+│                                │                │          │          │                                          │                 │ AesEncrypt function                                         │
+│                                │                │          │          │                                          │                 │ https://avd.aquasec.com/nvd/cve-2024-33662                  │
+├────────────────────────────────┼────────────────┼──────────┤          ├──────────────────────────────────────────┼─────────────────┼─────────────────────────────────────────────────────────────┤
+│ github.com/ulikunitz/xz        │ CVE-2025-58058 │ MEDIUM   │          │ v0.5.11                                  │ 0.5.15          │ github.com/ulikunitz/xz: github.com/ulikunitz/xz leaks      │
+│                                │                │          │          │                                          │                 │ memory                                                      │
+│                                │                │          │          │                                          │                 │ https://avd.aquasec.com/nvd/cve-2025-58058                  │
+├────────────────────────────────┼────────────────┤          │          ├──────────────────────────────────────────┼─────────────────┼─────────────────────────────────────────────────────────────┤
+│ golang.org/x/crypto            │ CVE-2025-47914 │          │          │ v0.43.0                                  │ 0.45.0          │ golang.org/x/crypto/ssh/agent: in                           │
+│                                │                │          │          │                                          │                 │ golang.org/x/crypto/ssh/agent                               │
+│                                │                │          │          │                                          │                 │ https://avd.aquasec.com/nvd/cve-2025-47914                  │
+│                                ├────────────────┤          │          │                                          │                 ├─────────────────────────────────────────────────────────────┤
+│                                │ CVE-2025-58181 │          │          │                                          │                 │ golang.org/x/crypto/ssh: in golang.org/x/crypto/ssh         │
+│                                │                │          │          │                                          │                 │ https://avd.aquasec.com/nvd/cve-2025-58181                  │
+├────────────────────────────────┼────────────────┼──────────┤          ├──────────────────────────────────────────┼─────────────────┼─────────────────────────────────────────────────────────────┤
+│ stdlib                         │ CVE-2025-61729 │ HIGH     │          │ v1.24.9                                  │ 1.24.11, 1.25.5 │ crypto/x509: Excessive resource consumption when printing   │
+│                                │                │          │          │                                          │                 │ error string for host certificate validation...             │
+│                                │                │          │          │                                          │                 │ https://avd.aquasec.com/nvd/cve-2025-61729                  │
+│                                ├────────────────┼──────────┤          │                                          │                 ├─────────────────────────────────────────────────────────────┤
+│                                │ CVE-2025-61727 │ MEDIUM   │          │                                          │                 │ golang: crypto/x509: excluded subdomain constraint does not │
+│                                │                │          │          │                                          │                 │ restrict wildcard SANs                                      │
+│                                │                │          │          │                                          │                 │ https://avd.aquasec.com/nvd/cve-2025-61727                  │
+└────────────────────────────────┴────────────────┴──────────┴──────────┴──────────────────────────────────────────┴─────────────────┴─────────────────────────────────────────────────────────────┘

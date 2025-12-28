@@ -1,0 +1,67 @@
+2025-12-28T21:22:23+01:00	INFO	[vuln] Vulnerability scanning is enabled
+2025-12-28T21:22:23+01:00	INFO	[secret] Secret scanning is enabled
+2025-12-28T21:22:23+01:00	INFO	[secret] If your scanning is slow, please try '--scanners vuln' to disable secret scanning
+2025-12-28T21:22:23+01:00	INFO	[secret] Please see https://trivy.dev/docs/v0.68/guide/scanner/secret#recommendation for faster secret detection
+2025-12-28T21:22:26+01:00	INFO	Number of language-specific files	num=2
+2025-12-28T21:22:26+01:00	INFO	[gobinary] Detecting vulnerabilities...
+2025-12-28T21:22:26+01:00	WARN	Using severities from other vendors for some vulnerabilities. Read https://trivy.dev/docs/v0.68/guide/scanner/vulnerability#severity-selection for details.
+
+Report Summary
+
+┌────────────────┬──────────┬─────────────────┬─────────┐
+│     Target     │   Type   │ Vulnerabilities │ Secrets │
+├────────────────┼──────────┼─────────────────┼─────────┤
+│ bin/prometheus │ gobinary │        4        │    -    │
+├────────────────┼──────────┼─────────────────┼─────────┤
+│ bin/promtool   │ gobinary │        4        │    -    │
+└────────────────┴──────────┴─────────────────┴─────────┘
+Legend:
+- '-': Not scanned
+- '0': Clean (no security findings detected)
+
+
+bin/prometheus (gobinary)
+=========================
+Total: 4 (UNKNOWN: 0, LOW: 0, MEDIUM: 3, HIGH: 1, CRITICAL: 0)
+
+┌─────────────────────┬────────────────┬──────────┬────────┬───────────────────┬─────────────────┬─────────────────────────────────────────────────────────────┐
+│       Library       │ Vulnerability  │ Severity │ Status │ Installed Version │  Fixed Version  │                            Title                            │
+├─────────────────────┼────────────────┼──────────┼────────┼───────────────────┼─────────────────┼─────────────────────────────────────────────────────────────┤
+│ golang.org/x/crypto │ CVE-2025-47914 │ MEDIUM   │ fixed  │ v0.43.0           │ 0.45.0          │ golang.org/x/crypto/ssh/agent: in                           │
+│                     │                │          │        │                   │                 │ golang.org/x/crypto/ssh/agent                               │
+│                     │                │          │        │                   │                 │ https://avd.aquasec.com/nvd/cve-2025-47914                  │
+│                     ├────────────────┤          │        │                   │                 ├─────────────────────────────────────────────────────────────┤
+│                     │ CVE-2025-58181 │          │        │                   │                 │ golang.org/x/crypto/ssh: in golang.org/x/crypto/ssh         │
+│                     │                │          │        │                   │                 │ https://avd.aquasec.com/nvd/cve-2025-58181                  │
+├─────────────────────┼────────────────┼──────────┤        ├───────────────────┼─────────────────┼─────────────────────────────────────────────────────────────┤
+│ stdlib              │ CVE-2025-61729 │ HIGH     │        │ v1.25.4           │ 1.24.11, 1.25.5 │ crypto/x509: Excessive resource consumption when printing   │
+│                     │                │          │        │                   │                 │ error string for host certificate validation...             │
+│                     │                │          │        │                   │                 │ https://avd.aquasec.com/nvd/cve-2025-61729                  │
+│                     ├────────────────┼──────────┤        │                   │                 ├─────────────────────────────────────────────────────────────┤
+│                     │ CVE-2025-61727 │ MEDIUM   │        │                   │                 │ golang: crypto/x509: excluded subdomain constraint does not │
+│                     │                │          │        │                   │                 │ restrict wildcard SANs                                      │
+│                     │                │          │        │                   │                 │ https://avd.aquasec.com/nvd/cve-2025-61727                  │
+└─────────────────────┴────────────────┴──────────┴────────┴───────────────────┴─────────────────┴─────────────────────────────────────────────────────────────┘
+
+bin/promtool (gobinary)
+=======================
+Total: 4 (UNKNOWN: 0, LOW: 0, MEDIUM: 3, HIGH: 1, CRITICAL: 0)
+
+┌─────────────────────┬────────────────┬──────────┬────────┬───────────────────┬─────────────────┬─────────────────────────────────────────────────────────────┐
+│       Library       │ Vulnerability  │ Severity │ Status │ Installed Version │  Fixed Version  │                            Title                            │
+├─────────────────────┼────────────────┼──────────┼────────┼───────────────────┼─────────────────┼─────────────────────────────────────────────────────────────┤
+│ golang.org/x/crypto │ CVE-2025-47914 │ MEDIUM   │ fixed  │ v0.43.0           │ 0.45.0          │ golang.org/x/crypto/ssh/agent: in                           │
+│                     │                │          │        │                   │                 │ golang.org/x/crypto/ssh/agent                               │
+│                     │                │          │        │                   │                 │ https://avd.aquasec.com/nvd/cve-2025-47914                  │
+│                     ├────────────────┤          │        │                   │                 ├─────────────────────────────────────────────────────────────┤
+│                     │ CVE-2025-58181 │          │        │                   │                 │ golang.org/x/crypto/ssh: in golang.org/x/crypto/ssh         │
+│                     │                │          │        │                   │                 │ https://avd.aquasec.com/nvd/cve-2025-58181                  │
+├─────────────────────┼────────────────┼──────────┤        ├───────────────────┼─────────────────┼─────────────────────────────────────────────────────────────┤
+│ stdlib              │ CVE-2025-61729 │ HIGH     │        │ v1.25.4           │ 1.24.11, 1.25.5 │ crypto/x509: Excessive resource consumption when printing   │
+│                     │                │          │        │                   │                 │ error string for host certificate validation...             │
+│                     │                │          │        │                   │                 │ https://avd.aquasec.com/nvd/cve-2025-61729                  │
+│                     ├────────────────┼──────────┤        │                   │                 ├─────────────────────────────────────────────────────────────┤
+│                     │ CVE-2025-61727 │ MEDIUM   │        │                   │                 │ golang: crypto/x509: excluded subdomain constraint does not │
+│                     │                │          │        │                   │                 │ restrict wildcard SANs                                      │
+│                     │                │          │        │                   │                 │ https://avd.aquasec.com/nvd/cve-2025-61727                  │
+└─────────────────────┴────────────────┴──────────┴────────┴───────────────────┴─────────────────┴─────────────────────────────────────────────────────────────┘
