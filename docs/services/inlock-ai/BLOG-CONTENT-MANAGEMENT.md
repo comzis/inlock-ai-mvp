@@ -469,3 +469,4 @@ When editing a blog post:
 **Last Updated:** December 28, 2025  
 **Location:** `/opt/inlock-ai-secure-mvp/content/` and `src/lib/blog.ts`
 
+

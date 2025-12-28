@@ -219,3 +219,4 @@ Portainer is working correctly when:
 **Status:** Configuration verified, access should work from Tailscale  
 **Next Action:** Test access from Tailscale-connected device
 
+

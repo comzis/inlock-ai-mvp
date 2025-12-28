@@ -398,3 +398,4 @@ docker compose -f compose/services/stack.yml up -d n8n
 **Current Version:** 1.123.5  
 **Recommended:** Review 2.x release notes before updating
 
+
