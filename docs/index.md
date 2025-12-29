@@ -5,8 +5,8 @@ Welcome to the centralized documentation for the Inlock AI MVP infrastructure.
 ## 📚 Quick Links
 
 - **[Quick Start Guide](../QUICK-START.md)** - Get started quickly
-- **[Project Improvements](PROJECT-IMPROVEMENTS-2025-12-25.md)** - Recent improvements and recommendations
-- **[Reorganization Plan](REORGANIZATION-PLAN-2025-12-25.md)** - Documentation reorganization status
+- **[Project Improvements](reports/PROJECT-IMPROVEMENTS-2025-12-25.md)** - Recent improvements and recommendations
+- **[Reorganization Plan](reports/REORGANIZATION-PLAN-2025-12-25.md)** - Documentation reorganization status
 
 ## 📚 Deployment (Day 2)
 Guides for updating the application.
@@ -37,6 +37,7 @@ High-level design documentation.
 - [Container Structure](architecture/CONTAINER-STRUCTURE.md) (Service stacks & Volumes)
 - [Network Layout](architecture/NETWORK-LAYOUT.md) (Isolation & Security)
 - [Server Structure Analysis](architecture/SERVER-STRUCTURE-ANALYSIS.md)
+- [Infra Notes](architecture/INFRA-NOTES.md)
 
 ## 🔒 Security
 Security documentation and guides.
@@ -56,6 +57,7 @@ Technical specifications and cheat sheets.
 ## 📊 Reports
 Status reports, incident logs, and operational documentation.
 - [Development Status](reports/DEVELOPMENT-STATUS-UPDATE.md)
+- [Project Review (Cursor Rules)](reports/PROJECT-REVIEW-2025-12-28.md)
 - [Execution Reports](reports/EXECUTION-REPORT-2025-12-13.md)
 - [Verification Reports](reports/VERIFICATION-REPORT.md)
 - [Incident Reports](reports/incidents/)
@@ -77,5 +79,5 @@ Historical status reports, incident logs, and checklists.
 - [Strike Team Reports](reports/incidents/STRIKE-TEAM-FINAL-SUMMARY.md)
 
 ---
-*Last Updated: 2025-12-25*  
+*Last Updated: 2025-12-29*  
 *Documentation reorganized per `.cursorrules` structure*

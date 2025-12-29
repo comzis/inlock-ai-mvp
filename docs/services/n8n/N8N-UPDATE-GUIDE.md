@@ -399,3 +399,4 @@ docker compose -f compose/services/stack.yml up -d n8n
 **Recommended:** Review 2.x release notes before updating
 
 
+

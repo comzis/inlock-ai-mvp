@@ -354,3 +354,4 @@ echo "Issues found: $ISSUES_FOUND"
 echo ""
 echo "Full report: $REPORT_FILE"
 
+

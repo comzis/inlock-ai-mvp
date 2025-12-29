@@ -102,3 +102,4 @@ After fixing the firewall, configure Coolify with:
 
 **Last Updated:** 2025-12-28
 
+

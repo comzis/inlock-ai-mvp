@@ -47,3 +47,4 @@ echo ""
 echo "To test (should require password now):"
 echo "  sudo -n /usr/bin/docker ps    # Should fail (password required)"
 
+

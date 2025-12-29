@@ -223,3 +223,4 @@ echo ""
 echo "WAL archive directory: $WAL_ARCHIVE_DIR"
 echo "Configuration backups: $BACKUP_DIR"
 
+

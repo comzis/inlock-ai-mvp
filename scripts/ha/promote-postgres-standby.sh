@@ -93,3 +93,4 @@ echo ""
 echo "Verify with:"
 echo "  sudo -u postgres psql -c \"SELECT pg_is_in_recovery();\"  # Should return 'f'"
 
+

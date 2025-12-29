@@ -3,6 +3,8 @@
 **Reviewer:** Cursor AI  
 **Scope:** Complete project structure and cursor rules compliance
 
+**Update (2025-12-29):** Moved from `docs/` to `docs/reports/` and merged the summary file to reduce duplication. Items in the "Minor Issues" section were addressed after this review.
+
 ---
 
 ## 📋 Executive Summary
@@ -49,7 +51,7 @@ The project is well-organized and largely follows `.cursorrules` guidelines. Rec
 
 **Issue:** 4 markdown files remain in `docs/` root:
 - `docs/index.md` ✅ (Should stay - it's the entry point)
-- `docs/infra.md` ⚠️ (Should move to `docs/architecture/` or keep as overview)
+- `docs/architecture/INFRA-NOTES.md` ✅ (Moved from docs root)
 - `docs/NEXT-STEPS-2025-12-25.md` ⚠️ (Should move to `docs/reports/`)
 - `docs/REORGANIZATION-PLAN-2025-12-25.md` ⚠️ (Should move to `docs/reports/`)
 
@@ -59,8 +61,7 @@ The project is well-organized and largely follows `.cursorrules` guidelines. Rec
 git mv docs/NEXT-STEPS-2025-12-25.md docs/reports/
 git mv docs/REORGANIZATION-PLAN-2025-12-25.md docs/reports/
 
-# Keep infra.md in root if it's a main overview, or move to architecture
-# (Decision needed: is it an overview or architecture doc?)
+# Infra notes now live in docs/architecture/INFRA-NOTES.md
 ```
 
 ### 2. Root Directory Files
@@ -226,7 +227,7 @@ git mv docs/REORGANIZATION-PLAN-2025-12-25.md docs/reports/
 ## 📝 Files to Review
 
 ### Documentation Files
-- `docs/infra.md` - Decide: overview or architecture doc?
+- `docs/architecture/INFRA-NOTES.md` - Moved from docs root
 - `docs/NEXT-STEPS-2025-12-25.md` - Move to `docs/reports/`
 - `docs/REORGANIZATION-PLAN-2025-12-25.md` - Move to `docs/reports/`
 - `REORGANIZATION-SUMMARY.md` - Move to `docs/reports/`
@@ -344,5 +345,3 @@ The project demonstrates strong compliance with cursor rules. Recent reorganizat
 **Last Updated:** December 28, 2025  
 **Next Review:** January 28, 2026  
 **Status:** ✅ Excellent compliance, minor cleanup recommended
-
-

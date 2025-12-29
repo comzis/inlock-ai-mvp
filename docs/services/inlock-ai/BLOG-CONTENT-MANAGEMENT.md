@@ -470,3 +470,4 @@ When editing a blog post:
 **Location:** `/opt/inlock-ai-secure-mvp/content/` and `src/lib/blog.ts`
 
 
+

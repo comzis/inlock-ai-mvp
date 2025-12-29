@@ -83,7 +83,7 @@ This document tracks the reorganization of the project to fully comply with `.cu
 
 #### → `docs/architecture/`
 - `SERVER-STRUCTURE-ANALYSIS.md`
-- `infra.md` (or keep in root if it's the main overview)
+- `INFRA-NOTES.md` (moved from docs root)
 
 #### → `docs/services/`
 - `PORTAINER-ACCESS.md` → `docs/services/portainer/`
@@ -143,4 +143,3 @@ Create `scripts/validate-structure.sh` to:
 ---
 
 *Last Updated: 2025-12-25*
-

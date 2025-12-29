@@ -222,3 +222,4 @@ echo "To promote this standby to primary (failover):"
 echo "  sudo ./scripts/ha/promote-postgres-standby.sh"
 echo ""
 
+

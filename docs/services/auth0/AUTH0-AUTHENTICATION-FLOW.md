@@ -114,4 +114,3 @@ All of these use the same authentication flow:
 
 **Last Updated:** December 10, 2025  
 **Related:** `docs/AUTH0-STACK-CONSISTENCY.md`, `docs/AUTH0-TESTING-GUIDE.md`
-
