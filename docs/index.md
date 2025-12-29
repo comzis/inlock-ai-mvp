@@ -30,6 +30,8 @@ How-to guides for specific services.
 - [Monitoring Setup](services/monitoring/MONITORING.md)
 - [Auth0 Integration](services/auth0/)
 - [n8n Workflows](services/n8n/)
+- [Admin Password Reset](guides/ADMIN-PASSWORD-RESET.md)
+- [Auth0 + Mailcow SMTP Configuration](guides/AUTH0-MAILCOW-SMTP-CONFIGURATION.md)
 
 ## 🏗 Architecture
 High-level design documentation.
@@ -53,6 +55,7 @@ Technical specifications and cheat sheets.
 - [Auth0 API Reference](reference/AUTH0-API-REFERENCE.md)
 - [Auth0 Quick Reference](reference/AUTH0-QUICK-REFERENCE.md)
 - [Quick Reference Card](reference/QUICK-REFERENCE.md)
+- [Mailcow SMTP Quick Ref](reference/AUTH0-MAILCOW-SMTP-QUICK-REFERENCE.md)
 
 ## 📊 Reports
 Status reports, incident logs, and operational documentation.
