@@ -6,6 +6,8 @@ GitOps-ready, hardened Docker Compose infrastructure stack for INLOCK.AI.
 
 ## Overview
 
+Latest changes: see [Release Notes](docs/RELEASE-NOTES.md)
+
 This repository contains the complete infrastructure configuration for INLOCK.AI, including:
 
 - **Reverse Proxy**: Traefik with TLS termination (Positive SSL + Let's Encrypt)
@@ -387,6 +389,6 @@ See [Git Publish Guide](docs/GIT-PUBLISH-GUIDE.md) for publishing workflows.
 
 ---
 
-**Last Updated**: December 9, 2025  
+**Last Updated**: December 30, 2025  
 **Version**: GitOps-ready hardened stack  
 **Maintainer**: INLOCK.AI Infrastructure Team
