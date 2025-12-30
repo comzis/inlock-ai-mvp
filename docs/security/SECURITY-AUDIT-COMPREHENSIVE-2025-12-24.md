@@ -196,7 +196,7 @@ coolify:
 ### 🟢 LOW Priority Issues
 
 #### 9. Documentation Drift
-**File:** `docs/security/SECURITY-POSTURE-2025-12-24.md`
+**File:** `archive/docs/security/SECURITY-POSTURE-2025-12-24.md`
 
 **Discrepancies:**
 - Documents score as 8.5/10, actual is 7.0/10
@@ -323,8 +323,8 @@ coolify:
 |------------|--------|----------------|----------|
 | "No hardcoded credentials" | 1 hardcoded credential found | `tooling.yml:167` | 🔴 CRITICAL |
 | "All containers drop ALL capabilities" | 5 services missing cap_drop | `stack.yml` (multiple services) | 🟡 HIGH |
-| Score: 8.5/10 | Actual: 7.0/10 | `SECURITY-POSTURE-2025-12-24.md` | 🟡 HIGH |
-| "OAuth2-Proxy returns 404" | Actually returns 302 (correct) | `SECURITY-POSTURE-2025-12-24.md:38` | 🟢 LOW |
+| Score: 8.5/10 | Actual: 7.0/10 | `archive/docs/security/SECURITY-POSTURE-2025-12-24.md` | 🟡 HIGH |
+| "OAuth2-Proxy returns 404" | Actually returns 302 (correct) | `archive/docs/security/SECURITY-POSTURE-2025-12-24.md:38` | 🟢 LOW |
 | "All services healthy" | 4 services with issues | Deployment state | 🔴 CRITICAL |
 
 ---
@@ -463,7 +463,7 @@ inlock-db:
 ---
 
 #### 9. Update Security Documentation
-**File:** `docs/security/SECURITY-POSTURE-2025-12-24.md`  
+**File:** `archive/docs/security/SECURITY-POSTURE-2025-12-24.md`
 **Action:**
 - Update score to 7.0/10
 - Document actual state (hardcoded credential, service failures)

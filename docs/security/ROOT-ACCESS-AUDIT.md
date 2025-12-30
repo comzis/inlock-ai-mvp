@@ -30,7 +30,7 @@ The script generates a comprehensive security compliance report covering:
 
 Reports are saved to:
 ```
-docs/reports/security/root-access-audit-<timestamp>.md
+archive/docs/reports/security/root-access-audit-<timestamp>.md
 ```
 
 ---
@@ -223,7 +223,7 @@ Firewall:
 
 Issues found: 0
 
-Full report: docs/reports/security/root-access-audit-20251228-120000.md
+Full report: archive/docs/reports/security/root-access-audit-20251228-120000.md
 ```
 
 ---

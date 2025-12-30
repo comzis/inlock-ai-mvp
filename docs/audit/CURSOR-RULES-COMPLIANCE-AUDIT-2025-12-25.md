@@ -35,7 +35,7 @@ The project structure largely follows the cursor rules. Minor issues found:
   - Day-2 operations → `docs/guides/`
   - Architecture → `docs/architecture/`
   - References → `docs/reference/`
-  - Reports → `docs/reports/`
+  - Reports → `archive/docs/reports/`
   - Security → `docs/security/`
   - Services → `docs/services/`
 - **Traefik routers:** In `traefik/dynamic/routers.yml`

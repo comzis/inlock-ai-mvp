@@ -21,7 +21,7 @@ All critical issues have been fixed and the project has been reorganized to full
 - **Directories Created:**
   - `docs/services/portainer/`
   - `docs/services/cockpit/`
-  - `docs/reports/incidents/`
+  - `archive/docs/reports/incidents/`
 
 ### 3. Duplicate Files
 - **Status:** ✅ Resolved
@@ -45,10 +45,10 @@ All critical issues have been fixed and the project has been reorganized to full
 ### Files Reorganized
 - **Security docs:** 3 files → `docs/security/`
 - **Guides:** 15+ files → `docs/guides/`
-- **Reports:** 15+ files → `docs/reports/`
+- **Reports:** 15+ files → `archive/docs/reports/`
 - **Services:** 5+ files → `docs/services/`
 - **Architecture:** 1 file → `docs/architecture/`
-- **Incidents:** 4 files → `docs/reports/incidents/`
+- **Incidents:** 4 files → `archive/docs/reports/incidents/`
 
 ### Files Updated
 - `docs/index.md` - Completely updated with new structure

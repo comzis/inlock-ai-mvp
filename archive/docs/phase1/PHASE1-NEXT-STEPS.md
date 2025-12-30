@@ -34,7 +34,7 @@ cd /home/comzis/projects/inlock-ai-mvp
 
 **Reports will be saved to:**
 ```
-docs/reports/security/vulnerabilities/container-scan-*.{json,html,txt}
+archive/docs/reports/security/vulnerabilities/container-scan-*.{json,html,txt}
 ```
 
 ### Step 2: Test Image Scanning
@@ -54,7 +54,7 @@ Scan Docker images from your compose files:
 
 **Reports will be saved to:**
 ```
-docs/reports/security/vulnerabilities/image-scan-*.{json,html,txt}
+archive/docs/reports/security/vulnerabilities/image-scan-*.{json,html,txt}
 ```
 
 ### Step 3: Review Scan Results
@@ -62,13 +62,13 @@ docs/reports/security/vulnerabilities/image-scan-*.{json,html,txt}
 1. **View HTML reports:**
    ```bash
    # Open the latest HTML report in browser
-   ls -t docs/reports/security/vulnerabilities/*.html | head -1 | xargs firefox
+   ls -t archive/docs/reports/security/vulnerabilities/*.html | head -1 | xargs firefox
    ```
 
 2. **Check JSON reports:**
    ```bash
    # View latest JSON report
-   ls -t docs/reports/security/vulnerabilities/*.json | head -1 | xargs cat | jq '.'
+   ls -t archive/docs/reports/security/vulnerabilities/*.json | head -1 | xargs cat | jq '.'
    ```
 
 3. **Review summary:**
@@ -190,7 +190,7 @@ cat docs/security/VULNERABILITY-SCANNING.md
 sudo ./scripts/security/scan-filesystem.sh
 
 # View latest reports
-ls -lt docs/reports/security/vulnerabilities/ | head -10
+ls -lt archive/docs/reports/security/vulnerabilities/ | head -10
 
 # Check Trivy version
 trivy --version

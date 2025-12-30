@@ -1,6 +1,7 @@
 # Scripts Directory
 
 This directory contains all automation and management scripts, organized by functional category.
+Archived and legacy scripts now live under `../archive/scripts/` (read-only reference).
 
 ## Directory Structure
 
@@ -48,11 +49,8 @@ Maintenance and cleanup tasks:
 - `self_heal.sh` - Self-healing automation
 - `nightly-regression.sh` - Nightly regression tests
 
-### `troubleshooting/`
-Debugging and fixing issues:
-- `fix-*.sh` - Service-specific fixes
-- `debug-*.sh` - Debugging utilities
-- `reset-*.sh` - Reset operations
+### `archive/scripts/`
+Legacy and troubleshooting scripts (moved out of active tree). Use for reference only.
 
 ### `utilities/`
 General utility scripts:

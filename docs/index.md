@@ -4,9 +4,11 @@ Welcome to the centralized documentation for the Inlock AI MVP infrastructure.
 
 ## 📚 Quick Links
 
+- **Archives:** Historical docs and reports moved to `../archive/docs/`
+
 - **[Quick Start Guide](../QUICK-START.md)** - Get started quickly
-- **[Project Improvements](reports/PROJECT-IMPROVEMENTS-2025-12-25.md)** - Recent improvements and recommendations
-- **[Reorganization Plan](reports/REORGANIZATION-PLAN-2025-12-25.md)** - Documentation reorganization status
+- **[Project Improvements](../archive/docs/reports/PROJECT-IMPROVEMENTS-2025-12-25.md)** - Recent improvements and recommendations
+- **[Reorganization Plan](../archive/docs/reports/REORGANIZATION-PLAN-2025-12-25.md)** - Documentation reorganization status
 
 ## 📚 Deployment (Day 2)
 Guides for updating the application.
@@ -44,7 +46,7 @@ High-level design documentation.
 ## 🔒 Security
 Security documentation and guides.
 - [Security Audit](security/SECURITY-AUDIT-COMPREHENSIVE-2025-12-24.md)
-- [Security Posture](security/SECURITY-POSTURE-2025-12-24.md)
+- [Security Posture](../archive/docs/security/SECURITY-POSTURE-2025-12-24.md)
 - [Access Control Validation](security/ACCESS-CONTROL-VALIDATION.md)
 - [Cloudflare IP Allowlist](security/CLOUDFLARE-IP-ALLOWLIST.md)
 - [Port Restrictions](security/PORT-RESTRICTION-SUMMARY.md)
@@ -59,12 +61,7 @@ Technical specifications and cheat sheets.
 
 ## 📊 Reports
 Status reports, incident logs, and operational documentation.
-- [Development Status](reports/DEVELOPMENT-STATUS-UPDATE.md)
-- [Project Review (Cursor Rules)](reports/PROJECT-REVIEW-2025-12-28.md)
-- [Execution Reports](reports/EXECUTION-REPORT-2025-12-13.md)
-- [Verification Reports](reports/VERIFICATION-REPORT.md)
-- [Incident Reports](reports/incidents/)
-- [SWARM Reports](reports/SWARM-*.md)
+- Reports are archived at `../archive/docs/reports/`
 
 ## 📝 Guides
 Day-to-day operational guides and how-tos.
@@ -78,8 +75,8 @@ Day-to-day operational guides and how-tos.
 
 ## 🗄 Archive
 Historical status reports, incident logs, and checklists.
-- [Deployment Status History](deployment/DEPLOYMENT-STATUS-2025-12-11.md)
-- [Strike Team Reports](reports/incidents/STRIKE-TEAM-FINAL-SUMMARY.md)
+- [Deployment Status History](../archive/docs/deployment/DEPLOYMENT-STATUS-2025-12-11.md)
+- [Strike Team Reports](../archive/docs/reports/incidents/STRIKE-TEAM-FINAL-SUMMARY.md)
 
 ---
 *Last Updated: 2025-12-29*  

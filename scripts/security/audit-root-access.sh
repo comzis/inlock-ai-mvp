@@ -6,7 +6,7 @@
 #
 # Usage: sudo ./scripts/security/audit-root-access.sh [OPTIONS]
 # Options:
-#   --output-dir <dir>    Output directory (default: docs/reports/security)
+#   --output-dir <dir>    Output directory (default: archive/docs/reports/security)
 #   --format <text|json>  Report format (default: text)
 
 set -e
@@ -17,7 +17,7 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-OUTPUT_DIR="${OUTPUT_DIR:-$SCRIPT_DIR/docs/reports/security}"
+OUTPUT_DIR="${OUTPUT_DIR:-$SCRIPT_DIR/archive/docs/reports/security}"
 TIMESTAMP=$(date +%Y%m%d-%H%M%S)
 REPORT_FILE="$OUTPUT_DIR/root-access-audit-$TIMESTAMP.md"
 FORMAT="${FORMAT:-text}"

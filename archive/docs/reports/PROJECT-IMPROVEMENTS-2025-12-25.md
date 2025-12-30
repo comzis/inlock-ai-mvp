@@ -104,7 +104,7 @@ git commit -m "docs: update cursor rules"
 **Issue:** Many documentation files are in `docs/` root instead of organized subdirectories per `.cursorrules`.
 
 **Files to reorganize:**
-- Status reports → `docs/reports/`
+- Status reports → `archive/docs/reports/`
 - Deployment guides → `docs/deployment/` (some already there ✅)
 - Security docs → `docs/security/` (some already there ✅)
 - Service-specific docs → `docs/services/` (some already there ✅)
@@ -116,17 +116,17 @@ docs/ACCESS-CONTROL-VALIDATION.md → docs/security/
 docs/ADDING-NEW-SERVICE.md → docs/guides/
 docs/AUTH0-STACK-CONSISTENCY.md → docs/services/auth0/ (if exists) or docs/guides/
 docs/AUTOMATION-SCRIPTS.md → docs/guides/
-docs/BROWSER-E2E-TEST-NOW.md → docs/guides/ or docs/reports/
+docs/BROWSER-E2E-TEST-NOW.md → docs/guides/ or archive/docs/reports/
 docs/CLOUDFLARE-IP-ALLOWLIST.md → docs/security/
 docs/CREDENTIALS-RECOVERY.md → docs/guides/
-docs/DEPENDENCY-UPDATE-NOTES.md → docs/reports/
-docs/DEVELOPMENT-STATUS-UPDATE.md → docs/reports/
-docs/DEVOPS-TOOLS-STATUS.md → docs/reports/
-docs/DIRECTORY-CLEANUP.md → docs/reports/
-docs/EXECUTION-REPORT-2025-12-13.md → docs/reports/
-docs/FEATURE-TEST-RESULTS.md → docs/reports/
-docs/FINAL-DEPLOYMENT-STATUS.md → docs/reports/
-docs/FINAL-REVIEW-SUMMARY.md → docs/reports/
+docs/DEPENDENCY-UPDATE-NOTES.md → archive/docs/reports/
+docs/DEVELOPMENT-STATUS-UPDATE.md → archive/docs/reports/
+docs/DEVOPS-TOOLS-STATUS.md → archive/docs/reports/
+docs/DIRECTORY-CLEANUP.md → archive/docs/reports/
+docs/EXECUTION-REPORT-2025-12-13.md → archive/docs/reports/
+docs/FEATURE-TEST-RESULTS.md → archive/docs/reports/
+docs/FINAL-DEPLOYMENT-STATUS.md → archive/docs/reports/
+docs/FINAL-REVIEW-SUMMARY.md → archive/docs/reports/
 docs/INLOCK-AI-QUICK-START.md → docs/guides/
 docs/INLOCK-CONTENT-MANAGEMENT.md → docs/guides/
 docs/NODE-JS-DOCKER-ONLY.md → docs/guides/
@@ -135,14 +135,14 @@ docs/PORT-RESTRICTION-SUMMARY.md → docs/security/
 docs/PORTAINER-ACCESS.md → docs/services/portainer/ (create if needed)
 docs/PORTAINER-PASSWORD-RECOVERY.md → docs/services/portainer/
 docs/QUICK-ACTION-CHECKLIST.md → docs/guides/
-docs/QUICK-ACTION-STATUS.md → docs/reports/
+docs/QUICK-ACTION-STATUS.md → archive/docs/reports/
 docs/RUN-DIAGNOSTICS.md → docs/guides/
 docs/SECRET-MANAGEMENT.md → docs/guides/
 docs/SERVER-STRUCTURE-ANALYSIS.md → docs/architecture/
 docs/SERVER-UPDATE-SCHEDULE.md → docs/guides/
-docs/STRIKE-TEAM-*.md → docs/reports/incidents/
-docs/SWARM-*.md → docs/reports/
-docs/VERIFICATION-*.md → docs/reports/
+docs/STRIKE-TEAM-*.md → archive/docs/reports/incidents/
+docs/SWARM-*.md → archive/docs/reports/
+docs/VERIFICATION-*.md → archive/docs/reports/
 docs/WEBSITE-LAUNCH-CHECKLIST.md → docs/guides/
 docs/WORKFLOW-BEST-PRACTICES.md → docs/guides/
 ```

@@ -58,7 +58,7 @@ trivy --version
 
 2. **Test the scanning scripts** to verify everything works
 
-3. **Review scan results** in `docs/reports/security/vulnerabilities/`
+3. **Review scan results** in `archive/docs/reports/security/vulnerabilities/`
 
 4. **Set up automated scanning** (cron/systemd timer) - see implementation guide
 

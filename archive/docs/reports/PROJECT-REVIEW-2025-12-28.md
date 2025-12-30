@@ -3,7 +3,7 @@
 **Reviewer:** Cursor AI  
 **Scope:** Complete project structure and cursor rules compliance
 
-**Update (2025-12-29):** Moved from `docs/` to `docs/reports/` and merged the summary file to reduce duplication. Items in the "Minor Issues" section were addressed after this review.
+**Update (2025-12-29):** Moved from `docs/` to `archive/docs/reports/` and merged the summary file to reduce duplication. Items in the "Minor Issues" section were addressed after this review.
 
 ---
 
@@ -52,14 +52,14 @@ The project is well-organized and largely follows `.cursorrules` guidelines. Rec
 **Issue:** 4 markdown files remain in `docs/` root:
 - `docs/index.md` ✅ (Should stay - it's the entry point)
 - `docs/architecture/INFRA-NOTES.md` ✅ (Moved from docs root)
-- `docs/NEXT-STEPS-2025-12-25.md` ⚠️ (Should move to `docs/reports/`)
-- `docs/REORGANIZATION-PLAN-2025-12-25.md` ⚠️ (Should move to `docs/reports/`)
+- `docs/NEXT-STEPS-2025-12-25.md` ⚠️ (Should move to `archive/docs/reports/`)
+- `docs/REORGANIZATION-PLAN-2025-12-25.md` ⚠️ (Should move to `archive/docs/reports/`)
 
 **Recommendation:**
 ```bash
 # Move planning documents to reports
-git mv docs/NEXT-STEPS-2025-12-25.md docs/reports/
-git mv docs/REORGANIZATION-PLAN-2025-12-25.md docs/reports/
+git mv docs/NEXT-STEPS-2025-12-25.md archive/docs/reports/
+git mv docs/REORGANIZATION-PLAN-2025-12-25.md archive/docs/reports/
 
 # Infra notes now live in docs/architecture/INFRA-NOTES.md
 ```
@@ -67,13 +67,13 @@ git mv docs/REORGANIZATION-PLAN-2025-12-25.md docs/reports/
 ### 2. Root Directory Files
 
 **Files in root that may need review:**
-- `REORGANIZATION-SUMMARY.md` - Could move to `docs/reports/`
-- `REVIEW-2025-12-12.md` - Could move to `docs/reports/`
+- `REORGANIZATION-SUMMARY.md` - Could move to `archive/docs/reports/`
+- `REVIEW-2025-12-12.md` - Could move to `archive/docs/reports/`
 - `TODO.md` - Keep in root (project management)
 - `server_env_file_found` - Temporary file? Should be removed or documented
 
 **Recommendation:**
-- Move summary/review files to `docs/reports/`
+- Move summary/review files to `archive/docs/reports/`
 - Remove or document temporary files
 - Keep only essential files in root (README, QUICK-START, TODO)
 
@@ -138,7 +138,7 @@ git mv docs/REORGANIZATION-PLAN-2025-12-25.md docs/reports/
 | Deployment Guides | `docs/deployment/` | ✅ Correct |
 | Security Docs | `docs/security/` | ✅ Correct |
 | Service Docs | `docs/services/` | ✅ Correct |
-| Reports | `docs/reports/` | ✅ Correct |
+| Reports | `archive/docs/reports/` | ✅ Correct |
 
 ### Security Compliance ✅
 
@@ -183,13 +183,13 @@ git mv docs/REORGANIZATION-PLAN-2025-12-25.md docs/reports/
 
 1. **Move Planning Documents**
    ```bash
-   git mv docs/NEXT-STEPS-2025-12-25.md docs/reports/
-   git mv docs/REORGANIZATION-PLAN-2025-12-25.md docs/reports/
+   git mv docs/NEXT-STEPS-2025-12-25.md archive/docs/reports/
+   git mv docs/REORGANIZATION-PLAN-2025-12-25.md archive/docs/reports/
    ```
 
 2. **Review Root Directory Files**
-   - Move `REORGANIZATION-SUMMARY.md` to `docs/reports/`
-   - Move `REVIEW-2025-12-12.md` to `docs/reports/`
+   - Move `REORGANIZATION-SUMMARY.md` to `archive/docs/reports/`
+   - Move `REVIEW-2025-12-12.md` to `archive/docs/reports/`
    - Remove or document `server_env_file_found`
 
 3. **Commit Portainer Documentation**
@@ -228,10 +228,10 @@ git mv docs/REORGANIZATION-PLAN-2025-12-25.md docs/reports/
 
 ### Documentation Files
 - `docs/architecture/INFRA-NOTES.md` - Moved from docs root
-- `docs/NEXT-STEPS-2025-12-25.md` - Move to `docs/reports/`
-- `docs/REORGANIZATION-PLAN-2025-12-25.md` - Move to `docs/reports/`
-- `REORGANIZATION-SUMMARY.md` - Move to `docs/reports/`
-- `REVIEW-2025-12-12.md` - Move to `docs/reports/`
+- `docs/NEXT-STEPS-2025-12-25.md` - Move to `archive/docs/reports/`
+- `docs/REORGANIZATION-PLAN-2025-12-25.md` - Move to `archive/docs/reports/`
+- `REORGANIZATION-SUMMARY.md` - Move to `archive/docs/reports/`
+- `REVIEW-2025-12-12.md` - Move to `archive/docs/reports/`
 
 ### Temporary Files
 - `server_env_file_found` - Remove or document purpose
@@ -300,7 +300,7 @@ git mv docs/REORGANIZATION-PLAN-2025-12-25.md docs/reports/
 - `docs/guides/` - Operational guides
 - `docs/security/` - Security documentation
 - `docs/services/` - Service-specific docs
-- `docs/reports/` - Status reports
+- `archive/docs/reports/` - Status reports
 
 ### Needs Minor Cleanup ⚠️
 - 4 files in `docs/` root (3 should move to reports)
@@ -314,7 +314,7 @@ git mv docs/REORGANIZATION-PLAN-2025-12-25.md docs/reports/
 
 The project demonstrates strong compliance with cursor rules. Recent reorganization efforts have significantly improved the structure. Only minor cleanup needed:
 
-1. Move 3-4 planning/review documents to `docs/reports/`
+1. Move 3-4 planning/review documents to `archive/docs/reports/`
 2. Review and commit new Portainer documentation
 3. Consider pinning image versions (medium priority)
 
@@ -325,13 +325,13 @@ The project demonstrates strong compliance with cursor rules. Recent reorganizat
 ## 📋 Action Items
 
 ### Immediate (5 minutes)
-- [ ] Move `docs/NEXT-STEPS-2025-12-25.md` to `docs/reports/`
-- [ ] Move `docs/REORGANIZATION-PLAN-2025-12-25.md` to `docs/reports/`
+- [ ] Move `docs/NEXT-STEPS-2025-12-25.md` to `archive/docs/reports/`
+- [ ] Move `docs/REORGANIZATION-PLAN-2025-12-25.md` to `archive/docs/reports/`
 - [ ] Commit Portainer documentation files
 
 ### Short Term (15 minutes)
-- [ ] Move `REORGANIZATION-SUMMARY.md` to `docs/reports/`
-- [ ] Move `REVIEW-2025-12-12.md` to `docs/reports/`
+- [ ] Move `REORGANIZATION-SUMMARY.md` to `archive/docs/reports/`
+- [ ] Move `REVIEW-2025-12-12.md` to `archive/docs/reports/`
 - [ ] Remove or document `server_env_file_found`
 - [ ] Update `docs/index.md` with new Portainer docs
 

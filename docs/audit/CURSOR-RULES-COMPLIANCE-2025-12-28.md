@@ -92,7 +92,7 @@ All routers using `admin-forward-auth` have correct middleware order:
 **Recommendation:**
 Move documentation files to appropriate `docs/` subdirectories:
 - Coolify-related docs → `docs/services/coolify/`
-- Assessment/review docs → `docs/reports/`
+- Assessment/review docs → `archive/docs/reports/`
 - Quick fix guides → `docs/guides/` or remove if temporary
 
 ---
@@ -145,7 +145,7 @@ All documentation properly organized in `docs/` subdirectories:
 - ✅ `docs/tooling-deployment/` - Tooling deployment guides
 - ✅ `docs/guides/` - Day-2 operations guides
 - ✅ `docs/reference/` - References and cheat sheets
-- ✅ `docs/reports/` - Status reports
+- ✅ `archive/docs/reports/` - Status reports
 - ✅ `docs/audit/` - Audit logs (this file)
 
 ---
@@ -241,7 +241,7 @@ All critical rules are being followed.
 
 1. **Organize Root Directory Files**:
    - Move Coolify docs to `docs/services/coolify/`
-   - Move assessment/review docs to `docs/reports/`
+   - Move assessment/review docs to `archive/docs/reports/`
    - Archive or remove temporary quick-fix guides
 
 ---

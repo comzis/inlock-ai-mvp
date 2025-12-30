@@ -7,7 +7,7 @@
 # Options:
 #   --compose-file <file>       Compose file to scan (default: compose/services/stack.yml)
 #   --format <json|html|table>  Output format (default: all)
-#   --output-dir <dir>          Output directory (default: docs/reports/security/vulnerabilities)
+#   --output-dir <dir>          Output directory (default: archive/docs/reports/security/vulnerabilities)
 #   --fail-on-critical          Exit with error if critical vulnerabilities found
 #   --severity <level>          Minimum severity (CRITICAL, HIGH, MEDIUM, LOW, UNKNOWN)
 #   --pull                      Pull images before scanning (default: false)
@@ -16,7 +16,7 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 COMPOSE_FILE="${COMPOSE_FILE:-$SCRIPT_DIR/compose/services/stack.yml}"
-OUTPUT_DIR="${OUTPUT_DIR:-$SCRIPT_DIR/docs/reports/security/vulnerabilities}"
+OUTPUT_DIR="${OUTPUT_DIR:-$SCRIPT_DIR/archive/docs/reports/security/vulnerabilities}"
 TIMESTAMP=$(date +%Y%m%d-%H%M%S)
 REPORT_PREFIX="image-scan-$TIMESTAMP"
 FORMAT="${FORMAT:-all}"

@@ -6,14 +6,14 @@
 # Usage: ./scripts/security/scan-containers.sh [OPTIONS]
 # Options:
 #   --format <json|html|table>  Output format (default: all)
-#   --output-dir <dir>          Output directory (default: docs/reports/security/vulnerabilities)
+#   --output-dir <dir>          Output directory (default: archive/docs/reports/security/vulnerabilities)
 #   --fail-on-critical          Exit with error if critical vulnerabilities found
 #   --severity <level>          Minimum severity (CRITICAL, HIGH, MEDIUM, LOW, UNKNOWN)
 
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-OUTPUT_DIR="${OUTPUT_DIR:-$SCRIPT_DIR/docs/reports/security/vulnerabilities}"
+OUTPUT_DIR="${OUTPUT_DIR:-$SCRIPT_DIR/archive/docs/reports/security/vulnerabilities}"
 TIMESTAMP=$(date +%Y%m%d-%H%M%S)
 REPORT_PREFIX="container-scan-$TIMESTAMP"
 FORMAT="${FORMAT:-all}"

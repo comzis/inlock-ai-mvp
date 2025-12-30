@@ -11,7 +11,7 @@ echo "=== Reorganizing Documentation Files ==="
 # Create missing directories
 mkdir -p docs/services/portainer
 mkdir -p docs/services/cockpit
-mkdir -p docs/reports/incidents
+mkdir -p archive/docs/reports/incidents
 
 # Function to safely move files
 move_file() {
@@ -49,22 +49,22 @@ move_file "docs/WORKFLOW-BEST-PRACTICES.md" "docs/guides/WORKFLOW-BEST-PRACTICES
 
 # Move reports
 echo "Moving reports..."
-move_file "docs/DEVELOPMENT-STATUS-UPDATE.md" "docs/reports/DEVELOPMENT-STATUS-UPDATE.md"
-move_file "docs/DEVOPS-TOOLS-STATUS.md" "docs/reports/DEVOPS-TOOLS-STATUS.md"
-move_file "docs/EXECUTION-REPORT-2025-12-13.md" "docs/reports/EXECUTION-REPORT-2025-12-13.md"
-move_file "docs/EXEC-COMMS-STATUS.md" "docs/reports/EXEC-COMMS-STATUS.md"
-move_file "docs/FEATURE-TEST-RESULTS.md" "docs/reports/FEATURE-TEST-RESULTS.md"
-move_file "docs/FINAL-DEPLOYMENT-STATUS.md" "docs/reports/FINAL-DEPLOYMENT-STATUS.md"
-move_file "docs/FINAL-REVIEW-SUMMARY.md" "docs/reports/FINAL-REVIEW-SUMMARY.md"
-move_file "docs/QUICK-ACTION-STATUS.md" "docs/reports/QUICK-ACTION-STATUS.md"
-move_file "docs/VERIFICATION-REPORT.md" "docs/reports/VERIFICATION-REPORT.md"
-move_file "docs/VERIFICATION-SUMMARY.md" "docs/reports/VERIFICATION-SUMMARY.md"
+move_file "docs/DEVELOPMENT-STATUS-UPDATE.md" "archive/docs/reports/DEVELOPMENT-STATUS-UPDATE.md"
+move_file "docs/DEVOPS-TOOLS-STATUS.md" "archive/docs/reports/DEVOPS-TOOLS-STATUS.md"
+move_file "docs/EXECUTION-REPORT-2025-12-13.md" "archive/docs/reports/EXECUTION-REPORT-2025-12-13.md"
+move_file "docs/EXEC-COMMS-STATUS.md" "archive/docs/reports/EXEC-COMMS-STATUS.md"
+move_file "docs/FEATURE-TEST-RESULTS.md" "archive/docs/reports/FEATURE-TEST-RESULTS.md"
+move_file "docs/FINAL-DEPLOYMENT-STATUS.md" "archive/docs/reports/FINAL-DEPLOYMENT-STATUS.md"
+move_file "docs/FINAL-REVIEW-SUMMARY.md" "archive/docs/reports/FINAL-REVIEW-SUMMARY.md"
+move_file "docs/QUICK-ACTION-STATUS.md" "archive/docs/reports/QUICK-ACTION-STATUS.md"
+move_file "docs/VERIFICATION-REPORT.md" "archive/docs/reports/VERIFICATION-REPORT.md"
+move_file "docs/VERIFICATION-SUMMARY.md" "archive/docs/reports/VERIFICATION-SUMMARY.md"
 
 # Move SWARM reports
 echo "Moving SWARM reports..."
 for file in docs/SWARM-*.md; do
     if [ -f "$file" ]; then
-        move_file "$file" "docs/reports/$(basename "$file")"
+        move_file "$file" "archive/docs/reports/$(basename "$file")"
     fi
 done
 
@@ -88,7 +88,7 @@ done
 echo "Moving incident reports..."
 for file in docs/STRIKE-TEAM-*.md; do
     if [ -f "$file" ]; then
-        move_file "$file" "docs/reports/incidents/$(basename "$file")"
+        move_file "$file" "archive/docs/reports/incidents/$(basename "$file")"
     fi
 done
 

@@ -37,7 +37,7 @@
 **Status**: Our clean GitHub repo
 - Latest organized structure
 - Clean root directory
-- All reports in docs/reports/
+- All reports in archive/docs/reports/
 
 **Good**: This is the authoritative source!
 

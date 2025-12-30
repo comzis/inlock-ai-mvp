@@ -142,7 +142,7 @@ All documentation properly organized in `docs/` subdirectories:
 - ✅ `docs/tooling-deployment/` - Tooling deployment guides
 - ✅ `docs/guides/` - Day-2 operations guides
 - ✅ `docs/reference/` - References and cheat sheets
-- ✅ `docs/reports/` - Status reports
+- ✅ `archive/docs/reports/` - Status reports
 - ✅ `docs/audit/` - Audit logs (this file)
 - ✅ `docs/backup/` - Backup documentation
 

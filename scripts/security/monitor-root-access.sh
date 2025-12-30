@@ -15,7 +15,7 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 AUTH_LOG="${AUTH_LOG:-/var/log/auth.log}"
-REPORT_DIR="$SCRIPT_DIR/docs/reports/security"
+REPORT_DIR="$SCRIPT_DIR/archive/docs/reports/security"
 WATCH_MODE=false
 GENERATE_REPORT=false
 ALERT_ON_UNUSUAL=false

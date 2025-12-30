@@ -119,7 +119,7 @@ docker compose -f compose/postgres.yml --env-file .env exec postgres psql -U n8n
 grep N8N_DB .env
 
 # 4. Check n8n database password secret
-cat /home/comzis/apps/secrets/n8n-db-password
+cat /home/comzis/apps/secrets-real/n8n-db-password
 
 # 5. Check n8n logs
 docker compose -f compose/n8n.yml --env-file .env logs n8n

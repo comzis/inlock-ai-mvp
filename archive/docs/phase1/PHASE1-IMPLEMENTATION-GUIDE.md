@@ -70,8 +70,8 @@ cd /home/comzis/projects/inlock-ai-mvp
 
 **Reports saved to:**
 ```
-docs/reports/security/vulnerabilities/container-scan-*.json
-docs/reports/security/vulnerabilities/container-scan-*.html
+archive/docs/reports/security/vulnerabilities/container-scan-*.json
+archive/docs/reports/security/vulnerabilities/container-scan-*.html
 ```
 
 ---
@@ -99,8 +99,8 @@ cd /home/comzis/projects/inlock-ai-mvp
 
 **Reports saved to:**
 ```
-docs/reports/security/vulnerabilities/image-scan-*.json
-docs/reports/security/vulnerabilities/image-scan-*.html
+archive/docs/reports/security/vulnerabilities/image-scan-*.json
+archive/docs/reports/security/vulnerabilities/image-scan-*.html
 ```
 
 ---
@@ -125,8 +125,8 @@ sudo ./scripts/security/scan-filesystem.sh --fail-on-critical
 
 **Reports saved to:**
 ```
-docs/reports/security/vulnerabilities/filesystem-scan-*.json
-docs/reports/security/vulnerabilities/filesystem-scan-*.html
+archive/docs/reports/security/vulnerabilities/filesystem-scan-*.json
+archive/docs/reports/security/vulnerabilities/filesystem-scan-*.html
 ```
 
 ---
@@ -263,7 +263,7 @@ cat docs/security/VULNERABILITY-SCANNING.md
 - [ ] Container scan script tested (`./scripts/security/scan-containers.sh`)
 - [ ] Image scan script tested (`./scripts/security/scan-images.sh`)
 - [ ] Filesystem scan script tested (`sudo ./scripts/security/scan-filesystem.sh`)
-- [ ] Reports generated in `docs/reports/security/vulnerabilities/`
+- [ ] Reports generated in `archive/docs/reports/security/vulnerabilities/`
 - [ ] GitHub Actions workflow file committed
 - [ ] Cron/systemd timer configured (optional)
 - [ ] Documentation reviewed
@@ -285,7 +285,7 @@ sudo ./scripts/security/install-trivy.sh
 ./scripts/security/scan-images.sh --compose-file compose/services/stack.yml
 
 # 4. Check reports
-ls -lh docs/reports/security/vulnerabilities/
+ls -lh archive/docs/reports/security/vulnerabilities/
 
 # 5. View documentation
 cat docs/security/VULNERABILITY-SCANNING.md
@@ -318,7 +318,7 @@ cat docs/security/VULNERABILITY-SCANNING.md
 **Issue:** Reports directory is empty
 
 **Solution:**
-- Verify output directory exists: `mkdir -p docs/reports/security/vulnerabilities/`
+- Verify output directory exists: `mkdir -p archive/docs/reports/security/vulnerabilities/`
 - Check script has write permissions
 - Review script logs for errors
 

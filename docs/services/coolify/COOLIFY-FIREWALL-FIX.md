@@ -31,7 +31,7 @@ Allow Docker networks (internal to the host) to connect to SSH port 22. This is 
 Run the firewall fix script:
 
 ```bash
-sudo /home/comzis/projects/inlock-ai-mvp/scripts/troubleshooting/fix-coolify-ssh-firewall.sh
+sudo /home/comzis/projects/inlock-ai-mvp/archive/scripts/troubleshooting/fix-coolify-ssh-firewall.sh
 ```
 
 **Or manually add the rules:**

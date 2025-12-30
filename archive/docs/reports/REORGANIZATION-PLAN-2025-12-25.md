@@ -68,7 +68,7 @@ This document tracks the reorganization of the project to fully comply with `.cu
 - `WEBSITE-LAUNCH-CHECKLIST.md`
 - `WORKFLOW-BEST-PRACTICES.md`
 
-#### → `docs/reports/`
+#### → `archive/docs/reports/`
 - `DEVELOPMENT-STATUS-UPDATE.md`
 - `DEVOPS-TOOLS-STATUS.md`
 - `EXECUTION-REPORT-2025-12-13.md`
@@ -90,7 +90,7 @@ This document tracks the reorganization of the project to fully comply with `.cu
 - `PORTAINER-PASSWORD-RECOVERY.md` → `docs/services/portainer/`
 - `COCKPIT-*.md` → `docs/services/cockpit/` (create directory)
 
-#### → `docs/reports/incidents/`
+#### → `archive/docs/reports/incidents/`
 - `STRIKE-TEAM-*.md` files
 
 #### → `docs/reference/`
