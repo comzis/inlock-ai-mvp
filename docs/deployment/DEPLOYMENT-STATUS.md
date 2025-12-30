@@ -48,6 +48,11 @@
 3. **Image Digest Pinning**
    - Follow `docs/image-pinning-guide.md`
    - Convert remaining tags to digests
+   - Deferred :latest exceptions (intentional):
+     - `compose/services/inlock-ai.yml` → `inlock-ai:latest` (local app image)
+     - `compose/services/docker-compose.local.yml` → `inlock-ai:latest` (dev-only)
+     - `compose/services/casaos.yml` → `linuxserver/heimdall:latest` (legacy/unused; replaced by Homarr)
+     - `compose/services/stack.yml` → commented `quay.io/cockpit/ws:latest` (inactive)
 
 4. **Observability Enhancements**
    - Dashboards for Traefik, backups, and container health (Prometheus is now online ✅)

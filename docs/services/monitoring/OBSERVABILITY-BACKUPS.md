@@ -375,7 +375,7 @@ git clone https://github.com/your-org/inlock-infra.git
 cd inlock-infra
 
 # Restore secrets (from secure location)
-cp /secure/backup/secrets/* /home/comzis/apps/secrets/
+cp /secure/backup/secrets/* /home/comzis/apps/secrets-real/
 
 # Deploy
 ./scripts/deploy-hardened-stack.sh

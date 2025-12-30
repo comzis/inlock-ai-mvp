@@ -65,4 +65,4 @@ volumes:
 
 secrets:
   n8n-db-password:
-    file: /home/comzis/apps/secrets/n8n-db-password
+    file: /home/comzis/apps/secrets-real/n8n-db-password

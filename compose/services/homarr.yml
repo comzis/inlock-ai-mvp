@@ -1,6 +1,6 @@
 services:
   homarr:
-    image: ghcr.io/ajnart/homarr:latest
+    image: ghcr.io/ajnart/homarr@sha256:737ec361ed248b6d2b62b037da816f283b0484e0b94bc9876945c7c602e7307c
     restart: always
     environment:
       - BASE_URL=https://dashboard.inlock.ai
@@ -9,12 +9,17 @@ services:
       - homarr_configs:/app/data/configs
       - homarr_icons:/app/public/icons
       - homarr_data:/data
-      - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
       - mgmt
       # SECURITY: Removed 'edge' network - access only via Traefik on mgmt network
     # Traefik router defined in traefik/dynamic/routers.yml (file provider)
     # No Docker labels required because Traefik no longer watches the Docker API
+    user: "1000:1000"
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://localhost:7575"]
       interval: 30s

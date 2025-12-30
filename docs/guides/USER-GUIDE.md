@@ -469,7 +469,7 @@ docker compose -f compose/stack.yml --env-file .env restart traefik
 1. ✅ Check logs: `docker logs <container-name>`
 2. ✅ Verify health check: `docker ps`
 3. ✅ Check resource limits: `docker stats`
-4. ✅ Verify secrets are configured: `ls -la /home/comzis/apps/secrets/`
+4. ✅ Verify secrets are configured: `ls -la /home/comzis/apps/secrets-real/`
 
 ### Portainer Permission Errors
 

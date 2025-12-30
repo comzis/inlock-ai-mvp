@@ -26,8 +26,6 @@ services:
       fi &&  npm install &&  npm run build &&  npm run start"
     volumes:
       - strapi_data:/srv/app
-    ports:
-      - "1337:1337"
     networks:
       - tooling_net
       - traefik_public
@@ -41,7 +39,7 @@ services:
       - "traefik.http.services.strapi.loadbalancer.server.port=1337"
 
   strapi_db:
-    image: postgres:15-alpine
+    image: postgres@sha256:2e7b888f221193cddee9ce554d3311dc8be197a5d0c904fe30f5f568e0f99851
     container_name: strapi_db
     restart: unless-stopped
     env_file: .env.tooling
@@ -59,7 +57,7 @@ services:
   # Based on PostHog's standard docker-compose
   # -------------------------------------------------------------------------
   posthog_db:
-    image: postgres:15-alpine
+    image: postgres@sha256:2e7b888f221193cddee9ce554d3311dc8be197a5d0c904fe30f5f568e0f99851
     container_name: posthog_db
     restart: unless-stopped
     environment:
@@ -72,7 +70,7 @@ services:
       - tooling_net
 
   posthog_redis:
-    image: redis:6-alpine
+    image: redis@sha256:37e002448575b32a599109664107e374c8709546905c372a34d64919043b9ceb
     container_name: posthog_redis
     restart: unless-stopped
     networks:
@@ -80,7 +78,7 @@ services:
 
   # ClickHouse for analytics data
   posthog_clickhouse:
-    image: clickhouse/clickhouse-server:24.3-alpine
+    image: clickhouse/clickhouse-server@sha256:c3f166f4a80098480463d897a63f6867d24e3a7661fc1fe72e889788115a25f1
     container_name: posthog_clickhouse
     restart: unless-stopped
     ulimits:
@@ -98,7 +96,7 @@ services:
 
   # Kafka + Zookeeper for event ingestion
   posthog_zookeeper:
-    image: confluentinc/cp-zookeeper:7.5.0
+    image: confluentinc/cp-zookeeper@sha256:02f6c042bb9a7844382fc4cedc513a44585d8a5acae873fb9e510e3ca9dcabc6
     container_name: posthog_zookeeper
     restart: unless-stopped
     environment:
@@ -108,7 +106,7 @@ services:
       - tooling_net
 
   posthog_kafka:
-    image: confluentinc/cp-kafka:7.5.0
+    image: confluentinc/cp-kafka@sha256:fbbb6fa11b258a88b83f54d4f0bddfcffbf2279f99d66a843486e3da7bdfbf41
     container_name: posthog_kafka
     restart: unless-stopped
     environment:
@@ -125,7 +123,7 @@ services:
 
   # PostHog Web (Django app)
   posthog_web:
-    image: posthog/posthog:latest
+    image: posthog/posthog@sha256:3079e0b6a10bbda02f0f325fcf0051316957b22a7800890e9811dc053f758761
     container_name: posthog_web
     restart: unless-stopped
     env_file: .env.tooling
@@ -154,7 +152,7 @@ services:
 
   # PostHog Async Workers
   posthog_worker:
-    image: posthog/posthog:latest
+    image: posthog/posthog@sha256:3079e0b6a10bbda02f0f325fcf0051316957b22a7800890e9811dc053f758761
     container_name: posthog_worker
     restart: unless-stopped
     command: ./bin/docker-worker
@@ -179,7 +177,7 @@ services:
       - tooling_net
 
   posthog_plugins:
-    image: posthog/posthog:latest
+    image: posthog/posthog@sha256:3079e0b6a10bbda02f0f325fcf0051316957b22a7800890e9811dc053f758761
     container_name: posthog_plugins
     restart: unless-stopped
     command: ./bin/docker-plugins-server

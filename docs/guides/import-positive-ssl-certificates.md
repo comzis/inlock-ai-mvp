@@ -48,37 +48,37 @@ The script will:
 If you have an intermediate certificate, combine it with your main certificate:
 
 ```bash
-cat /path/to/certificate.crt /path/to/intermediate.crt > /home/comzis/apps/secrets/positive-ssl.crt
+cat /path/to/certificate.crt /path/to/intermediate.crt > /home/comzis/apps/secrets-real/positive-ssl.crt
 ```
 
 If you don't have an intermediate, just copy the certificate:
 
 ```bash
-cp /path/to/certificate.crt /home/comzis/apps/secrets/positive-ssl.crt
+cp /path/to/certificate.crt /home/comzis/apps/secrets-real/positive-ssl.crt
 ```
 
 ### Step 2: Copy Private Key
 
 ```bash
-cp /path/to/private.key /home/comzis/apps/secrets/positive-ssl.key
+cp /path/to/private.key /home/comzis/apps/secrets-real/positive-ssl.key
 ```
 
 ### Step 3: Set Permissions
 
 ```bash
-chmod 600 /home/comzis/apps/secrets/positive-ssl.crt
-chmod 600 /home/comzis/apps/secrets/positive-ssl.key
+chmod 600 /home/comzis/apps/secrets-real/positive-ssl.crt
+chmod 600 /home/comzis/apps/secrets-real/positive-ssl.key
 ```
 
 ### Step 4: Verify Certificate
 
 ```bash
 # Check certificate details
-openssl x509 -in /home/comzis/apps/secrets/positive-ssl.crt -noout -text | head -20
+openssl x509 -in /home/comzis/apps/secrets-real/positive-ssl.crt -noout -text | head -20
 
 # Verify certificate matches key
-openssl x509 -noout -modulus -in /home/comzis/apps/secrets/positive-ssl.crt | openssl md5
-openssl rsa -noout -modulus -in /home/comzis/apps/secrets/positive-ssl.key | openssl md5
+openssl x509 -noout -modulus -in /home/comzis/apps/secrets-real/positive-ssl.crt | openssl md5
+openssl rsa -noout -modulus -in /home/comzis/apps/secrets-real/positive-ssl.key | openssl md5
 # These should match!
 ```
 
@@ -106,7 +106,7 @@ docker logs compose-traefik-1 --tail 50 | grep -i certificate
 - Convert DER to PEM: `openssl x509 -inform DER -in cert.der -out cert.pem`
 
 ### "Certificate expired"
-- Check expiry: `openssl x509 -in /home/comzis/apps/secrets/positive-ssl.crt -noout -enddate`
+- Check expiry: `openssl x509 -in /home/comzis/apps/secrets-real/positive-ssl.crt -noout -enddate`
 - You may need to renew the certificate
 
 ### Traefik shows errors
@@ -116,8 +116,8 @@ docker logs compose-traefik-1 --tail 50 | grep -i certificate
 
 ## File Locations Summary
 
-- **Certificate**: `/home/comzis/apps/secrets/positive-ssl.crt`
-- **Private Key**: `/home/comzis/apps/secrets/positive-ssl.key`
+- **Certificate**: `/home/comzis/apps/secrets-real/positive-ssl.crt`
+- **Private Key**: `/home/comzis/apps/secrets-real/positive-ssl.key`
 - **CSR (reference)**: `/home/comzis/inlock-infra/secrets/inlock-ai.csr`
 
 ## Quick Check After Installation

@@ -5,6 +5,11 @@ http:
       service: strapi
       entryPoints:
         - websecure
+      middlewares:
+        - secure-headers
+        - allowed-admins
+        - admin-forward-auth
+        - mgmt-ratelimit
       tls:
         certResolver: le-dns
 
@@ -13,6 +18,11 @@ http:
       service: posthog
       entryPoints:
         - websecure
+      middlewares:
+        - secure-headers
+        - allowed-admins
+        - admin-forward-auth
+        - mgmt-ratelimit
       tls:
         certResolver: le-dns
 

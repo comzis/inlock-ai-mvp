@@ -2,7 +2,7 @@
 
 **⚠️ IMPORTANT: This directory contains only `.example` placeholder files.**
 
-**Real secrets are stored in:** `/home/comzis/apps/secrets/` (outside this repository)
+**Real secrets are stored in:** `/home/comzis/apps/secrets-real/` (outside this repository)
 
 ## Purpose
 
@@ -31,7 +31,7 @@ See [docs/SECRET-MANAGEMENT.md](../docs/SECRET-MANAGEMENT.md) for detailed instr
 ## Security
 
 - **Never commit real secrets to Git**
-- All real secrets are in `/home/comzis/apps/secrets/` (excluded from Git)
+- All real secrets are in `/home/comzis/apps/secrets-real/` (excluded from Git)
 - Secret files have `600` permissions (owner read/write only)
 - Secret directory has `700` permissions (owner access only)
 
@@ -39,12 +39,12 @@ See [docs/SECRET-MANAGEMENT.md](../docs/SECRET-MANAGEMENT.md) for detailed instr
 
 ```bash
 # Check if secrets are installed
-ls -la /home/comzis/apps/secrets/
+ls -la /home/comzis/apps/secrets-real/
 
 # Verify permissions
-ls -l /home/comzis/apps/secrets/* | grep -v "^total"
+ls -l /home/comzis/apps/secrets-real/* | grep -v "^total"
 
 # Set correct permissions
-chmod 600 /home/comzis/apps/secrets/*
-chmod 700 /home/comzis/apps/secrets/
+chmod 600 /home/comzis/apps/secrets-real/*
+chmod 700 /home/comzis/apps/secrets-real/
 ```

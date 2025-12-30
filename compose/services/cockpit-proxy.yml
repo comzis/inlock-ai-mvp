@@ -2,7 +2,7 @@
 # This container runs on the edge network and proxies to host Cockpit
 services:
   cockpit-proxy:
-    image: alpine/socat:latest
+    image: alpine/socat@sha256:c784805dfa575bc66a20850d0857cc7b524923de3cda694e95b8064256de176c
     restart: always
     networks:
       - edge

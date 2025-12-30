@@ -41,7 +41,7 @@ Portainer is protected by IP allowlist middleware that restricts access to Tails
 
 The admin password is stored in:
 - Docker secret: `portainer_admin_password`
-- File: `/home/comzis/apps/secrets/portainer-admin-password`
+- File: `/home/comzis/apps/secrets-real/portainer-admin-password`
 
 **On first access:**
 - You'll be prompted to create an admin account

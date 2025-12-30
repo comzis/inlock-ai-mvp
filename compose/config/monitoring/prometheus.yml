@@ -1,6 +1,6 @@
 services:
   prometheus:
-    image: prom/prometheus:latest
+  image: prom/prometheus@sha256:d936808bdea528155c0154a922cd42fd75716b8bb7ba302641350f9f3eaeba09
     restart: always
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'

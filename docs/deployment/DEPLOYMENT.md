@@ -158,7 +158,7 @@ sudo docker logs n8n
 
 1. **Verify secrets location**:
    ```bash
-   ls -la /home/comzis/apps/secrets/
+   ls -la /home/comzis/apps/secrets-real/
    ```
    Should contain:
    - `positive-ssl.crt` / `positive-ssl.key`
@@ -169,7 +169,7 @@ sudo docker logs n8n
 
 2. **Set permissions**:
    ```bash
-   sudo chmod 600 /home/comzis/apps/secrets/*
+   sudo chmod 600 /home/comzis/apps/secrets-real/*
    ```
 
 3. **Rotate credentials**: If any secrets were previously committed to Git, rotate them immediately.
@@ -207,7 +207,7 @@ For interface-level isolation, consider binding admin services to Tailscale inte
 - [ ] Tailnet status captured and archived
 - [ ] IP allowlists updated with real `/32` addresses
 - [ ] Firewall rules applied and verified
-- [ ] Secrets migrated to external path (`/home/comzis/apps/secrets/`)
+- [ ] Secrets migrated to external path (`/home/comzis/apps/secrets-real/`)
 - [ ] All credentials rotated (if previously committed)
 - [ ] Compose config validates successfully
 - [ ] Stack deployed and services running

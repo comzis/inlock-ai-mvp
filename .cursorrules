@@ -90,7 +90,7 @@ inlock-ai-mvp/
    - Day-2 Operations: `docs/guides/`
    - Architecture/Design: `docs/architecture/`
    - References/Cheat Sheets: `docs/reference/`
-   - Reports/Status: `docs/reports/`
+   - Reports/Status: `archive/docs/reports/`
    - Security Docs: `docs/security/`
    - Service Docs: `docs/services/`
    - Documentation Index: `docs/index.md`
@@ -131,7 +131,7 @@ inlock-ai-mvp/
    - Day-2/Operations guides → `docs/guides/`
    - Architecture/Design docs → `docs/architecture/`
    - References/Cheat sheets → `docs/reference/`
-   - Reports/Status → `docs/reports/`
+   - Reports/Status → `archive/docs/reports/`
    - Security docs → `docs/security/`
    - Service-specific docs → `docs/services/`
    - Keep root directory clean (only README, QUICK-START, etc.)
@@ -238,7 +238,7 @@ docker compose -f compose/<service>.yml \
 
 ### Organizing Files
 
-- **Status reports** → `docs/reports/<topic>/`
+- **Status reports** → `archive/docs/reports/<topic>/`
 - **Audit logs** → `docs/audit/`
 - **Deployment guides** → `docs/deployment/` and `docs/tooling-deployment/`
 - **Day-2 Operations** → `docs/guides/`

@@ -17,7 +17,7 @@ This contains infrastructure hardening and operational tasks. Many items overlap
 - ✅ Fixed Rspamd/Dovecot crashes
 - ✅ Resolved subnet mismatches
 - ✅ Enabled contact form email delivery
-- ✅ Comprehensive documentation in `docs/reports/mailu/`
+- ✅ Comprehensive documentation in `archive/docs/reports/mailu/`
 
 **Evidence:** 
 - Merged commit: `c8fde05` - Mailu fixes
@@ -32,7 +32,7 @@ This contains infrastructure hardening and operational tasks. Many items overlap
 
 **Evidence:**
 - Root directory: 40+ files → 3 files (95% cleaner)
-- All reports in `docs/reports/` by topic
+- All reports in `archive/docs/reports/` by topic
 - Unified deployment workflow
 
 #### 3. **Infrastructure Fixes** - PARTIALLY DONE

@@ -9,9 +9,9 @@ echo "=========================================="
 echo ""
 
 # Check if certificates are already installed
-if [ -f "/home/comzis/apps/secrets/positive-ssl.crt" ] && [ -s "/home/comzis/apps/secrets/positive-ssl.crt" ]; then
+if [ -f "/home/comzis/apps/secrets-real/positive-ssl.crt" ] && [ -s "/home/comzis/apps/secrets-real/positive-ssl.crt" ]; then
   echo "⚠️  Found existing certificate file"
-  openssl x509 -in /home/comzis/apps/secrets/positive-ssl.crt -noout -subject -dates 2>/dev/null || echo "  (File exists but may not be valid)"
+  openssl x509 -in /home/comzis/apps/secrets-real/positive-ssl.crt -noout -subject -dates 2>/dev/null || echo "  (File exists but may not be valid)"
   echo ""
 fi
 

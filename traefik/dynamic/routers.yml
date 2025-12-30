@@ -24,6 +24,7 @@ http:
       rule: Host(`traefik.inlock.ai`) && (PathPrefix(`/dashboard`) || (PathPrefix(`/api/`) && !Path(`/api`) && !Path(`/api/`)))
       middlewares:
         - secure-headers
+        - allowed-admins
         - admin-forward-auth
         - mgmt-ratelimit
       service: api@internal
@@ -48,6 +49,7 @@ http:
       rule: Host(`portainer.inlock.ai`)
       middlewares:
         - secure-headers
+        - allowed-admins
         - admin-forward-auth
         - mgmt-ratelimit
       service: portainer
@@ -60,6 +62,7 @@ http:
       rule: Host(`n8n.inlock.ai`)
       middlewares:
         - n8n-headers
+        - allowed-admins
         - admin-forward-auth
         # mgmt-ratelimit removed - was causing 429 errors on asset loading
       service: n8n
@@ -73,6 +76,7 @@ http:
       rule: Host(`grafana.inlock.ai`)
       middlewares:
         - secure-headers
+        - allowed-admins
         - admin-forward-auth
         - mgmt-ratelimit
       service: grafana
@@ -85,6 +89,7 @@ http:
       rule: Host(`deploy.inlock.ai`)
       middlewares:
         - coolify-headers
+        - allowed-admins
         - admin-forward-auth
         - mgmt-ratelimit
       service: coolify
@@ -100,6 +105,7 @@ http:
       rule: Host(`dashboard.inlock.ai`)
       middlewares:
         - secure-headers
+        - allowed-admins
         - admin-forward-auth
       service: homarr
       tls:
@@ -111,6 +117,7 @@ http:
       rule: Host(`cockpit.inlock.ai`)
       middlewares:
         - cockpit-headers
+        - allowed-admins
         - admin-forward-auth
         - mgmt-ratelimit
       service: cockpit
@@ -123,6 +130,7 @@ http:
       rule: Host(`auth.inlock.ai`) && PathPrefix(`/oauth2/`)
       middlewares:
         - secure-headers
+        - allowed-admins
         - mgmt-ratelimit
       service: oauth2-proxy
       tls:
@@ -140,6 +148,7 @@ http:
       rule: Host(`auth.inlock.ai`) && Path(`/`)
       middlewares:
         - secure-headers
+        - allowed-admins
         - oauth2-to-deploy-redirect
       service: noop@internal
       tls:

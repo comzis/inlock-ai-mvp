@@ -96,7 +96,7 @@ docker exec compose-postgres-1 pg_dump -U n8n n8n > backup.sql
 - **Compose Files**: `compose/stack.yml`, `compose/postgres.yml`, `compose/n8n.yml`
 - **Traefik Config**: `traefik/traefik.yml`, `traefik/dynamic/`
 - **Environment**: `.env` (not in git)
-- **Secrets**: `/home/comzis/apps/secrets/` (not in git)
+- **Secrets**: `/home/comzis/apps/secrets-real/` (not in git)
 
 ## 📞 Support
 

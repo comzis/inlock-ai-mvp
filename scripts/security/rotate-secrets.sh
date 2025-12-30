@@ -5,8 +5,8 @@ set -euo pipefail
 # Ensures real secrets are outside repo and only .example files remain
 
 SECRETS_DIR="secrets"
-EXTERNAL_SECRETS="/home/comzis/apps/secrets"
-BACKUP_DIR="/home/comzis/apps/secrets/backup-$(date +%F-%H%M%S)"
+EXTERNAL_SECRETS="/home/comzis/apps/secrets-real"
+BACKUP_DIR="/home/comzis/apps/secrets-real/backup-$(date +%F-%H%M%S)"
 
 echo "Secret Rotation and Migration Script"
 echo "===================================="

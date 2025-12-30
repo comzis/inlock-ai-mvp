@@ -1,16 +1,17 @@
 services:
   coolify:
-    image: ghcr.io/coollabsio/coolify:latest
+    image: ghcr.io/coollabsio/coolify@sha256:e9468bfe9dd6fc1e50515a60ee2b1c3819c9e02575963060438f1d65f77bdcc0
     restart: always
     # Exposed only through Traefik (no host port bindings)
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
       - /data/coolify:/data/coolify
       - /data/coolify/ssh:/var/www/html/storage/app/ssh
       - /data/coolify/applications:/var/www/html/storage/app/applications
       - /data/coolify/databases:/var/www/html/storage/app/databases
       - /data/coolify/backups:/var/www/html/storage/app/backups
     environment:
+      - DOCKER_HOST=tcp://docker-socket-proxy:2375
+      - DOCKER_API_VERSION=1.46
       - APP_ID=${APP_ID:-coolify}
       - APP_NAME=Coolify
       - APP_ENV=production
@@ -37,6 +38,13 @@ services:
     networks:
       - coolify
       - mgmt
+      - socket-proxy
+    user: "1000:1000"
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
       interval: 30s
@@ -47,7 +55,7 @@ services:
       - coolify-postgres
 
   coolify-redis:
-    image: redis:alpine
+    image: redis@sha256:37e002448575b32a599109664107e374c8709546905c372a34d64919043b9ceb
     restart: always
     command: sh -c "if [ -n \"$$REDIS_PASSWORD\" ]; then redis-server --requirepass $$REDIS_PASSWORD --port 6380; else redis-server --port 6380; fi"
     ports:
@@ -63,7 +71,7 @@ services:
       retries: 3
 
   coolify-postgres:
-    image: postgres:15-alpine
+    image: postgres@sha256:2e7b888f221193cddee9ce554d3311dc8be197a5d0c904fe30f5f568e0f99851
     restart: always
     environment:
       - POSTGRES_USER=coolify
@@ -82,7 +90,7 @@ services:
       retries: 3
 
   coolify-soketi:
-    image: quay.io/soketi/soketi:latest-16-alpine
+    image: quay.io/soketi/soketi@sha256:fe7e68cdec157343b40cdbe604dd3ca2788d3fbf5624d3ab8f085b623d700ece
     restart: always
     environment:
       - SOKETI_DEFAULT_APP_ID=coolify
@@ -105,6 +113,9 @@ networks:
   coolify:
     name: coolify
     driver: bridge
+  socket-proxy:
+    external: true
+    name: socket-proxy
 
 volumes:
   coolify_redis:

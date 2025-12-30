@@ -110,9 +110,9 @@ echo ""
 # Test certificate
 echo "=== Certificate Test ==="
 echo ""
-if [ -f "/home/comzis/apps/secrets/positive-ssl.crt" ]; then
-    CERT_SUBJECT=$(openssl x509 -in /home/comzis/apps/secrets/positive-ssl.crt -noout -subject 2>/dev/null | sed 's/subject=//')
-    CERT_EXPIRY=$(openssl x509 -in /home/comzis/apps/secrets/positive-ssl.crt -noout -enddate 2>/dev/null | sed 's/notAfter=//')
+if [ -f "/home/comzis/apps/secrets-real/positive-ssl.crt" ]; then
+    CERT_SUBJECT=$(openssl x509 -in /home/comzis/apps/secrets-real/positive-ssl.crt -noout -subject 2>/dev/null | sed 's/subject=//')
+    CERT_EXPIRY=$(openssl x509 -in /home/comzis/apps/secrets-real/positive-ssl.crt -noout -enddate 2>/dev/null | sed 's/notAfter=//')
     echo "✅ Certificate installed"
     echo "  Subject: $CERT_SUBJECT"
     echo "  Expires: $CERT_EXPIRY"

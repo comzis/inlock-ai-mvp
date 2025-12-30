@@ -41,6 +41,21 @@ This document defines the lifecycle management for all secrets used in the Inloc
 - **Last Rotated:** [Update after rotation]
 - **Access:** `/opt/inlock-ai-secure-mvp/.env.production`
 
+## Rotation Log (update after every change)
+
+| Secret / Token                    | Location                                         | Cadence        | Last Rotated | Next Due      | Notes                                  |
+|-----------------------------------|--------------------------------------------------|----------------|--------------|---------------|----------------------------------------|
+| Cloudflare API Token              | `/home/comzis/inlock-infra/.env` (`CLOUDFLARE_API_TOKEN`) | Annually       | yyyy-mm-dd   | yyyy-mm-dd    | Scoped DNS-edit token                  |
+| Traefik basic auth (htpasswd)     | `/home/comzis/apps/secrets-real/traefik-dashboard-users.htpasswd` | Quarterly      | yyyy-mm-dd   | yyyy-mm-dd    | Admin dashboard protection             |
+| Portainer admin password          | `/home/comzis/apps/secrets-real/portainer-admin-password` | Quarterly      | yyyy-mm-dd   | yyyy-mm-dd    |                                        |
+| Grafana admin password            | `/home/comzis/apps/secrets-real/grafana-admin-password` | Quarterly      | yyyy-mm-dd   | yyyy-mm-dd    |                                        |
+| n8n DB password                   | `/home/comzis/apps/secrets-real/n8n-db-password` | Quarterly      | yyyy-mm-dd   | yyyy-mm-dd    |                                        |
+| n8n encryption key                | `/home/comzis/apps/secrets-real/n8n-encryption-key` | Semi-annual    | yyyy-mm-dd   | yyyy-mm-dd    | Rotates with DB when feasible          |
+| Inlock DB password                | `/home/comzis/apps/secrets-real/inlock-db-password` | Quarterly      | yyyy-mm-dd   | yyyy-mm-dd    |                                        |
+| PositiveSSL certificate & key     | `/home/comzis/apps/secrets-real/positive-ssl.{crt,key}` | Annual/expiry  | yyyy-mm-dd   | expiry date   | Renew if <30 days remaining            |
+| App secrets (NextAuth, etc.)      | `/opt/inlock-ai-secure-mvp/.env.production`      | Monthly        | yyyy-mm-dd   | yyyy-mm-dd    | Includes NEXTAUTH_SECRET, OAuth creds  |
+| Auth0 admin/management client sec | `/home/comzis/inlock-infra/.env` and `/opt/inlock-ai-secure-mvp/.env.production` | Semi-annual    | yyyy-mm-dd   | yyyy-mm-dd    | Rotate with M2M secret lifecycle       |
+
 ## Rotation Procedures
 
 ### Cloudflare API Token
@@ -176,6 +191,41 @@ Add to `scripts/deploy-manual.sh` pre-deployment check:
 - [ ] Database credentials rotated in last 90 days
 - [ ] Application secrets rotated in last 30 days
 - [ ] Traefik basic auth rotated in last 90 days
+
+## Automated Audit
+
+- Run `./scripts/security/audit-secrets-age.sh` to flag overdue secrets by file mtime and SSL expiry.
+- Update the rotation log table above after each change.
+- Exit code is non-zero if any item is missing or past due; use in CI or cron.
+
+### Checksums (tamper detection)
+
+- Generate checksum manifest:
+  ```bash
+  SECRETS_DIR=/home/comzis/apps/secrets-real \
+  ./scripts/security/generate-secrets-checksums.sh
+  ```
+- Store `secrets.sha256` in a secure location; compare against a known-good copy to detect unexpected changes:
+  ```bash
+  cd /home/comzis/apps/secrets-real
+  sha256sum -c secrets.sha256
+  ```
+
+### Automation (recommended)
+
+- **Cron (monthly):**
+  ```cron
+  # Run audit with live env file
+  0 3 1 * * cd /home/comzis/.cursor/worktrees/inlock-ai__Workspace___SSH__inlock_/uwe && ENV_FILE=/home/comzis/inlock/.env ./scripts/security/audit-secrets-age.sh >> /var/log/inlock-secrets-audit.log
+  # After authorized rotations, regenerate checksums and archive off-host
+  5 3 1 * * cd /home/comzis/.cursor/worktrees/inlock-ai__Workspace___SSH__inlock_/uwe && SECRETS_DIR=/home/comzis/apps/secrets-real ./scripts/security/generate-secrets-checksums.sh >> /var/log/inlock-secrets-audit.log
+  ```
+  - Alert on non-zero exit for the audit job.
+  - Store `secrets.sha256` securely off-host and compare against the known-good copy when investigating.
+
+- **CI guardrail:**
+  - Add a CI job to run `scripts/security/audit-secrets-age.sh` (with mocked paths or secrets provided in CI).
+  - Add secret scanning (gitleaks/trufflehog) to fail on committed secrets.
 
 ## Secret Storage Security
 

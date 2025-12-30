@@ -103,12 +103,12 @@ docker network create socket-proxy 2>/dev/null || true
 
 **Ensure secrets exist at external path:**
 ```bash
-mkdir -p /home/comzis/apps/secrets
-chmod 700 /home/comzis/apps/secrets
+mkdir -p /home/comzis/apps/secrets-real
+chmod 700 /home/comzis/apps/secrets-real
 
 # Create placeholder files (replace with real values)
-touch /home/comzis/apps/secrets/{positive-ssl.crt,positive-ssl.key,traefik-dashboard-users.htpasswd,portainer-admin-password,n8n-db-password,n8n-encryption-key}
-chmod 600 /home/comzis/apps/secrets/*
+touch /home/comzis/apps/secrets-real/{positive-ssl.crt,positive-ssl.key,traefik-dashboard-users.htpasswd,portainer-admin-password,n8n-db-password,n8n-encryption-key}
+chmod 600 /home/comzis/apps/secrets-real/*
 ```
 
 **Or use the rotation script:**
@@ -202,7 +202,7 @@ allowed-admins:
 
 1. Check logs: `docker logs <container-name>`
 2. Verify networks: `docker network ls`
-3. Check secrets: `ls -la /home/comzis/apps/secrets/`
+3. Check secrets: `ls -la /home/comzis/apps/secrets-real/`
 4. Validate config: `docker compose config`
 
 ## Quick Reference

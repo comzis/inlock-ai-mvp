@@ -24,14 +24,14 @@ Place the files in the secrets directory:
 
 ```bash
 # Certificate (may need to combine with intermediate)
-cat your-certificate.crt your-intermediate.crt > /home/comzis/apps/secrets/positive-ssl.crt
+cat your-certificate.crt your-intermediate.crt > /home/comzis/apps/secrets-real/positive-ssl.crt
 
 # Private key (the one you used to generate the CSR)
-cp your-private.key /home/comzis/apps/secrets/positive-ssl.key
+cp your-private.key /home/comzis/apps/secrets-real/positive-ssl.key
 
 # Set permissions
-chmod 600 /home/comzis/apps/secrets/positive-ssl.crt
-chmod 600 /home/comzis/apps/secrets/positive-ssl.key
+chmod 600 /home/comzis/apps/secrets-real/positive-ssl.crt
+chmod 600 /home/comzis/apps/secrets-real/positive-ssl.key
 ```
 
 ## Step 4: Restart Traefik
@@ -91,10 +91,8 @@ When renewing or replacing certificates:
 
 3. **Update Docker secrets:**
    ```bash
-   # Copy to secrets directory (Docker Compose reads from here)
-   cp /home/comzis/apps/secrets-real/positive-ssl.crt /home/comzis/apps/secrets/positive-ssl.crt
-   cp /home/comzis/apps/secrets-real/positive-ssl.key /home/comzis/apps/secrets/positive-ssl.key
-   chmod 600 /home/comzis/apps/secrets/positive-ssl.*
+   # Docker Compose reads directly from /home/comzis/apps/secrets-real/
+   chmod 600 /home/comzis/apps/secrets-real/positive-ssl.*
    ```
 
 4. **Restart Traefik:**

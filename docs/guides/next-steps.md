@@ -57,7 +57,7 @@ Expected output should show:
 - Allowed: 41641/udp (Tailscale), 22/tcp (SSH), 80/tcp, 443/tcp
 
 ### 4. Migrate Secrets (If Not Already Done)
-Secrets should be at `/home/comzis/apps/secrets/` (outside repo):
+Secrets should be at `/home/comzis/apps/secrets-real/` (outside repo):
 
 - `positive-ssl.crt` / `positive-ssl.key`
 - `traefik-dashboard-users.htpasswd`
@@ -67,7 +67,7 @@ Secrets should be at `/home/comzis/apps/secrets/` (outside repo):
 
 **Action**:
 1. Verify secrets are at external path (not in `inlock-infra/secrets/`)
-2. Ensure permissions: `chmod 600 /home/comzis/apps/secrets/*`
+2. Ensure permissions: `chmod 600 /home/comzis/apps/secrets-real/*`
 3. Rotate all credentials that were previously committed to Git
 4. Keep only `.example` placeholders in repo
 

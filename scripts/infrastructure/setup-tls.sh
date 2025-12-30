@@ -46,8 +46,8 @@ echo "✅ Cloudflare API token configured"
 echo ""
 
 # Check PositiveSSL certs
-POSITIVE_SSL_CERT="/home/comzis/apps/secrets/positive-ssl.crt"
-POSITIVE_SSL_KEY="/home/comzis/apps/secrets/positive-ssl.key"
+POSITIVE_SSL_CERT="/home/comzis/apps/secrets-real/positive-ssl.crt"
+POSITIVE_SSL_KEY="/home/comzis/apps/secrets-real/positive-ssl.key"
 
 if [ ! -f "$POSITIVE_SSL_CERT" ] || [ ! -s "$POSITIVE_SSL_CERT" ]; then
   echo "⚠️  PositiveSSL certificate not found or empty: $POSITIVE_SSL_CERT"
