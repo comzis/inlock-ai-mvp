@@ -110,3 +110,6 @@ echo "Commit with: git commit -m 'docs: reorganize documentation per cursor rule
 
 
 
+
+
+

@@ -1,139 +1,261 @@
-# Security Rules for Inlock AI Infrastructure
+# Security Maintenance Rules for AI Assistants
 
-## 🔒 CRITICAL SECURITY RULES - NEVER VIOLATE
-
-### Firewall & Network Security
-- **NEVER** open firewall ports without explicit user approval
-- **NEVER** modify SSH configuration without explicit user approval  
-- **NEVER** change sudo/root access without explicit user approval
-- **NEVER** disable firewall rules without explicit user approval
-- Server maintains **10/10 security score** - preserve it at all costs
-- Always verify firewall impact before making changes
-- Document all firewall changes in security audit logs
-
-### Secrets Management
-- **NEVER** commit secrets, passwords, or tokens to Git
-- **NEVER** hardcode credentials in code or configuration files
-- **NEVER** log secrets or sensitive data
-- Always use Docker secrets or environment variables for sensitive data
-- Verify `.gitignore` before committing files with sensitive data
-- Use `/home/comzis/apps/secrets-real/` for actual secrets (NOT in repo)
-- Only commit `.example` placeholder files in `secrets/` directory
-
-### Authentication & Authorization
-- All admin services **MUST** use Auth0 + OAuth2-Proxy
-- **CRITICAL**: IP allowlist middlewares (`allowed-admins`) must **NEVER** be placed AFTER `admin-forward-auth` middleware
-  - IP allowlists block authenticated users if placed after authentication middleware
-  - Auth0 authentication provides sufficient security - IP allowlists are redundant after auth
-  - If IP restrictions are needed, they should be placed BEFORE authentication (blocks before auth, not after)
-- Never bypass authentication for convenience
-- Never remove authentication middleware without explicit approval
-- Always verify Auth0 configuration before deploying changes
-- Test authentication flows after any changes
-- When configuring Traefik routers with `admin-forward-auth`, do NOT include `allowed-admins` middleware
-
-### Container Security
-- Always drop **ALL** capabilities (`cap_drop: ALL`)
-- Always use `no-new-privileges: true`
-- Prefer read-only filesystems where possible
-- Use non-root users where possible
-- Pin images to specific digests in production (not `latest`)
-- Never run containers with `privileged: true` without explicit approval
-- Always include health checks for services
-- Set resource limits (memory, CPU) for all containers
-
-### Network Isolation
-- Admin services: **Only** on `mgmt` network
-- Public services: **Only** on `edge` network via Traefik
-- Internal services: **Only** on `internal` network
-- Never expose internal services directly to public networks
-- Use Docker socket proxy for container management (never direct socket access)
-- Verify network isolation after any service changes
-
-### TLS/SSL Security
-- Always use TLS for external services
-- Never disable certificate validation
-- Use PositiveSSL for apex domain (`inlock.ai`)
-- Use Let's Encrypt for subdomains
-- Verify certificate validity before deployment
-- Never commit certificate files or keys
-
-### Access Control
-- Always use IP allowlists for admin services
-- Verify Tailscale IPs are current before updating allowlists
-- Test access control from unauthorized IPs after changes
-- Document all access control changes
-- Never remove IP restrictions without replacement
-
-## ⚠️ Before Making Security Changes
-
-1. **Review Impact**: Understand how changes affect security posture
-2. **Test First**: Test in non-production environment when possible
-3. **Document**: Document changes in security audit logs (`docs/security/`)
-4. **Verify**: Verify no regression in security score
-5. **Get Approval**: Get explicit user approval for firewall/SSH/sudo changes
-
-## 🛡️ Security Best Practices
-
-### When Adding New Services
-1. Place on appropriate network (`edge`, `mgmt`, or `internal`)
-2. Add IP allowlist middleware if admin service
-3. Configure Auth0 + OAuth2-Proxy if admin service
-4. Add health checks
-5. Set resource limits
-6. Drop all capabilities
-7. Use `no-new-privileges`
-8. Document in security audit
-
-### When Modifying Existing Services
-1. Review current security configuration
-2. Ensure changes don't reduce security posture
-3. Test authentication/authorization after changes
-4. Verify network isolation maintained
-5. Update documentation if security model changes
-
-### When Troubleshooting
-1. Never disable security controls as a workaround
-2. Never expose services directly to fix connectivity
-3. Never commit temporary security bypasses
-4. Always restore security controls after troubleshooting
-5. Document security implications of any workarounds
-
-## 🚨 Security Incident Response
-
-If security is compromised:
-1. **Immediately** notify user
-2. **Do NOT** make changes without approval
-3. Document the incident in `docs/security/`
-4. Preserve logs and evidence
-5. Follow user's instructions for remediation
-
-## 📋 Security Checklist
-
-Before committing any changes, verify:
-- [ ] No secrets in code or config files
-- [ ] `.env` files are in `.gitignore`
-- [ ] No hardcoded credentials
-- [ ] Firewall rules reviewed (if changed)
-- [ ] Network isolation maintained
-- [ ] Authentication/authorization intact
-- [ ] Container security settings applied
-- [ ] Documentation updated if security model changed
-- [ ] Security score impact assessed
-
-## 🔍 Security Validation
-
-After making changes:
-1. Run security validation scripts if available
-2. Verify firewall status: `sudo ufw status verbose`
-3. Check container security: `docker inspect <container> | grep -i security`
-4. Test access control from unauthorized IPs
-5. Verify authentication flows
-6. Check logs for security warnings
+**Purpose:** Maintain 10/10 security score during system maintenance  
+**Audience:** Cursor AI, Antigravity, and other AI coding assistants  
+**Last Updated:** 2025-12-15
 
 ---
 
-**Remember**: Security is not optional. When in doubt, ask for explicit approval before making security-related changes.
+## 🚨 CRITICAL: Never Break These Rules
 
-*Last Updated: 2025-12-25*  
-*Maintain this file as security requirements evolve*
+### 1. **NEVER Disable or Weaken These Security Features**
+
+| Feature | Status | Protected Configuration |
+|---------|--------|-------------------------|
+| UFW Firewall | ACTIVE | Must remain enabled |
+| Fail2Ban | ACTIVE | Must remain enabled and monitoring SSH |
+| Unattended-Upgrades | ACTIVE | Must remain enabled for auto-patching |
+| Tailscale SSH Restriction | ACTIVE | Port 22 ONLY accessible via Tailscale (100.64.0.0/10) |
+| Sudo Password Required | ENFORCED | NEVER add NOPASSWD back |
+
+### 2. **User Account Rules**
+
+**Allowed Users:**
+- `root` (system user, unavoidable)
+- `comzis` (primary admin with sudo)
+- `inlock-admin` (secondary admin)
+
+**Disabled Users (KEEP DISABLED):**
+- `ubuntu` (shell: `/usr/sbin/nologin`)
+
+**⚠️ NEVER:**
+- Re-enable shell access for `ubuntu`
+- Create new sudo users without explicit approval
+- Add `NOPASSWD` to any sudoers configuration
+- Grant sudo access to service accounts
+
+### 3. **Firewall Rules - DO NOT MODIFY**
+
+**Protected Rules:**
+```
+Port 22 → ONLY 100.64.0.0/10 (Tailscale)
+Port 80 → Any (HTTPS redirect only via Traefik)
+Port 443 → Any (HTTPS via Traefik)
+Port 41641/UDP → Any (Tailscale)
+```
+
+**Before Opening New Ports:**
+1. Ask user for explicit approval
+2. Document the service requiring the port
+3. Restrict to minimum necessary source IPs
+4. Add firewall rule comment explaining purpose
+
+---
+
+## ✅ Safe Maintenance Practices
+
+### Before Making System Changes
+
+**Pre-flight Checklist:**
+```bash
+# 1. Check security services are running
+systemctl status fail2ban unattended-upgrades ufw
+
+# 2. Verify firewall rules haven't changed
+sudo ufw status numbered
+
+# 3. Confirm sudo requires password
+sudo -k  # Clear sudo cache
+grep -r NOPASSWD /etc/sudoers /etc/sudoers.d/
+
+# 4. Verify ubuntu user is disabled
+grep ubuntu /etc/passwd | cut -d: -f7  # Should show /usr/sbin/nologin
+```
+
+### When Installing New Software
+
+**Safe Pattern:**
+```bash
+# 1. Use non-privileged installation when possible
+# Docker containers, user-space apps, etc.
+
+# 2. If system package needed:
+sudo apt update
+sudo apt install <package>  # Never use -y without reviewing
+
+# 3. After installation, re-verify security:
+systemctl status fail2ban  # Still running?
+sudo ufw status           # Rules unchanged?
+```
+
+### When Modifying Configuration Files
+
+**Protected Files (Require Extra Caution):**
+- `/etc/sudoers` and `/etc/sudoers.d/*`
+- `/etc/ssh/sshd_config`
+- `/etc/ufw/*`
+- `/etc/fail2ban/*`
+
+**Safe Edit Process:**
+1. Backup original: `sudo cp file file.backup.$(date +%Y%m%d)`
+2. Make changes
+3. Validate syntax (if applicable)
+4. Test with non-critical operation
+5. Verify security services still active
+
+---
+
+## 🔍 Security Verification Commands
+
+### Quick Security Check
+```bash
+# Run this after ANY system maintenance
+cat << 'EOF' | bash
+echo "=== Security Status ==="
+echo "Firewall: $(sudo ufw status | grep -c 'Status: active' && echo '✅ ACTIVE' || echo '❌ INACTIVE')"
+echo "Fail2Ban: $(systemctl is-active fail2ban)"
+echo "Auto-Updates: $(systemctl is-active unattended-upgrades)"
+echo "Ubuntu disabled: $(grep ubuntu /etc/passwd | grep -c nologin && echo '✅' || echo '❌')"
+echo "NOPASSWD: $(sudo grep -r NOPASSWD /etc/sudoers* 2>/dev/null | wc -l) findings (should be 0)"
+EOF
+```
+
+### Monthly Security Audit
+```bash
+# Check fail2ban activity
+sudo fail2ban-client status sshd
+
+# Review security updates
+cat /var/log/unattended-upgrades/unattended-upgrades.log | tail -20
+
+# Check for unauthorized sudo usage
+sudo grep COMMAND /var/log/auth.log | tail -20
+```
+
+---
+
+## 🛡️ Security Score Preservation
+
+**Current Score:** 10.0/10
+
+**Components Contributing to Score:**
+
+| Component | Points | How to Preserve |
+|-----------|--------|-----------------|
+| Firewall | 0.9 | Keep UFW active, don't add risky rules |
+| User Mgmt | 0.9 | No new users, keep ubuntu disabled |
+| Auth | 0.9 | Maintain password requirement for sudo |
+| Network | 0.9 | Keep SSH Tailscale-only |
+| Patching | 0.9 | Let unattended-upgrades run |
+| IDS | 0.5 | Keep fail2ban monitoring SSH |
+| Auto-Sec | 0.5 | Keep unattended-upgrades enabled |
+
+**If Score Drops Below 9.5:**
+1. Stop all maintenance
+2. Run security verification commands above
+3. Review recent changes
+4. Report to user before proceeding
+
+---
+
+## 📋 Common Maintenance Scenarios
+
+### Scenario 1: Installing a New Docker Service
+**Safe:** ✅
+- Docker containers run in isolated namespaces
+- No firewall changes if using Traefik reverse proxy
+- No sudo modifications needed
+
+**Action:** Proceed without special security considerations
+
+---
+
+### Scenario 2: Opening a New Port
+**Risky:** ⚠️
+
+**Required Steps:**
+1. Ask user: "What service needs port X and from which IPs?"
+2. Add MINIMAL rule: `sudo ufw allow from <specific-ip> to any port X`
+3. Document in comment: `sudo ufw rule comment X 'Purpose: <reason>'`
+4. Verify: `sudo ufw status numbered`
+
+---
+
+### Scenario 3: Creating a New System User
+**Risky:** ⚠️
+
+**Required Steps:**
+1. Explicitly ask user for approval
+2. Create without sudo: `sudo useradd -m -s /bin/bash username`
+3. Do NOT add to sudo group unless explicitly requested
+4. Document purpose in `/etc/passwd` comment or separate doc
+
+---
+
+### Scenario 4: Modifying SSH Configuration
+**High Risk:** 🔴
+
+**STOP and Ask User First**
+
+Common requests that are DANGEROUS:
+- ❌ Enabling password authentication
+- ❌ Allowing root login
+- ❌ Changing SSH port (breaks Tailscale integration)
+- ❌ Disabling key-only auth
+
+---
+
+## 🔧 Emergency Security Restore
+
+If security is accidentally degraded:
+
+```bash
+# 1. Re-enable firewall
+sudo ufw --force enable
+
+# 2. Restart fail2ban
+sudo systemctl restart fail2ban
+
+# 3. Remove NOPASSWD if added
+sudo sed -i '/NOPASSWD/d' /etc/sudoers.d/*
+
+# 4. Re-disable ubuntu user
+sudo usermod -s /usr/sbin/nologin ubuntu
+
+# 5. Verify restoration
+systemctl status fail2ban ufw unattended-upgrades
+```
+
+---
+
+## 📞 When to Escalate to User
+
+**Always ask user before:**
+- Opening new firewall ports
+- Creating sudo users
+- Disabling any security service (even temporarily)
+- Modifying SSH configuration
+- Installing system-level security tools
+
+**Never ask (safe to proceed):**
+- Installing Docker containers
+- Updating application code
+- Restarting application services (not security services)
+- Viewing logs or status
+
+---
+
+## 📚 Reference Documents
+
+- **Server Provisioning:** `docs/guides/SERVER-PROVISIONING-GUIDE.md` (Defines 10/10 Score)
+- **Firewall Config:** `docs/guides/PROVISIONING-FIREWALL-ANSIBLE.md`
+
+---
+
+## Version History
+
+| Date | Change | Score Impact |
+|------|--------|--------------|
+| 2025-12-15 | Initial security rules documented | N/A |
+| 2025-12-15 | Ubuntu user disabled, NOPASSWD removed | 9.0 → 10.0 |
+| 2025-12-12 | Fail2ban and auto-updates enabled | 7.5 → 9.0 |

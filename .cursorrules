@@ -1,52 +1,32 @@
 # Inlock AI Infrastructure - Cursor AI Rules
 
 ## Project Overview
-This is the Inlock AI infrastructure repository containing Docker Compose configurations, Traefik reverse proxy setup, deployment scripts, and comprehensive documentation. Mailcow is the production mail stack and lives outside the repo at `/home/comzis/mailcow`.
+
+This is the Inlock AI infrastructure repository containing Docker Compose configurations, Traefik reverse proxy setup, deployment scripts, and comprehensive documentation.
 
 ## Directory Structure - DO NOT DEVIATE
 
 ```
 inlock-ai-mvp/
-├── ansible/              # Infrastructure automation (Provisioning)
-├── compose/              # ALL Docker Compose service definitions
-│   ├── services/         # Service compose files
-│   │   └── stack.yml     # Main aggregator (include-based stack)
-│   ├── config/           # Shared config fragments for compose
-│   ├── scripts/          # Build/deploy scripts for compose services
-│   ├── docker/           # Custom Docker images (Dockerfiles)
-│   ├── n8n/              # n8n workflow definitions
-│   ├── grafana/          # Grafana dashboards and provisioning
-│   ├── cockpit-proxy/    # Cockpit proxy configuration
-│   ├── stack-fallback.yml.example  # Example fallback stack
-│   └── stack.yml.new     # Sample stack file
-├── config/               # Service configuration files (templates only, no secrets)
-│   ├── alertmanager/     # Alertmanager configuration
-│   ├── grafana/          # Grafana dashboards and provisioning
-│   ├── monitoring/       # Monitoring service configs
-│   ├── nginx/            # Nginx configuration templates
-│   ├── prometheus/       # Prometheus config and alert rules
-│   └── traefik/          # Traefik base/static config and cert templates
-├── traefik/              # Runtime Traefik data
-│   ├── acme/             # ACME certificate storage
-│   └── dynamic/          # Dynamic routing configs (routers, middlewares)
+├── compose/              # ALL Docker Compose service definitions (Unified)
+│   ├── stack.yml         # Main infrastructure stack
+│   └── ...
+├── config/               # ALL Service configurations
+│   ├── traefik/
+│   ├── prometheus/
+│   └── ...
 ├── docs/                 # ALL documentation
-│   ├── architecture/     # High-level design & diagrams
-│   ├── audit/            # Audit logs
-│   ├── deployment/       # Deployment guides
-│   ├── guides/           # Day-2 operations guides
-│   ├── reference/        # API refs, cheat sheets
-│   ├── reports/          # Status reports
-│   ├── security/         # Security documentation
-│   ├── services/         # Service-specific documentation
-│   ├── tooling-deployment/  # Tooling deployment guides
-│   └── index.md          # Documentation entry point
-├── e2e/                  # Playwright end-to-end tests
+│   ├── guides/           # Usage & Deployment Guides (Day 2)
+│   ├── security/         # Security Protocols
+│   ├── deployment/       # Deployment specifics
+│   ├── archive/          # Historical/Obsolete files
+│   └── ...
 ├── scripts/              # ALL automation scripts
-├── secrets/              # Secret templates (NOT actual secrets)
-├── env.example           # Environment variable template
-├── README.md             # Main repository documentation
-├── QUICK-START.md        # Quick start guide
-└── .agent/workflows/     # Workflow documentation (if present)
+│   ├── deployment/       # Manage, Populate, Deploy
+│   ├── infrastructure/   # Firewall, OS
+│   └── monitoring/       # Tests, Diagnostics
+├── infrastructure/       # Ansible configurations
+└── .env.example          # Environment variable template
 ```
 
 ## CRITICAL RULES - Never Break These
@@ -54,35 +34,23 @@ inlock-ai-mvp/
 ### ❌ What to Avoid (NEVER DO)
 
 1. **DO NOT create competing directory structures**
-   - No `infrastructure/` directory
-   - No separate config directories parallel to existing ones
-   - Use existing `compose/`, `traefik/`, `docs/` structure
+   - No `compose/services/` or `compose/config/` (deprecated)
+   - Use `compose/` for stacks and `config/` for configurations
+   - Use `docs/guides/` for new operational guides
 
 2. **DO NOT duplicate configuration files**
-   - No `email.yml` AND duplicate mail service configs for same service
-   - No `main-stack.yml` AND `stack.yml`
    - One authoritative file per service
+   - Use `compose/stack.yml` for core infrastructure
+   - Use `compose/tooling.yml` for optional tooling (PostHog/Strapi)
 
 3. **DO NOT ignore Git workflow**
-   - Always check for unmerged branches first
-   - Pull latest before making changes
-   - Use feature branches for new work
-
-4. **DO NOT deviate from established patterns**
-   - Docker Compose files go in `compose/`
-   - Traefik configs go in `traefik/dynamic/`
-   - Documentation goes in `docs/` (organized by topic)
-   - Scripts go in `scripts/`
-   
-5. **DO NOT rely on ephemeral fixes**
-   - No `docker exec` to patch files in running containers
-   - No manual changes inside containers that are lost on restart
-   - No relying on container local filesystem for config
-   - ALWAYS use custom Docker images or bind mounts for persistence
+   - No `.env` or secrets in Git
+   - Always check `docs/guides/GIT-WORKFLOW.md`
 
 ### ✅ Best Practices - Always Follow
 
 1. **File Organization**
+<<<<<<< Updated upstream
    - Docker Compose: `compose/services/<service>.yml` (or fragments in `compose/config/`)
    - Main stack: `compose/services/stack.yml` (include-based aggregator)
    - Traefik routers: `traefik/dynamic/routers.yml`
@@ -104,27 +72,18 @@ inlock-ai-mvp/
    - **Custom Images:** For code changes / patches (e.g. custom service images)
    - **Bind Mounts:** For configuration files (e.g. `/overrides/config.inc.php`)
    - **Verify:** Always test `docker compose restart` after changes
+=======
+   - Docker Compose: `compose/<service>.yml`
+   - Configs: `config/<service>/<config_file>`
+   - Scripts: `scripts/<category>/<script_name>.sh`
+>>>>>>> Stashed changes
 
-4. **Git Workflow**
-   - **Before any git update (pull/commit/push), verify system functionality:**
-     - `docker ps` and `docker ps -a` for unhealthy/stopped containers
-     - Check Traefik routes for admin apps (portainer, grafana, n8n, cockpit)
-     - Check mail stack access (mailcow UI + key mail ports)
-     - Document any failures and proposed fixes in the working notes
-   ```bash
-   # Before making changes
-   git pull origin main
-   
-   # Create feature branch
-   git checkout -b feature/<description>
-   
-   # Make changes, test, commit
-   git commit -m "type: descriptive message"
-   
-   # Push and create PR
-   git push origin feature/<description>
-   ```
+2. **Network Standards**
+   - **edge**: Public facing (Traefik entrypoints)
+   - **mgmt**: Admin/Internal services (Auth0 protected)
+   - **internal**: Database/Backend only (No external access)
 
+<<<<<<< Updated upstream
 5. **Documentation Updates**
    - Update `docs/index.md` for major changes (entry point)
    - Deployment guides → `docs/deployment/` and `docs/tooling-deployment/`
@@ -135,70 +94,43 @@ inlock-ai-mvp/
    - Security docs → `docs/security/`
    - Service-specific docs → `docs/services/`
    - Keep root directory clean (only README, QUICK-START, etc.)
+=======
+3. **Deployment Commands**
+   - Use unified scripts:
+     - `./scripts/deployment/manage-services.sh ...`
+     - `./scripts/deployment/populate-portainer.sh ...`
+   - Always run from root: `docker compose -f compose/stack.yml ...`
+>>>>>>> Stashed changes
 
 ## Environment & Secrets
 
 **Locations:**
-- Templates: `/env.example` in repo
-- Actual envs: `/home/comzis/deployments/.env.*` (NOT in repo)
-- Docker secrets: `/home/comzis/apps/secrets-real/` (NOT in repo)
 
-**Never commit:**
-- `.env` files with real values
-- Secret files
-- Passwords or tokens
-- SSH private keys (`*.key`, `*_key`, `id_*`)
-- SSH public keys (`*.pub`, `*_key.pub`) - unless intentionally public
+- Templates: `.env.example`
+- Real Secrets: `secrets-real/` (GitIgnored) or Docker Secrets
 
-**Mailcow authentication (production):**
-- Mailcow lives at `/home/comzis/mailcow`; set `MAILCOW_PASS_SCHEME=BLF-CRYPT` in `mailcow.conf`.
-- Validate logins with `docker compose exec dovecot-mailcow doveadm auth test <user> '<pass>'`.
+**Encryption:**
 
-## Deployment Commands (CI/CD)
-
-**Primary Method:**
-- **Automated**: Push a tag (e.g. `v1.0.0`) to trigger GitHub Actions.
-- **Manual (Emergency)**: See `docs/deployment/DEPLOYMENT.md`.
-
-**Local Testing / Development:**
-```bash
-docker compose -f docker-compose.local.yml up -d
-```
-
-**With environment file:**
-```bash
-docker compose -f compose/<service>.yml \
-  --env-file /home/comzis/deployments/.env.<service> up -d
-```
+- Consider Sops/Age for future secret management (see `docs/security/SECURITY-MANUAL.md`)
 
 ## Security Guidelines
 
 1. **Network Isolation**
-   - Admin services: Only on `mgmt` network
-   - Public services: On `edge` network via Traefik
-   - Internal services: On `internal` network only
+   - Admin services → `mgmt` network
+   - Use `traefik` middleware for IP allowlisting (Tailscale CIDRs)
 
 2. **Authentication**
-   - All admin interfaces behind Auth0 + OAuth2-Proxy
-   - **CRITICAL**: Never place IP allowlist middleware (`allowed-admins`) AFTER `admin-forward-auth` middleware
-     - This causes 403 errors for authenticated users
-     - Auth0 authentication is sufficient - IP allowlists after auth are redundant and block legitimate users
-   - No direct service exposure
+   - Forward Auth (OAuth2-Proxy) is mandatory for admin UIs
+   - See `docs/security/SECURITY-MANUAL.md`
 
 3. **Hardening**
-   - Drop ALL capabilities
-   - Use `no-new-privileges`
-   - Read-only filesystems where possible
-   - Load secrets via Docker secrets
-
-4. **System Security**
-   - Full security rules live in `.cursorrules-security`
-   - NEVER open firewall ports, change sudo config, or modify SSH without explicit user approval
-   - Server maintains 10/10 security score - preserve it
+   - `no-new-privileges:true` on all containers
+   - Read-only root filesystems where feasible
 
 ## Code Style
 
 **Docker Compose:**
+<<<<<<< Updated upstream
 - Use secrets for sensitive data
 - Always define networks explicitly
 - Include health checks
@@ -250,93 +182,20 @@ docker compose -f compose/<service>.yml \
 - **Service configs** → `config/<service>/` (templates only)
 - **Traefik static config** → `config/traefik/`
 - **Traefik dynamic config** → `traefik/dynamic/`
+=======
+>>>>>>> Stashed changes
 
-## Quick Reference
+- Use relative paths: `../config/...`
+- Define `container_name` for easy lookup
+- Healthchecks are mandatory for production services
 
-**Repository:** https://github.com/comzis/inlock-ai-mvp
-**Server path:** /home/comzis/inlock (symlink to /home/comzis/projects/inlock-ai-mvp)
-**Mailcow path:** /home/comzis/mailcow
-**Deployments:** /home/comzis/deployments/
-**Secrets:** /home/comzis/apps/secrets-real/
+**Shell Scripts:**
 
-## When in Doubt
-
-1. Check existing patterns in the repo
-2. Look at similar services
-3. Review this file
-4. Ask before creating new directory structures
-5. Keep it simple - use what exists
-
-## Compose/Stack Architecture
-
-**Main Stack:** `compose/services/stack.yml` is the include-based aggregator that:
-- Defines shared networks: `edge`, `mgmt`, `internal`, `socket-proxy`
-- Manages shared secrets and volumes
-- Includes individual service compose files via `include:` directive
-
-**Adding a Service:**
-1. Create compose file: `compose/services/<service>.yml` (or reusable fragment in `compose/config/`)
-2. Add to `include:` list in `compose/services/stack.yml`
-3. Validate before deploy: `docker compose -f compose/services/stack.yml config`
-4. Deploy: `docker compose -f compose/services/stack.yml up -d`
-
-**Service Configs:**
-- Individual service compose files go in `compose/services/`
-- Reusable config fragments (shared volumes, networks) go in `compose/config/`
-- Custom Docker images (Dockerfiles) go in `compose/docker/`
-
-## Config vs Traefik Directories
-
-**`config/traefik/`:**
-- Base/static Traefik configuration files
-- Certificate templates for Traefik container
-- Configuration consumed by compose via bind mounts
-
-**`traefik/dynamic/`:**
-- Live dynamic routing definitions (routers, middlewares, services)
-- Runtime configuration that Traefik watches for changes
-- Used for service discovery and route management
-
-**`traefik/acme/`:**
-- ACME certificate storage (Let's Encrypt certificates)
-- Runtime certificate data persisted in volumes
-
-**Other `config/` subdirectories:**
-- Service-specific configuration templates (alertmanager, grafana, monitoring, nginx, prometheus)
-- Consumed by compose services via bind mounts
-- Templates only - never commit actual secrets
+- Use `#!/bin/bash`
+- `set -e` or `set -euo pipefail` appropriate
+- Provide help/usage text
 
 ---
 
-## Auth0 Middleware Configuration
-
-**CRITICAL RULE**: When configuring Traefik routers for admin services using Auth0:
-
-1. **Correct middleware order:**
-   ```yaml
-   middlewares:
-     - secure-headers
-     - admin-forward-auth      # Auth0 authentication
-     - mgmt-ratelimit          # Rate limiting (optional)
-   ```
-
-2. **NEVER do this (blocks authenticated users):**
-   ```yaml
-   middlewares:
-     - secure-headers
-     - admin-forward-auth      # Auth0 authentication
-     - allowed-admins          # ❌ WRONG - blocks authenticated users
-   ```
-
-3. **Why this matters:**
-   - IP allowlist middleware after authentication causes 403 Forbidden errors
-   - Auth0 authentication is sufficient security
-   - IP allowlists should only be used BEFORE authentication if needed
-   - After successful Auth0 auth, users should have access regardless of IP
-
-4. **Fixed date:** 2025-12-28
-   - Issue: Users getting 403 after Auth0 authentication
-   - Solution: Removed `allowed-admins` middleware from all services using `admin-forward-auth`
-
-*Last Updated: 2025-12-28*
-*Maintain this file as project evolves*
+*Last Updated: 2025-12-31*
+*Reflects Global Consolidation (v2.0)*

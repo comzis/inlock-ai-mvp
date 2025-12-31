@@ -30,6 +30,7 @@ Security hardening and auditing:
 - `harden-security.sh` - Apply security hardening
 - `security-review.sh` - Security audit
 - `audit-secrets.sh` - Secrets audit
+- `pre-commit-check.sh` - Lightweight pre-commit checks for staged changes
 
 ### `auth/`
 Authentication and authorization management:

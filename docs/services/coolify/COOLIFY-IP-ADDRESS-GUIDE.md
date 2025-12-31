@@ -101,3 +101,6 @@ docker exec services-coolify-1 ssh -o ConnectTimeout=3 -o StrictHostKeyChecking=
 
 
 
+
+
+
