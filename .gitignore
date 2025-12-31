@@ -43,6 +43,9 @@ traefik/acme/acme.json
 *.swo
 *~
 
+# Gemini cache
+.gemini/
+
 # OS
 .DS_Store
 Thumbs.db
