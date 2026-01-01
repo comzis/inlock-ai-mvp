@@ -43,62 +43,62 @@ sudo ./scripts/apply-firewall-manual.sh
 
 ### Core Guides
 
-- **[Admin Access Guide](docs/ADMIN-ACCESS-GUIDE.md)** - ⭐ Complete guide with links to all services
-- **[User Guide](docs/USER-GUIDE.md)** - Complete user guide with all features and access information
-- **[Quick Reference](docs/QUICK-REFERENCE.md)** - Quick reference card for daily operations
-- **[Deployment Guide](DEPLOYMENT.md)** - Complete deployment instructions
-- **[Manual Deployment](MANUAL-DEPLOYMENT.md)** - Deployment without Ansible
-- **[Quick Start](QUICK-START.md)** - Quick start guide
+- **[Admin Access Guide](docs/guides/ADMIN-ACCESS-GUIDE.md)** - ⭐ Complete guide with links to all services
+- **[User Guide](docs/guides/USER-GUIDE.md)** - Complete user guide with all features and access information
+- **[Quick Reference](docs/reference/QUICK-REFERENCE.md)** - Quick reference card for daily operations
+- **[Deployment Guide](docs/deployment/DEPLOYMENT.md)** - Complete deployment instructions
+- **[Manual Deployment](docs/deployment/MANUAL-DEPLOYMENT.md)** - Deployment without Ansible
+- **[Quick Start](docs/guides/INLOCK-AI-QUICK-START.md)** - Quick start guide
 
 ### Application Deployment
 
-- **[Inlock AI Deployment](docs/INLOCK-AI-DEPLOYMENT.md)** - Complete guide for deploying Inlock AI application to inlock.ai
-- **[Inlock AI Quick Start](docs/INLOCK-AI-QUICK-START.md)** - Quick deployment guide for Inlock AI
-- **[Inlock AI Deployment Verification](docs/INLOCK-DEPLOYMENT-VERIFICATION.md)** - Automated verification checklist & script output
-- **[Workflow Best Practices](docs/WORKFLOW-BEST-PRACTICES.md)** - ⭐ Two-layer architecture and workflow guide
-- **[Inlock Content Management](docs/INLOCK-CONTENT-MANAGEMENT.md)** - Managing application content and branding
+- **[Inlock AI Deployment](docs/deployment/INLOCK-AI-DEPLOYMENT.md)** - Complete guide for deploying Inlock AI application to inlock.ai
+- **[Inlock AI Quick Start](docs/guides/INLOCK-AI-QUICK-START.md)** - Quick deployment guide for Inlock AI
+- **[Inlock AI Deployment Verification](docs/deployment/INLOCK-DEPLOYMENT-VERIFICATION.md)** - Automated verification checklist & script output
+- **[Workflow Best Practices](docs/guides/WORKFLOW-BEST-PRACTICES.md)** - ⭐ Two-layer architecture and workflow guide
+- **[Inlock Content Management](docs/guides/INLOCK-CONTENT-MANAGEMENT.md)** - Managing application content and branding
 
 ### Monitoring & Observability
 
-- **[Monitoring Guide](docs/monitoring.md)** - Prometheus, Grafana, Loki setup and usage
-- **[Monitoring Setup Status](docs/MONITORING-SETUP-STATUS.md)** - Current monitoring stack status
-- **[Observability Backups](docs/OBSERVABILITY-BACKUPS.md)** - Backup strategies for monitoring data
+- **[Monitoring Guide](docs/services/monitoring/MONITORING-OVERVIEW.md)** - Prometheus, Grafana, Loki setup and usage
+- **[Monitoring Setup Status](docs/services/monitoring/MONITORING-SETUP-STATUS.md)** - Current monitoring stack status
+- **[Observability Backups](docs/services/monitoring/OBSERVABILITY-BACKUPS.md)** - Backup strategies for monitoring data
 
 ### Automation & Scripts
 
-- **[Automation Scripts](docs/AUTOMATION-SCRIPTS.md)** - Regression, deploy, monitoring, and cron automation
-- **[Orphan Container Cleanup](docs/ORPHAN-CONTAINER-CLEANUP.md)** - Managing orphaned Docker containers
-- **[Directory Cleanup](docs/DIRECTORY-CLEANUP.md)** - Directory organization and cleanup procedures
-- **[Home Directory Cleanup](docs/HOME-DIRECTORY-CLEANUP.md)** - Home directory organization and cleanup summary
+- **[Automation Scripts](docs/guides/AUTOMATION-SCRIPTS.md)** - Regression, deploy, monitoring, and cron automation
+- **[Orphan Container Cleanup](docs/guides/ORPHAN-CONTAINER-CLEANUP.md)** - Managing orphaned Docker containers
+- **[Directory Cleanup](docs/guides/DIRECTORY-CLEANUP.md)** - Directory organization and cleanup procedures
+- **[Home Directory Cleanup](docs/guides/HOME-DIRECTORY-CLEANUP.md)** - Home directory organization and cleanup summary
 
 ### Authentication & Authorization
 
-- **[Auth0 Stack Consistency](docs/AUTH0-STACK-CONSISTENCY.md)** - ⭐ Complete Auth0 integration guide
-- **[Auth0 + NextAuth.js Setup](docs/AUTH0-NEXTAUTH-SETUP.md)** - Auth0 and NextAuth.js configuration
-- **[Auth0 Testing Guide](docs/AUTH0-TESTING-GUIDE.md)** - Manual testing procedures
-- **[Auth0 Quick Reference](docs/AUTH0-QUICK-REFERENCE.md)** - Quick reference for Auth0 URLs
+- **[Auth0 Stack Consistency](docs/guides/auth0-verification-checklist.md)** - ⭐ Complete Auth0 integration guide
+- **[Auth0 + NextAuth.js Setup](docs/guides/AUTH0-NEXTAUTH-SETUP.md)** - Auth0 and NextAuth.js configuration
+- **[Auth0 Testing Guide](docs/guides/AUTH0-TESTING-GUIDE.md)** - Manual testing procedures
+- **[Auth0 Quick Reference](docs/reference/AUTH0-QUICK-REFERENCE.md)** - Quick reference for Auth0 URLs
 
 ### Security Documentation
 
-- **[Ingress Hardening](docs/INGRESS-HARDENING.md)** - Traefik security middleware configuration
-- **[Firewall Management](docs/FIREWALL-MANAGEMENT.md)** - Firewall management guide
-- **[Network Security](docs/network-security.md)** - Network security configuration
-- **[SSL Certificate Setup](docs/ssl-certificate-setup.md)** - TLS/SSL certificate configuration
-- **[Secret Management](docs/SECRET-MANAGEMENT.md)** - Managing secrets and credentials
-- **[Container Hardening](docs/CONTAINER-HARDENING.md)** - Container security best practices
-- **[Access Control Validation](docs/ACCESS-CONTROL-VALIDATION.md)** - Validating security controls
+- **[Ingress Hardening](docs/guides/SECURITY-HARDENING-GUIDE.md)** - Traefik security middleware configuration
+- **[Firewall Management](docs/guides/RESTORE-FIREWALL-INSTRUCTIONS.md)** - Firewall management guide
+- **[Network Security](docs/architecture/NETWORK-LAYOUT.md)** - Network security configuration
+- **[SSL Certificate Setup](docs/guides/ssl-certificate-setup.md)** - TLS/SSL certificate configuration
+- **[Secret Management](docs/guides/SECRET-MANAGEMENT.md)** - Managing secrets and credentials
+- **[Container Hardening](docs/guides/COMPLETE-PORT-RESTRICTION-GUIDE.md)** - Container security best practices
+- **[Access Control Validation](docs/architecture/SERVER-STRUCTURE-ANALYSIS.md)** - Validating security controls
 
 ### Infrastructure Documentation
 
-- **[Infrastructure Overview](docs/infra.md)** - Infrastructure components overview
-- **[DevOps Guide](docs/devops.md)** - DevOps practices and procedures
-- **[Cloudflare Setup](docs/CLOUDFLARE-ACME-SETUP.md)** - Cloudflare DNS and ACME configuration
-- **[Cloudflare IP Allowlist](docs/CLOUDFLARE-IP-ALLOWLIST.md)** - Cloudflare IP restrictions
-- **[Node.js Docker-Only Setup](docs/NODE-JS-DOCKER-ONLY.md)** - Using Docker exclusively for Node.js (recommended)
+- **[Infrastructure Overview](docs/architecture/INFRA-NOTES.md)** - Infrastructure components overview
+- **[DevOps Guide](docs/guides/devops.md)** - DevOps practices and procedures
+- **[Cloudflare Setup](docs/guides/CLOUDFLARE-ACME-SETUP.md)** - Cloudflare DNS and ACME configuration
+- **[Cloudflare IP Allowlist](docs/guides/CLOUDFLARE-IP-ALLOWLIST-FIX.md)** - Cloudflare IP restrictions
+- **[Node.js Docker-Only Setup](docs/guides/NODE-JS-DOCKER-ONLY.md)** - Using Docker exclusively for Node.js (recommended)
 
 ### Git & Publishing
 
-- **[Git Publish Guide](docs/GIT-PUBLISH-GUIDE.md)** - Publishing code to GitHub repositories
+- **[Git Publish Guide](docs/guides/PUBLISH-TO-GIT.md)** - Publishing code to GitHub repositories
 
 ## Structure
 
