@@ -202,6 +202,10 @@ inlock-infra/
 2. **Secrets**: Set up secret files in `secrets/` (see `secrets/README.md`)
 3. **Firewall**: Configure UFW using `scripts/apply-firewall-manual.sh`
 4. **TLS Certificates**: See `docs/ssl-certificate-setup.md`
+   - Admin subdomains (portainer/deploy/grafana/dashboard/cockpit/n8n/auth/traefik) use Let’s Encrypt via Cloudflare DNS.
+   - `mail.inlock.ai` uses Let’s Encrypt (tls challenge).
+   - `inlock.ai`/`www.inlock.ai` remain on PositiveSSL (fallback cert still present).
+   - Optional expiry check: `echo | openssl s_client -connect portainer.inlock.ai:443 -servername portainer.inlock.ai 2>/dev/null | openssl x509 -noout -enddate`
 
 ## Deployment
 
