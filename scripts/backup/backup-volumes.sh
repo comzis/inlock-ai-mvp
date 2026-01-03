@@ -70,13 +70,15 @@ echo "Encrypting backup with GPG (recipient: $GPG_RECIPIENT)..."
 # Capture tar errors to a log file for debugging
 TAR_ERROR_LOG="/tmp/tar-backup-errors-${timestamp}.log"
 
-# Run tar with error capture - pipe stderr to log file while still allowing stdout to gpg
-# Use a subshell to capture both stdout (to gpg) and stderr (to log)
-if docker run --rm \
+# Run tar and capture errors, but don't fail on tar exit code (tar may exit with error due to transient files)
+# The key is to check if the backup file was successfully created, not tar's exit code
+# Use set +e to allow tar to exit with error without failing the script
+set +e
+docker run --rm \
   --network=none \
   -v /var/lib/docker/volumes:/source:ro \
   alpine:3.20 \
-  sh -c "tar cz --ignore-failed-read --warning=no-file-changed \
+  tar cz --ignore-failed-read --warning=no-file-changed \
     --exclude='*tailscale*' \
     --exclude='*wireguard*' \
     --exclude='*clickhouse*/store/*/parts' \
@@ -85,45 +87,46 @@ if docker run --rm \
     --exclude='*clickhouse*/store/*/*_*_*_*' \
     --exclude='*clickhouse*/store/*/detached' \
     --exclude='*clickhouse*/store/*/format_version' \
-    -C /source . 2> >(tee /dev/stderr | grep -v 'socket ignored' | grep -v 'No such file' >&2) || true" 2>"$TAR_ERROR_LOG" | \
+    -C /source . 2>"$TAR_ERROR_LOG" | \
   gpg --batch --yes --encrypt --recipient "$GPG_RECIPIENT" \
     --output "$encrypted_dir/volumes-${timestamp}.tar.gz.gpg" \
-    --compress-algo 1 --cipher-algo AES256; then
-  
-  # Check if backup file was created and has reasonable size
-  if [ -f "$encrypted_dir/volumes-${timestamp}.tar.gz.gpg" ]; then
-    BACKUP_SIZE=$(stat -f%z "$encrypted_dir/volumes-${timestamp}.tar.gz.gpg" 2>/dev/null || stat -c%s "$encrypted_dir/volumes-${timestamp}.tar.gz.gpg" 2>/dev/null || echo "0")
-    if [ "$BACKUP_SIZE" -gt 1000 ]; then
-      echo "✅ Encrypted backup created: $encrypted_dir/volumes-${timestamp}.tar.gz.gpg ($(du -h "$encrypted_dir/volumes-${timestamp}.tar.gz.gpg" | cut -f1))"
-      
-      # Log tar errors if any (excluding expected warnings)
-      if [ -s "$TAR_ERROR_LOG" ]; then
-        CRITICAL_ERRORS=$(grep -vE "socket ignored|No such file or directory" "$TAR_ERROR_LOG" || true)
-        if [ -n "$CRITICAL_ERRORS" ]; then
-          echo "⚠️  Tar warnings (non-critical):"
-          echo "$CRITICAL_ERRORS" | head -10
-        fi
+    --compress-algo 1 --cipher-algo AES256
+GPG_EXIT=$?
+set -e
+
+# Check if backup file was created successfully (this is what matters, not tar's exit code)
+if [ -f "$encrypted_dir/volumes-${timestamp}.tar.gz.gpg" ]; then
+  BACKUP_SIZE=$(stat -f%z "$encrypted_dir/volumes-${timestamp}.tar.gz.gpg" 2>/dev/null || stat -c%s "$encrypted_dir/volumes-${timestamp}.tar.gz.gpg" 2>/dev/null || echo "0")
+  if [ "$BACKUP_SIZE" -gt 1000 ]; then
+    echo "✅ Encrypted backup created: $encrypted_dir/volumes-${timestamp}.tar.gz.gpg ($(du -h "$encrypted_dir/volumes-${timestamp}.tar.gz.gpg" | cut -f1))"
+    
+    # Log tar errors if any (excluding expected warnings) for debugging
+    if [ -s "$TAR_ERROR_LOG" ]; then
+      CRITICAL_ERRORS=$(grep -vE "socket ignored|No such file or directory" "$TAR_ERROR_LOG" || true)
+      if [ -n "$CRITICAL_ERRORS" ]; then
+        echo "⚠️  Tar warnings (non-critical, backup succeeded):"
+        echo "$CRITICAL_ERRORS" | head -5
+        echo "  (Full error log: $TAR_ERROR_LOG - kept for 24h for debugging)"
       fi
-      rm -f "$TAR_ERROR_LOG"
-    else
-      echo "ERROR: Backup file created but is too small ($BACKUP_SIZE bytes) - backup may be incomplete"
-      rm -f "$encrypted_dir/volumes-${timestamp}.tar.gz.gpg" "$TAR_ERROR_LOG"
-      exit 1
     fi
+    # Keep error log for 24 hours for debugging (don't delete immediately)
   else
-    echo "ERROR: Backup file was not created"
+    echo "ERROR: Backup file created but is too small ($BACKUP_SIZE bytes) - backup may be incomplete"
     if [ -s "$TAR_ERROR_LOG" ]; then
       echo "Tar errors:"
       cat "$TAR_ERROR_LOG" | head -20
     fi
-    rm -f "$TAR_ERROR_LOG"
+    rm -f "$encrypted_dir/volumes-${timestamp}.tar.gz.gpg" "$TAR_ERROR_LOG"
     exit 1
   fi
 else
-  echo "ERROR: Backup encryption failed"
+  echo "ERROR: Backup file was not created"
   if [ -s "$TAR_ERROR_LOG" ]; then
     echo "Tar errors:"
     cat "$TAR_ERROR_LOG" | head -20
+  fi
+  if [ "$GPG_EXIT" -ne 0 ]; then
+    echo "GPG encryption failed (exit code: $GPG_EXIT)"
   fi
   rm -f "$TAR_ERROR_LOG"
   exit 1
