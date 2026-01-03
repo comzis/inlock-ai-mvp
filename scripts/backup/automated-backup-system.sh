@@ -86,6 +86,32 @@ log ""
 
 cd "$PROJECT_ROOT"
 
+# Monitor Tailscale status before backup (to detect impact)
+monitor_tailscale_status() {
+    local phase="$1"
+    log "--- Tailscale Status ($phase) ---"
+    if command -v tailscale >/dev/null 2>&1; then
+        if tailscale status >/dev/null 2>&1; then
+            local status=$(tailscale status --json 2>/dev/null | grep -o '"Self":{[^}]*}' | head -1 || echo "")
+            if [ -n "$status" ]; then
+                log "  Tailscale: Connected"
+                local ip=$(tailscale ip -4 2>/dev/null || echo "unknown")
+                log "  Tailscale IP: $ip"
+            else
+                log "  Tailscale: Status check failed"
+            fi
+        else
+            log "  Tailscale: Not running or not authenticated"
+        fi
+    else
+        log "  Tailscale: Not installed"
+    fi
+    log ""
+}
+
+# Check Tailscale status before backup
+monitor_tailscale_status "Pre-Backup"
+
 # Run backups based on type
 if [ "$BACKUP_TYPE" = "all" ] || [ "$BACKUP_TYPE" = "databases" ] || [ "$BACKUP_TYPE" = "full" ]; then
     log "Starting database backups..."
@@ -159,6 +185,9 @@ if [ "$CLEANUP_OLD" = "true" ]; then
     fi
     echo ""
 fi
+
+# Check Tailscale status after backup
+monitor_tailscale_status "Post-Backup"
 
 log "=========================================="
 log "  Backup System Complete"

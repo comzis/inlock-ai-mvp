@@ -51,10 +51,16 @@ fi
 
 echo "Encrypting backup with GPG (recipient: $GPG_RECIPIENT)..."
 # Stream tar directly to gpg to avoid plaintext on disk; ignore transient read errors (changing files)
+# Use --network=none to prevent Docker network interface churn that affects Tailscale
+# Exclude Tailscale-related volumes to minimize network interface monitoring
 if docker run --rm \
+  --network=none \
   -v /var/lib/docker/volumes:/source:ro \
   alpine:3.20 \
-  tar cz --ignore-failed-read --warning=no-file-changed -C /source . 2>/dev/null | \
+  tar cz --ignore-failed-read --warning=no-file-changed \
+    --exclude='*tailscale*' \
+    --exclude='*wireguard*' \
+    -C /source . 2>/dev/null | \
   gpg --batch --yes --encrypt --recipient "$GPG_RECIPIENT" \
     --output "$encrypted_dir/volumes-${timestamp}.tar.gz.gpg" \
     --compress-algo 1 --cipher-algo AES256; then
