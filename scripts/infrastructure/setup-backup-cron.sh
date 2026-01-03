@@ -1,30 +1,17 @@
 #!/bin/bash
-# Setup cron job for automated backups
-# Usage: ./scripts/setup-backup-cron.sh
+# DEPRECATED: This script is deprecated. Use scripts/backup/install-backup-cron.sh instead.
+# This script is kept for backward compatibility but redirects to the new script.
 
 set -e
 
+echo "⚠️  WARNING: This script is deprecated."
+echo "Please use: scripts/backup/install-backup-cron.sh"
+echo ""
+echo "Redirecting to the new script..."
+echo ""
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-CRON_TIME="${BACKUP_CRON_TIME:-0 2}"  # Default: 2 AM daily
-CRON_ENTRY="$CRON_TIME * * * $SCRIPT_DIR/scripts/backup-with-checks.sh >> /var/log/inlock-backup.log 2>&1"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
-echo "Setting up cron job for automated backups..."
-echo "Schedule: Daily at 2 AM (customize with BACKUP_CRON_TIME env var)"
-echo ""
-
-# Check if cron entry already exists
-if crontab -l 2>/dev/null | grep -q "backup-with-checks.sh"; then
-    echo "⚠️  Cron entry already exists. Removing old entry..."
-    crontab -l 2>/dev/null | grep -v "backup-with-checks.sh" | crontab -
-fi
-
-# Add new cron entry
-(crontab -l 2>/dev/null; echo "$CRON_ENTRY") | crontab -
-
-echo "✅ Cron job installed"
-echo ""
-echo "Current crontab:"
-crontab -l | grep "backup-with-checks"
-echo ""
-echo "To view backup logs: tail -f /var/log/inlock-backup.log"
-echo "To remove: crontab -e (then delete the backup line)"
+# Redirect to the new script
+exec "$PROJECT_ROOT/scripts/backup/install-backup-cron.sh" "$@"

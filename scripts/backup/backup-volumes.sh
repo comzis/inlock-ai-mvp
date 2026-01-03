@@ -60,6 +60,10 @@ if docker run --rm \
   tar cz --ignore-failed-read --warning=no-file-changed \
     --exclude='*tailscale*' \
     --exclude='*wireguard*' \
+    --exclude='*clickhouse*/store/*/parts' \
+    --exclude='*clickhouse*/store/*/tmp' \
+    --exclude='*clickhouse*/store/*/tmp_*' \
+    --exclude='*clickhouse*/store/*/*_*_*_*' \
     -C /source . 2>/dev/null | \
   gpg --batch --yes --encrypt --recipient "$GPG_RECIPIENT" \
     --output "$encrypted_dir/volumes-${timestamp}.tar.gz.gpg" \

@@ -69,11 +69,13 @@ echo ""
 
 # Find latest backup if not specified
 if [ -z "$BACKUP_FILE" ]; then
-    BACKUP_DIR="/var/backups/inlock/encrypted"
-    LATEST_BACKUP=$(ls -t "$BACKUP_DIR"/*.tar.gz.gpg 2>/dev/null | head -1)
+    # Use consistent backup directory (align with other scripts)
+    BACKUP_DIR="${BACKUP_DIR:-$HOME/backups/inlock}"
+    ENCRYPTED_DIR="${BACKUP_ENCRYPTED_DIR:-$BACKUP_DIR/encrypted}"
+    LATEST_BACKUP=$(ls -t "$ENCRYPTED_DIR"/*.tar.gz.gpg 2>/dev/null | head -1)
     
     if [ -z "$LATEST_BACKUP" ]; then
-        echo "ERROR: No backup files found in $BACKUP_DIR"
+        echo "ERROR: No backup files found in $ENCRYPTED_DIR"
         exit 1
     fi
     

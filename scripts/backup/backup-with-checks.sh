@@ -53,10 +53,15 @@ if ./scripts/backup-volumes.sh >> "$LOG_FILE" 2>&1; then
     log "✅ Backup completed successfully"
     
     # Optional: Check backup file exists and is recent
-    BACKUP_FILE=$(ls -t /var/backups/inlock/encrypted/volumes-*.tar.gz.gpg 2>/dev/null | head -1)
+    # Use consistent backup directory (align with other scripts)
+    BACKUP_DIR="${BACKUP_DIR:-$HOME/backups/inlock}"
+    ENCRYPTED_DIR="${BACKUP_ENCRYPTED_DIR:-$BACKUP_DIR/encrypted}"
+    BACKUP_FILE=$(ls -t "$ENCRYPTED_DIR"/volumes-*.tar.gz.gpg 2>/dev/null | head -1)
     if [ -n "$BACKUP_FILE" ] && [ -f "$BACKUP_FILE" ]; then
         BACKUP_SIZE=$(du -h "$BACKUP_FILE" | cut -f1)
         log "Backup file: $BACKUP_FILE ($BACKUP_SIZE)"
+    else
+        log "⚠️  WARNING: Backup file not found in expected location: $ENCRYPTED_DIR"
     fi
 else
     error "Backup script failed - see $LOG_FILE for details"

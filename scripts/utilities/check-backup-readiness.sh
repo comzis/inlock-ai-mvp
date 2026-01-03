@@ -25,17 +25,22 @@ fi
 
 echo ""
 
-# Check backup script exists
-if [ ! -f "scripts/backup-volumes.sh" ]; then
-    echo "❌ Backup script not found: scripts/backup-volumes.sh"
+# Check backup script exists (use absolute path resolution)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+BACKUP_SCRIPT="$PROJECT_ROOT/scripts/backup/backup-volumes.sh"
+
+if [ ! -f "$BACKUP_SCRIPT" ]; then
+    echo "❌ Backup script not found: $BACKUP_SCRIPT"
+    echo "   Expected location: scripts/backup/backup-volumes.sh"
     exit 1
 fi
-echo "✅ Backup script found"
+echo "✅ Backup script found: $BACKUP_SCRIPT"
 
 # Check backup script is executable
-if [ ! -x "scripts/backup-volumes.sh" ]; then
+if [ ! -x "$BACKUP_SCRIPT" ]; then
     echo "⚠️  Backup script is not executable, fixing..."
-    chmod +x scripts/backup-volumes.sh
+    chmod +x "$BACKUP_SCRIPT"
 fi
 echo "✅ Backup script is executable"
 
