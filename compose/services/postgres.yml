@@ -50,7 +50,13 @@ services:
       - DAC_OVERRIDE  # Required to fix permissions on data directory
     # Postgres runs as postgres user (UID 70) by default
     # This is already non-root, so no user override needed
-    # Temporarily disable no-new-privileges to allow Postgres to fix data directory permissions
+    #
+    # SECURITY NOTE: no-new-privileges temporarily disabled
+    # Reason: Data directory permissions need to be fixed to allow Postgres to start
+    #         with no-new-privileges enabled
+    # Fix: Run scripts/security/fix-postgres-permissions.sh to fix ownership/permissions
+    # Target: Re-enable no-new-privileges by 2026-02-03
+    # Tracking: See docs/security/POSTGRES-PERMISSIONS-FIX.md
     security_opt:
       - no-new-privileges:false
     <<: [*default-logging, *resource-hints]

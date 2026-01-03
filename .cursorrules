@@ -50,15 +50,15 @@ inlock-ai-mvp/
 ### ✅ Best Practices - Always Follow
 
 1. **File Organization**
-<<<<<<< Updated upstream
-   - Docker Compose: `compose/services/<service>.yml` (or fragments in `compose/config/`)
-   - Main stack: `compose/services/stack.yml` (include-based aggregator)
-   - Traefik routers: `traefik/dynamic/routers.yml`
+   - Docker Compose: `compose/<service>.yml` (e.g., `compose/stack.yml`, `compose/tooling.yml`)
+   - Configs: `config/<service>/<config_file>`
+   - Scripts: `scripts/<category>/<script_name>.sh`
+   - Traefik routers: `config/traefik/dynamic/routers.yml`
    - Deployment Guides: `docs/deployment/` and `docs/tooling-deployment/`
    - Day-2 Operations: `docs/guides/`
    - Architecture/Design: `docs/architecture/`
    - References/Cheat Sheets: `docs/reference/`
-   - Reports/Status: `archive/docs/reports/`
+   - Reports/Status: `docs/reports/` or `docs/archive/reports/`
    - Security Docs: `docs/security/`
    - Service Docs: `docs/services/`
    - Documentation Index: `docs/index.md`
@@ -72,35 +72,28 @@ inlock-ai-mvp/
    - **Custom Images:** For code changes / patches (e.g. custom service images)
    - **Bind Mounts:** For configuration files (e.g. `/overrides/config.inc.php`)
    - **Verify:** Always test `docker compose restart` after changes
-=======
-   - Docker Compose: `compose/<service>.yml`
-   - Configs: `config/<service>/<config_file>`
-   - Scripts: `scripts/<category>/<script_name>.sh`
->>>>>>> Stashed changes
 
-2. **Network Standards**
+4. **Network Standards**
    - **edge**: Public facing (Traefik entrypoints)
    - **mgmt**: Admin/Internal services (Auth0 protected)
    - **internal**: Database/Backend only (No external access)
 
-<<<<<<< Updated upstream
-5. **Documentation Updates**
+5. **Deployment Commands**
+   - Use unified scripts:
+     - `./scripts/deployment/manage-services.sh ...`
+     - `./scripts/deployment/populate-portainer.sh ...`
+   - Always run from root: `docker compose -f compose/stack.yml ...`
+
+6. **Documentation Updates**
    - Update `docs/index.md` for major changes (entry point)
    - Deployment guides → `docs/deployment/` and `docs/tooling-deployment/`
    - Day-2/Operations guides → `docs/guides/`
    - Architecture/Design docs → `docs/architecture/`
    - References/Cheat sheets → `docs/reference/`
-   - Reports/Status → `archive/docs/reports/`
+   - Reports/Status → `docs/reports/` or `docs/archive/reports/`
    - Security docs → `docs/security/`
    - Service-specific docs → `docs/services/`
    - Keep root directory clean (only README, QUICK-START, etc.)
-=======
-3. **Deployment Commands**
-   - Use unified scripts:
-     - `./scripts/deployment/manage-services.sh ...`
-     - `./scripts/deployment/populate-portainer.sh ...`
-   - Always run from root: `docker compose -f compose/stack.yml ...`
->>>>>>> Stashed changes
 
 ## Environment & Secrets
 
@@ -122,6 +115,9 @@ inlock-ai-mvp/
 2. **Authentication**
    - Forward Auth (OAuth2-Proxy) is mandatory for admin UIs
    - See `docs/security/SECURITY-MANUAL.md`
+   - **CRITICAL:** SSH access from MacBook via public key MUST be preserved
+   - Always verify `~/.ssh/authorized_keys` contains MacBook key before SSH changes
+   - See `.cursorrules-security` for detailed SSH preservation rules
 
 3. **Hardening**
    - `no-new-privileges:true` on all containers
@@ -130,47 +126,48 @@ inlock-ai-mvp/
 ## Code Style
 
 **Docker Compose:**
-<<<<<<< Updated upstream
 - Use secrets for sensitive data
 - Always define networks explicitly
-- Include health checks
+- Include health checks (mandatory for production services)
 - Set resource limits
 - Use specific image tags (not `latest` in production)
+- Use relative paths: `../config/...`
+- Define `container_name` for easy lookup
 
 **Shell Scripts:**
 - Include shebang: `#!/bin/bash`
-- Set error handling: `set -euo pipefail`
-- Add help text
+- Set error handling: `set -euo pipefail` (or `set -e` where appropriate)
+- Add help/usage text
 - Make executable: `chmod +x`
 
 ## Making Changes
 
 ### Adding a New Service
 
-1. Create `compose/services/<service>.yml` (or reusable fragment in `compose/config/`)
-2. Add to `compose/services/stack.yml` includes (if part of main stack)
-3. Validate: `docker compose -f compose/services/stack.yml config`
+1. Create `compose/<service>.yml`
+2. Add to `compose/stack.yml` if part of main stack (or use separate compose file)
+3. Validate: `docker compose -f compose/<service>.yml config`
 4. Create deployment guide in `docs/tooling-deployment/` or `docs/deployment/`
-5. Add Traefik routers to `traefik/dynamic/routers.yml`
+5. Add Traefik routers to `config/traefik/dynamic/routers.yml`
    - For admin services: Use `admin-forward-auth` middleware (Auth0)
    - **DO NOT** add `allowed-admins` IP allowlist middleware after `admin-forward-auth`
    - Correct order: `secure-headers`, `admin-forward-auth`, `mgmt-ratelimit`
-6. Update `env.example` with new variables
+6. Update `.env.example` with new variables
 7. Test deployment
 8. Update README.md
 
 ### Modifying Existing Service
 
 1. Check current state: `docker compose ps <service>`
-2. Edit `compose/services/<service>.yml` (or fragment in `compose/config/`)
-3. Validate: `docker compose -f compose/services/stack.yml config` (or individual file)
-4. Deploy: `docker compose -f compose/services/stack.yml up -d` (or individual service)
+2. Edit `compose/<service>.yml`
+3. Validate: `docker compose -f compose/<service>.yml config`
+4. Deploy: `docker compose -f compose/<service>.yml up -d`
 5. Verify: Check logs and health
 6. Document changes
 
 ### Organizing Files
 
-- **Status reports** → `archive/docs/reports/<topic>/`
+- **Status reports** → `docs/reports/<topic>/` or `docs/archive/reports/`
 - **Audit logs** → `docs/audit/`
 - **Deployment guides** → `docs/deployment/` and `docs/tooling-deployment/`
 - **Day-2 Operations** → `docs/guides/`
@@ -181,19 +178,7 @@ inlock-ai-mvp/
 - **Scripts** → `scripts/`
 - **Service configs** → `config/<service>/` (templates only)
 - **Traefik static config** → `config/traefik/`
-- **Traefik dynamic config** → `traefik/dynamic/`
-=======
->>>>>>> Stashed changes
-
-- Use relative paths: `../config/...`
-- Define `container_name` for easy lookup
-- Healthchecks are mandatory for production services
-
-**Shell Scripts:**
-
-- Use `#!/bin/bash`
-- `set -e` or `set -euo pipefail` appropriate
-- Provide help/usage text
+- **Traefik dynamic config** → `config/traefik/dynamic/`
 
 ---
 

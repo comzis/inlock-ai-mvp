@@ -19,6 +19,10 @@ x-resource-hints: &resource-hints
 
 services:
   inlock-ai:
+    # SECURITY: TODO - Replace :latest with version tag or SHA256 digest
+    # Current build process uses :latest tag
+    # Recommended: Implement version tagging in build script
+    # See docs/security/IMAGE-VERSION-POLICY.md for details
     image: inlock-ai:latest
     restart: always
     env_file:

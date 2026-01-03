@@ -22,10 +22,14 @@ services:
     image: postgres:15-alpine
     ports:
       - "5432:5432"
+    # SECURITY: Use environment variables instead of hardcoded password
+    # Option 1: Create .env.local from .env.local.example and use: --env-file .env.local
+    # Option 2: Set environment variables: POSTGRES_PASSWORD=your_password docker compose up
+    # Option 3: Use defaults below (change dev_password to your secure password)
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=inlock
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-dev_password_change_me}
+      - POSTGRES_DB=${POSTGRES_DB:-inlock}
     volumes:
       - inlock_db_local:/var/lib/postgresql/data
 

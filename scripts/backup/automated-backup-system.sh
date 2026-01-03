@@ -14,7 +14,27 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-LOG_FILE="/var/log/inlock-backup-system.log"
+# Log destinations (try project logs first, then /tmp fallback)
+LOG_DIR_PRIMARY="$PROJECT_ROOT/logs"
+LOG_DIR_FALLBACK="/tmp/inlock-logs"
+LOG_FILE_PRIMARY="$LOG_DIR_PRIMARY/inlock-backup-system.log"
+LOG_FILE_FALLBACK="$LOG_DIR_FALLBACK/inlock-backup-system.log"
+
+# Pick a writable log file
+if mkdir -p "$LOG_DIR_PRIMARY" && touch "$LOG_FILE_PRIMARY" >/dev/null 2>&1; then
+  LOG_DIR="$LOG_DIR_PRIMARY"
+  LOG_FILE="$LOG_FILE_PRIMARY"
+else
+  mkdir -p "$LOG_DIR_FALLBACK"
+  LOG_DIR="$LOG_DIR_FALLBACK"
+  LOG_FILE="$LOG_FILE_FALLBACK"
+fi
+
+# Enable trace to log for debugging
+exec 3>&1 4>&2
+exec > >(tee -a "$LOG_FILE") 2>&1
+set -x
+echo "=== backup start $(date -Iseconds) ==="
 BACKUP_TYPE="${BACKUP_TYPE:-all}"
 VERIFY_BACKUPS="${VERIFY_BACKUPS:-false}"
 SYNC_OFFSITE="${SYNC_OFFSITE:-false}"
@@ -162,6 +182,10 @@ fi
 
 log "Log file: $LOG_FILE"
 log ""
+
+
+
+
 
 
 

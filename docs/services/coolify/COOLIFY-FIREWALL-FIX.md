@@ -108,3 +108,8 @@ After fixing the firewall, configure Coolify with:
 
 
 
+
+
+
+
+

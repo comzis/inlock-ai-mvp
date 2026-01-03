@@ -2,7 +2,7 @@
 
 **Purpose:** Maintain 10/10 security score during system maintenance  
 **Audience:** Cursor AI, Antigravity, and other AI coding assistants  
-**Last Updated:** 2025-12-15
+**Last Updated:** 2026-01-03
 
 ---
 
@@ -14,9 +14,10 @@
 |---------|--------|-------------------------|
 | UFW Firewall | ACTIVE | Must remain enabled |
 | Fail2Ban | ACTIVE | Must remain enabled and monitoring SSH |
-| Unattended-Upgrades | ACTIVE | Must remain enabled for auto-patching |
+| Unattended-Upgrades | ACTIVE | Must remain enabled for auto-patching |dedededededdddd
 | Tailscale SSH Restriction | ACTIVE | Port 22 ONLY accessible via Tailscale (100.64.0.0/10) |
 | Sudo Password Required | ENFORCED | NEVER add NOPASSWD back |
+| SSH Public Key Auth | REQUIRED | MUST preserve MacBook key access - `PubkeyAuthentication yes`, `PasswordAuthentication no` |
 
 ### 2. **User Account Rules**
 
@@ -92,16 +93,19 @@ sudo ufw status           # Rules unchanged?
 
 **Protected Files (Require Extra Caution):**
 - `/etc/sudoers` and `/etc/sudoers.d/*`
-- `/etc/ssh/sshd_config`
+- `/etc/ssh/sshd_config` - **CRITICAL: Always verify MacBook key access before changes**
+- `~/.ssh/authorized_keys` - **CRITICAL: Always backup before any modifications**
 - `/etc/ufw/*`
 - `/etc/fail2ban/*`
 
 **Safe Edit Process:**
 1. Backup original: `sudo cp file file.backup.$(date +%Y%m%d)`
-2. Make changes
-3. Validate syntax (if applicable)
-4. Test with non-critical operation
-5. Verify security services still active
+2. **For SSH config specifically:** Verify MacBook key in `~/.ssh/authorized_keys` and backup it
+3. Make changes
+4. Validate syntax (if applicable): `sudo sshd -t` for SSH config
+5. Test with non-critical operation
+6. **For SSH config:** Verify MacBook can still connect before closing current session
+7. Verify security services still active
 
 ---
 
@@ -197,11 +201,45 @@ sudo grep COMMAND /var/log/auth.log | tail -20
 
 **STOP and Ask User First**
 
+**CRITICAL: Preserve MacBook Public Key Access**
+- ✅ **ALWAYS** verify `~/.ssh/authorized_keys` exists and contains MacBook key before any SSH changes
+- ✅ **ALWAYS** backup `~/.ssh/authorized_keys` before modifying SSH config
+- ✅ **ALWAYS** maintain `PubkeyAuthentication yes` in `/etc/ssh/sshd_config`
+- ✅ **ALWAYS** maintain `PasswordAuthentication no` (key-only auth)
+- ✅ **ALWAYS** test SSH access from MacBook after any SSH config changes
+
+**Pre-flight Check Before SSH Changes:**
+```bash
+# 1. Verify authorized_keys exists and contains MacBook key
+if [ -f ~/.ssh/authorized_keys ]; then
+    KEY_COUNT=$(grep -c "^ssh-" ~/.ssh/authorized_keys || echo "0")
+    MACBOOK_KEY=$(grep -c "macbook" ~/.ssh/authorized_keys || echo "0")
+    if [ "$KEY_COUNT" -eq 0 ] || [ "$MACBOOK_KEY" -eq 0 ]; then
+        echo "⚠️ WARNING: MacBook key not found in authorized_keys!"
+        echo "DO NOT proceed with SSH changes without user approval"
+    fi
+else
+    echo "⚠️ WARNING: ~/.ssh/authorized_keys not found!"
+    echo "DO NOT proceed with SSH changes without user approval"
+fi
+
+# 2. Backup authorized_keys
+cp ~/.ssh/authorized_keys ~/.ssh/authorized_keys.backup.$(date +%Y%m%d-%H%M%S)
+
+# 3. Backup SSH config
+sudo cp /etc/ssh/sshd_config /etc/ssh/sshd_config.backup.$(date +%Y%m%d-%H%M%S)
+```
+
+**Current MacBook Key Fingerprint:**
+- `SHA256:Xa/YflCwDR0Omdi/y28z59MBiFfi2BBnAV9WiRU2ZgE macbook (ED25519)`
+
 Common requests that are DANGEROUS:
 - ❌ Enabling password authentication
 - ❌ Allowing root login
 - ❌ Changing SSH port (breaks Tailscale integration)
-- ❌ Disabling key-only auth
+- ❌ Disabling key-only auth (`PubkeyAuthentication no`)
+- ❌ Removing or modifying `~/.ssh/authorized_keys` without backup
+- ❌ Changing SSH config without verifying MacBook key access will remain
 
 ---
 
@@ -234,8 +272,9 @@ systemctl status fail2ban ufw unattended-upgrades
 - Opening new firewall ports
 - Creating sudo users
 - Disabling any security service (even temporarily)
-- Modifying SSH configuration
+- Modifying SSH configuration (especially `/etc/ssh/sshd_config` or `~/.ssh/authorized_keys`)
 - Installing system-level security tools
+- Any change that could affect MacBook SSH access
 
 **Never ask (safe to proceed):**
 - Installing Docker containers
@@ -259,3 +298,4 @@ systemctl status fail2ban ufw unattended-upgrades
 | 2025-12-15 | Initial security rules documented | N/A |
 | 2025-12-15 | Ubuntu user disabled, NOPASSWD removed | 9.0 → 10.0 |
 | 2025-12-12 | Fail2ban and auto-updates enabled | 7.5 → 9.0 |
+| 2026-01-03 | Added MacBook SSH public key preservation rules | N/A |

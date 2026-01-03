@@ -53,3 +53,8 @@ echo "  sudo -n /usr/bin/docker ps    # Should fail (password required)"
 
 
 
+
+
+
+
+

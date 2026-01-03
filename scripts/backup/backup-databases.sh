@@ -21,11 +21,20 @@ fi
 
 echo "Starting Database Backup at $timestamp"
 
-# Helper function to dump and encrypt
+# Defaults
+INLOCK_DB_NAME="${INLOCK_DB_NAME:-inlock}"
+INLOCK_DB_USER="${INLOCK_DB_USER:-inlock}"
+N8N_DB_NAME="${N8N_DB_NAME:-n8n}"
+N8N_DB_USER="${N8N_DB_USER:-n8n}"
+
+# Helper function to dump and encrypt a single database
 backup_postgres() {
     local container_name="$1"
     local db_user="$2"
-    local output_name="$3"
+    local db_name="$3"
+    local output_name="$4"
+    local secret_file="${5:-}"
+    local pg_password=""
 
     echo "  > Backing up $container_name (User: $db_user)..."
     
@@ -41,14 +50,17 @@ backup_postgres() {
         fi
     fi
 
-    # Execute pg_dumpall, compress, encrypt
-    # Using pg_dumpall to capture globals (users, groups) + all DBs
-    if docker exec "$container_name" pg_dumpall -c -U "$db_user" 2>/dev/null | \
-       gzip | \
+    # Load password if provided
+    if [[ -n "$secret_file" && -r "$secret_file" ]]; then
+        pg_password="$(< "$secret_file")"
+    fi
+
+    # Execute pg_dump (custom format), encrypt
+    if docker exec -e PGPASSWORD="$pg_password" "$container_name" pg_dump -Fc -U "$db_user" "$db_name" 2>/dev/null | \
        gpg --encrypt --recipient "$GPG_RECIPIENT" \
-           --output "$encrypted_dir/${output_name}-${timestamp}.sql.gz.gpg" \
+           --output "$encrypted_dir/${output_name}-${timestamp}.dump.gpg" \
            --compress-algo 1 --cipher-algo AES256; then
-        echo "    ✅ Saved: ${output_name}-${timestamp}.sql.gz.gpg"
+        echo "    ✅ Saved: ${output_name}-${timestamp}.dump.gpg"
     else
         echo "    ❌ ERROR: Failed to backup $container_name"
         return 1
@@ -57,14 +69,9 @@ backup_postgres() {
 
 # 1. Inlock App DB
 # Service: inlock-db (-f compose/inlock-db.yml)
-# User env: INLOCK_DB_USER or default 'inlock'
-backup_postgres "inlock-db" "inlock" "db-inlock"
+backup_postgres "inlock-db" "$INLOCK_DB_USER" "$INLOCK_DB_NAME" "db-inlock" "/home/comzis/apps/secrets-real/inlock-db-password"
 
-# 2. N8N DB
-# Service: postgres (-f compose/postgres.yml)
-# User env: N8N_DB_USER or default 'n8n'
-# Note: Container likely named *postgres* or *n8n-db* depending on stack name. 
-# We'll look for common names or rely on the helper's grep.
-backup_postgres "compose-postgres-1" "n8n" "db-n8n"
+# 2. N8N DB (same Postgres instance)
+backup_postgres "inlock-db" "$N8N_DB_USER" "$N8N_DB_NAME" "db-n8n" "/home/comzis/apps/secrets-real/n8n-db-password"
 
 echo "Database Backup Completed."

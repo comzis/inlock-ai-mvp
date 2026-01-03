@@ -50,16 +50,14 @@ if ! gpg --list-keys "$GPG_RECIPIENT" > /dev/null 2>&1; then
 fi
 
 echo "Encrypting backup with GPG (recipient: $GPG_RECIPIENT)..."
-# Stream tar directly to gpg to avoid plaintext on disk
-docker run --rm \
+# Stream tar directly to gpg to avoid plaintext on disk; ignore transient read errors (changing files)
+if docker run --rm \
   -v /var/lib/docker/volumes:/source:ro \
   alpine:3.20 \
-  tar cz -C /source . | \
-  gpg --encrypt --recipient "$GPG_RECIPIENT" \
+  tar cz --ignore-failed-read --warning=no-file-changed -C /source . 2>/dev/null | \
+  gpg --batch --yes --encrypt --recipient "$GPG_RECIPIENT" \
     --output "$encrypted_dir/volumes-${timestamp}.tar.gz.gpg" \
-    --compress-algo 1 --cipher-algo AES256
-
-if [ $? -eq 0 ]; then
+    --compress-algo 1 --cipher-algo AES256; then
   echo "✅ Encrypted backup created: $encrypted_dir/volumes-${timestamp}.tar.gz.gpg"
 else
   echo "ERROR: Backup encryption failed"

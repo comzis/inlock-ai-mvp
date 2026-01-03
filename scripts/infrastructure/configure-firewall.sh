@@ -59,7 +59,7 @@ ufw allow 80/tcp comment 'HTTP'
 ufw allow 443/tcp comment 'HTTPS'
 echo "  ✓ HTTP/HTTPS allowed"
 
-# Restrict SSH to Tailscale IPs only
+# Restrict SSH to Tailscale subnet only (per .cursorrules-security)
 echo ""
 echo "Restricting SSH access..."
 # Remove existing SSH rules
@@ -67,10 +67,9 @@ ufw status numbered | grep "22/tcp" | awk -F'[][]' '{print $2}' | sort -rn | whi
     echo "y" | ufw delete "$num" >/dev/null 2>&1 || true
 done
 
-# Add Tailscale-specific SSH rules
-ufw allow from 100.83.222.69/32 to any port 22 comment 'SSH - Tailscale Server'
-ufw allow from 100.96.110.8/32 to any port 22 comment 'SSH - Tailscale MacBook'
-echo "  ✓ SSH restricted to Tailscale IPs"
+# Add Tailscale subnet SSH rule (100.64.0.0/10 covers all Tailscale devices)
+ufw allow from 100.64.0.0/10 to any port 22 proto tcp comment 'SSH via Tailscale (100.64.0.0/10)'
+echo "  ✓ SSH restricted to Tailscale subnet (100.64.0.0/10)"
 
 # Block unnecessary ports
 echo ""
@@ -98,14 +97,14 @@ echo "Firewall status:"
 ufw status numbered
 echo ""
 echo "Summary:"
-echo "✓ SSH restricted to Tailscale IPs (100.83.222.69, 100.96.110.8)"
+echo "✓ SSH restricted to Tailscale subnet (100.64.0.0/10)"
 echo "✓ HTTP/HTTPS allowed (80, 443)"
 echo "✓ Tailscale allowed (41641/udp)"
 echo "✓ Unnecessary ports blocked (11434, 3040, 5432)"
 echo "✓ Internal Docker networks allowed"
 echo ""
 echo "Next steps:"
-echo "1. Test SSH access from Tailscale IPs"
+echo "1. Test SSH access from Tailscale devices"
 echo "2. Verify Docker containers can communicate internally"
 echo "3. Check firewall logs: sudo tail -f /var/log/ufw.log"
 echo ""

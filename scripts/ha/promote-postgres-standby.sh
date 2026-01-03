@@ -99,3 +99,8 @@ echo "  sudo -u postgres psql -c \"SELECT pg_is_in_recovery();\"  # Should retur
 
 
 
+
+
+
+
+
