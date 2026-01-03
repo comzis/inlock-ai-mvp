@@ -67,24 +67,65 @@ echo "Encrypting backup with GPG (recipient: $GPG_RECIPIENT)..."
 # Stream tar directly to gpg to avoid plaintext on disk; ignore transient read errors (changing files)
 # Use --network=none to prevent Docker network interface churn that affects Tailscale
 # Exclude Tailscale-related volumes to minimize network interface monitoring
+# Capture tar errors to a log file for debugging
+TAR_ERROR_LOG="/tmp/tar-backup-errors-${timestamp}.log"
+
+# Run tar with error capture - pipe stderr to log file while still allowing stdout to gpg
+# Use a subshell to capture both stdout (to gpg) and stderr (to log)
 if docker run --rm \
   --network=none \
   -v /var/lib/docker/volumes:/source:ro \
   alpine:3.20 \
-  tar cz --ignore-failed-read --warning=no-file-changed \
+  sh -c "tar cz --ignore-failed-read --warning=no-file-changed \
     --exclude='*tailscale*' \
     --exclude='*wireguard*' \
     --exclude='*clickhouse*/store/*/parts' \
     --exclude='*clickhouse*/store/*/tmp' \
     --exclude='*clickhouse*/store/*/tmp_*' \
     --exclude='*clickhouse*/store/*/*_*_*_*' \
-    -C /source . 2>/dev/null | \
+    --exclude='*clickhouse*/store/*/detached' \
+    --exclude='*clickhouse*/store/*/format_version' \
+    -C /source . 2> >(tee /dev/stderr | grep -v 'socket ignored' | grep -v 'No such file' >&2) || true" 2>"$TAR_ERROR_LOG" | \
   gpg --batch --yes --encrypt --recipient "$GPG_RECIPIENT" \
     --output "$encrypted_dir/volumes-${timestamp}.tar.gz.gpg" \
     --compress-algo 1 --cipher-algo AES256; then
-  echo "✅ Encrypted backup created: $encrypted_dir/volumes-${timestamp}.tar.gz.gpg"
+  
+  # Check if backup file was created and has reasonable size
+  if [ -f "$encrypted_dir/volumes-${timestamp}.tar.gz.gpg" ]; then
+    BACKUP_SIZE=$(stat -f%z "$encrypted_dir/volumes-${timestamp}.tar.gz.gpg" 2>/dev/null || stat -c%s "$encrypted_dir/volumes-${timestamp}.tar.gz.gpg" 2>/dev/null || echo "0")
+    if [ "$BACKUP_SIZE" -gt 1000 ]; then
+      echo "✅ Encrypted backup created: $encrypted_dir/volumes-${timestamp}.tar.gz.gpg ($(du -h "$encrypted_dir/volumes-${timestamp}.tar.gz.gpg" | cut -f1))"
+      
+      # Log tar errors if any (excluding expected warnings)
+      if [ -s "$TAR_ERROR_LOG" ]; then
+        CRITICAL_ERRORS=$(grep -vE "socket ignored|No such file or directory" "$TAR_ERROR_LOG" || true)
+        if [ -n "$CRITICAL_ERRORS" ]; then
+          echo "⚠️  Tar warnings (non-critical):"
+          echo "$CRITICAL_ERRORS" | head -10
+        fi
+      fi
+      rm -f "$TAR_ERROR_LOG"
+    else
+      echo "ERROR: Backup file created but is too small ($BACKUP_SIZE bytes) - backup may be incomplete"
+      rm -f "$encrypted_dir/volumes-${timestamp}.tar.gz.gpg" "$TAR_ERROR_LOG"
+      exit 1
+    fi
+  else
+    echo "ERROR: Backup file was not created"
+    if [ -s "$TAR_ERROR_LOG" ]; then
+      echo "Tar errors:"
+      cat "$TAR_ERROR_LOG" | head -20
+    fi
+    rm -f "$TAR_ERROR_LOG"
+    exit 1
+  fi
 else
   echo "ERROR: Backup encryption failed"
+  if [ -s "$TAR_ERROR_LOG" ]; then
+    echo "Tar errors:"
+    cat "$TAR_ERROR_LOG" | head -20
+  fi
+  rm -f "$TAR_ERROR_LOG"
   exit 1
 fi
 
