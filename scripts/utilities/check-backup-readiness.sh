@@ -4,6 +4,9 @@
 
 set -e
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+
 echo "=========================================="
 echo "BACKUP READINESS CHECK"
 echo "=========================================="
@@ -18,7 +21,7 @@ else
     echo "❌ GPG key NOT found for admin@inlock.ai"
     echo ""
     echo "To import a key, run:"
-    echo "  ./scripts/import-gpg-key.sh /path/to/admin-inlock-ai.pub"
+    echo "  $PROJECT_ROOT/scripts/utilities/import-gpg-key.sh /path/to/admin-inlock-ai.pub"
     echo ""
     exit 1
 fi
@@ -26,8 +29,6 @@ fi
 echo ""
 
 # Check backup script exists (use absolute path resolution)
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 BACKUP_SCRIPT="$PROJECT_ROOT/scripts/backup/backup-volumes.sh"
 
 if [ ! -f "$BACKUP_SCRIPT" ]; then
@@ -50,4 +51,4 @@ echo "✅ BACKUP SYSTEM READY"
 echo "=========================================="
 echo ""
 echo "You can now run encrypted backups with:"
-echo "  ./scripts/backup-volumes.sh"
+echo "  $PROJECT_ROOT/scripts/backup/backup-volumes.sh"

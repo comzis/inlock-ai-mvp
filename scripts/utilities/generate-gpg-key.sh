@@ -66,4 +66,4 @@ gpg --armor --export admin@inlock.ai > ~/admin-inlock-ai.pub
 echo "✅ Public key exported to: ~/admin-inlock-ai.pub"
 echo ""
 echo "The key is now ready for backups. You can verify with:"
-echo "  ./scripts/check-backup-readiness.sh"
+echo "  ./scripts/utilities/check-backup-readiness.sh"

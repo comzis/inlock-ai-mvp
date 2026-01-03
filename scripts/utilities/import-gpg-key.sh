@@ -1,6 +1,6 @@
 #!/bin/bash
 # Helper script to import GPG public key for admin@inlock.ai
-# Usage: ./scripts/import-gpg-key.sh /path/to/admin-inlock-ai.pub
+# Usage: ./scripts/utilities/import-gpg-key.sh /path/to/admin-inlock-ai.pub
 
 set -e
 
@@ -31,4 +31,4 @@ gpg --list-keys admin@inlock.ai
 
 echo ""
 echo "✅ GPG key imported successfully!"
-echo "You can now run encrypted backups with: ./scripts/backup-volumes.sh"
+echo "You can now run encrypted backups with: ./scripts/backup/backup-volumes.sh"

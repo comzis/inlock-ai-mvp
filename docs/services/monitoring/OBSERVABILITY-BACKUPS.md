@@ -27,7 +27,7 @@ Traefik exposes Prometheus metrics on the `metrics` entrypoint:
 curl http://localhost:8080/metrics
 
 # Or from within Docker network
-docker compose -f compose/stack.yml --env-file .env exec traefik wget -qO- http://localhost:8080/metrics
+docker compose -f compose/services/stack.yml --env-file .env exec traefik wget -qO- http://localhost:8080/metrics
 ```
 
 **Key Metrics:**
@@ -121,23 +121,23 @@ curl http://localhost:8080/metrics
 
 ### Backup Scripts
 
-#### Volume Backup (`scripts/backup-volumes.sh`)
+#### Volume Backup (`scripts/backup/backup-volumes.sh`)
 
 **⚠️ IMPORTANT: Encryption is REQUIRED. Backups will fail if GPG key is not imported.**
 
 **Usage:**
 ```bash
 # 1. First, ensure GPG key is imported (one-time setup)
-./scripts/import-gpg-key.sh /path/to/admin-inlock-ai.pub
+./scripts/utilities/import-gpg-key.sh /path/to/admin-inlock-ai.pub
 
 # 2. Verify backup readiness
-./scripts/check-backup-readiness.sh
+./scripts/utilities/check-backup-readiness.sh
 
 # 3. Set GPG recipient (required for encryption)
 export GPG_RECIPIENT="admin@inlock.ai"
 
 # 4. Run backup
-./scripts/backup-volumes.sh
+./scripts/backup/backup-volumes.sh
 ```
 
 **Features:**
@@ -148,7 +148,7 @@ export GPG_RECIPIENT="admin@inlock.ai"
 - Automatic cleanup (7 days local, 30 days encrypted)
 
 **Output:**
-- Encrypted backup: `/var/backups/inlock/encrypted/volumes-YYYY-MM-DD-HHMMSS.tar.gz.gpg`
+- Encrypted backup: `$HOME/backups/inlock/encrypted/volumes-YYYY-MM-DD-HHMMSS.tar.gz.gpg`
 
 **Error Handling:**
 - Script will exit with error if GPG is not installed
@@ -160,24 +160,25 @@ export GPG_RECIPIENT="admin@inlock.ai"
 
 **Postgres Backup:**
 ```bash
-# Manual backup
-docker compose -f compose/postgres.yml --env-file .env exec postgres \
+# Manual backup (using correct compose file paths)
+docker compose -f compose/services/stack.yml --env-file .env exec inlock-db \
   pg_dump -U n8n n8n | gpg --encrypt --recipient admin@inlock.ai \
-  > /var/backups/inlock/encrypted/postgres-$(date +%F).sql.gpg
+  > $HOME/backups/inlock/encrypted/postgres-$(date +%F).sql.gpg
 ```
 
 **Automated Backup Script:**
 ```bash
-#!/bin/bash
-# scripts/backup-databases.sh
+# Use the automated backup script (recommended)
+./scripts/backup/backup-databases.sh
 
-BACKUP_DIR="/var/backups/inlock/encrypted"
+# Or run manually with correct paths
+BACKUP_DIR="$HOME/backups/inlock/encrypted"
 GPG_RECIPIENT="${GPG_RECIPIENT:-admin@inlock.ai}"
 
 mkdir -p "$BACKUP_DIR"
 
-# Backup Postgres
-docker compose -f compose/postgres.yml --env-file .env exec -T postgres \
+# Backup Postgres (using correct compose file)
+docker compose -f compose/services/stack.yml --env-file .env exec -T inlock-db \
   pg_dump -U n8n n8n | \
   gpg --encrypt --recipient "$GPG_RECIPIENT" \
   > "$BACKUP_DIR/postgres-$(date +%F-%H%M%S).sql.gpg"
@@ -187,15 +188,15 @@ echo "✅ Database backup complete: $BACKUP_DIR/postgres-*.sql.gpg"
 
 ### Restore Procedures
 
-#### Volume Restore (`scripts/restore-volumes.sh`)
+#### Volume Restore (`scripts/backup/restore-volumes.sh`)
 
 **Usage:**
 ```bash
 # Restore from encrypted backup
-./scripts/restore-volumes.sh /var/backups/inlock/encrypted/volumes-2025-12-08-120000.tar.gz.gpg --gpg
+./scripts/backup/restore-volumes.sh $HOME/backups/inlock/encrypted/volumes-2025-12-08-120000.tar.gz.gpg --gpg
 
 # Restore from Restic
-./scripts/restore-volumes.sh latest --restic
+./scripts/backup/restore-volumes.sh latest --restic
 ```
 
 **Steps:**
@@ -211,9 +212,9 @@ echo "✅ Database backup complete: $BACKUP_DIR/postgres-*.sql.gpg"
 
 **Postgres Restore:**
 ```bash
-# Decrypt and restore
-gpg --decrypt /var/backups/inlock/encrypted/postgres-2025-12-08.sql.gpg | \
-  docker compose -f compose/postgres.yml --env-file .env exec -T postgres \
+# Decrypt and restore (using correct compose file paths)
+gpg --decrypt $HOME/backups/inlock/encrypted/postgres-2025-12-08.sql.gpg | \
+  docker compose -f compose/services/stack.yml --env-file .env exec -T inlock-db \
   psql -U n8n -d n8n
 ```
 
@@ -222,14 +223,14 @@ gpg --decrypt /var/backups/inlock/encrypted/postgres-2025-12-08.sql.gpg | \
 **Test Restore Procedure:**
 ```bash
 # 1. Create test backup
-./scripts/backup-volumes.sh
+./scripts/backup/backup-volumes.sh
 
 # 2. Create test volume
 docker volume create test_volume
 echo "test data" | docker run --rm -i -v test_volume:/data alpine sh -c "cat > /data/test.txt"
 
 # 3. Restore backup (this will overwrite test_volume if it exists in backup)
-./scripts/restore-volumes.sh /var/backups/inlock/encrypted/volumes-*.tar.gz.gpg --gpg
+./scripts/backup/restore-volumes.sh $HOME/backups/inlock/encrypted/volumes-*.tar.gz.gpg --gpg
 
 # 4. Verify restore
 docker run --rm -v test_volume:/data alpine cat /data/test.txt
@@ -239,10 +240,12 @@ docker run --rm -v test_volume:/data alpine cat /data/test.txt
 
 **Cron Job Setup:**
 ```bash
-# Add to crontab (crontab -e)
-# Daily backup at 2 AM
-0 2 * * * /home/comzis/inlock-infra/scripts/backup-volumes.sh >> /var/log/backup.log 2>&1
-0 3 * * * /home/comzis/inlock-infra/scripts/backup-databases.sh >> /var/log/backup.log 2>&1
+# Install automated backup cron (recommended - runs at 03:00)
+./scripts/backup/install-backup-cron.sh
+
+# Or manually add to crontab (crontab -e)
+# Daily backup at 3 AM (using automated-backup-system.sh)
+0 3 * * * /home/comzis/inlock/scripts/backup/automated-backup-system.sh >> /home/comzis/inlock/logs/backup.log 2>&1
 ```
 
 **Systemd Timer (Alternative):**
@@ -254,8 +257,7 @@ After=docker.service
 
 [Service]
 Type=oneshot
-ExecStart=/home/comzis/inlock-infra/scripts/backup-volumes.sh
-ExecStart=/home/comzis/inlock-infra/scripts/backup-databases.sh
+ExecStart=/home/comzis/inlock/scripts/backup/automated-backup-system.sh
 ```
 
 ```ini
@@ -291,7 +293,7 @@ gpg --armor --export admin@inlock.ai > admin-public-key.asc
 **Import Public Key (on backup server):**
 ```bash
 # Using helper script (recommended)
-./scripts/import-gpg-key.sh /path/to/admin-public-key.asc
+./scripts/utilities/import-gpg-key.sh /path/to/admin-public-key.asc
 
 # Or manually
 gpg --import admin-public-key.asc
@@ -303,7 +305,7 @@ gpg --list-keys admin@inlock.ai
 **Check Backup Readiness:**
 ```bash
 # Run health check before backups
-./scripts/check-backup-readiness.sh
+./scripts/utilities/check-backup-readiness.sh
 ```
 
 This will verify:
@@ -333,7 +335,7 @@ chmod 600 /root/.config/restic/password
 ```bash
 restic -r b2:inlock-infra \
   --password-file /root/.config/restic/password \
-  backup /var/backups/inlock/encrypted
+  backup $HOME/backups/inlock/encrypted
 ```
 
 ## Disaster Recovery
@@ -343,29 +345,31 @@ restic -r b2:inlock-infra \
 **1. Full Infrastructure Restore:**
 ```bash
 # Restore volumes
-./scripts/restore-volumes.sh /path/to/backup.tar.gz.gpg --gpg
+./scripts/backup/restore-volumes.sh $HOME/backups/inlock/encrypted/volumes-YYYY-MM-DD-HHMMSS.tar.gz.gpg --gpg
 
-# Restore databases
-gpg --decrypt postgres-*.sql.gpg | docker compose ... exec -T postgres psql ...
+# Restore databases (using correct compose file)
+gpg --decrypt $HOME/backups/inlock/encrypted/postgres-*.sql.gpg | \
+  docker compose -f compose/services/stack.yml --env-file .env exec -T inlock-db \
+  psql -U n8n -d n8n
 
 # Start services
-docker compose -f compose/stack.yml -f compose/postgres.yml -f compose/n8n.yml --env-file .env up -d
+docker compose -f compose/services/stack.yml --env-file .env up -d
 ```
 
 **2. Partial Restore (Single Service):**
 ```bash
-# Stop service
-docker compose -f compose/n8n.yml --env-file .env stop n8n
+# Stop service (using correct compose file)
+docker compose -f compose/services/stack.yml --env-file .env stop n8n
 
 # Restore specific volume
 docker run --rm \
-  -v n8n_data:/dest \
-  -v /backup/n8n_data.tar.gz:/backup.tar.gz:ro \
+  -v services_n8n_data:/dest \
+  -v $HOME/backups/inlock/encrypted/n8n_data.tar.gz:/backup.tar.gz:ro \
   alpine:3.20 \
   sh -c "cd /dest && tar xzf /backup.tar.gz"
 
 # Start service
-docker compose -f compose/n8n.yml --env-file .env start n8n
+docker compose -f compose/services/stack.yml --env-file .env start n8n
 ```
 
 **3. Configuration Restore:**
@@ -426,5 +430,3 @@ cp /secure/backup/secrets/* /home/comzis/apps/secrets-real/
 - [Restic Documentation](https://restic.readthedocs.io/)
 - [GPG Documentation](https://www.gnupg.org/documentation/)
 - [Docker Volume Backup](https://docs.docker.com/storage/volumes/#backup-restore-or-migrate-data-volumes)
-
-

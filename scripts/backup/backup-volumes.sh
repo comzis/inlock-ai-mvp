@@ -14,6 +14,10 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+IMPORT_SCRIPT="$PROJECT_ROOT/scripts/utilities/import-gpg-key.sh"
+
 timestamp="$(date +%F-%H%M%S)"
 # Use user-writable location (can be changed to /var/backups/inlock if sudo is available)
 backup_dir="${BACKUP_DIR:-$HOME/backups/inlock}"
@@ -51,7 +55,7 @@ if ! gpg --list-keys "$GPG_RECIPIENT" > /dev/null 2>&1; then
   echo "ERROR: GPG public key not found for recipient: $GPG_RECIPIENT"
   echo ""
   echo "To import a GPG public key, run:"
-  echo "  ./scripts/import-gpg-key.sh /path/to/admin-inlock-ai.pub"
+  echo "  $IMPORT_SCRIPT /path/to/admin-inlock-ai.pub"
   echo ""
   echo "Or manually:"
   echo "  gpg --import /path/to/admin-inlock-ai.pub"
