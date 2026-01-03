@@ -1,8 +1,18 @@
 #!/usr/bin/env bash
-set -euo pipefail
+# Purpose: Backup Docker volumes with encryption and secure transport
+# Usage: ./scripts/backup/backup-volumes.sh
+# Dependencies: docker, gpg, tar, alpine:3.20 image
+# Environment Variables:
+#   BACKUP_DIR - Backup directory (default: $HOME/backups/inlock)
+#   BACKUP_ENCRYPTED_DIR - Encrypted backup directory (default: $BACKUP_DIR/encrypted)
+#   GPG_RECIPIENT - GPG recipient email/key (default: admin@inlock.ai)
+#   RESTIC_REPO - Restic repository (optional, default: b2:inlock-infra)
+#   RESTIC_PASSWORD_FILE - Restic password file (optional)
+# Exit Codes: 0=success, 1=error
+# Author: INLOCK Infrastructure Team
+# Last Updated: 2026-01-03
 
-# Backup script for Docker volumes with encryption and secure transport
-# Requires: gpg, restic (optional), or age encryption
+set -euo pipefail
 
 timestamp="$(date +%F-%H%M%S)"
 # Use user-writable location (can be changed to /var/backups/inlock if sudo is available)

@@ -57,12 +57,23 @@ if [ -n "$SSH_RULE_NUMS" ]; then
     while [ $ITERATION -lt $MAX_ITERATIONS ] && ufw status numbered 2>/dev/null | grep -qE "22/tcp|22 "; do
         ITERATION=$((ITERATION + 1))
         REMAINING_RULES=$(ufw status numbered 2>/dev/null | grep -E "22/tcp|22 " | awk -F'[][]' '{print $2}' | sort -rn | head -1 || echo "")
-        if [ -n "$REMAINING_RULES" ] && [ "$REMAINING_RULES" -gt 0 ] 2>/dev/null; then
-            echo "  Removing remaining SSH rule #$REMAINING_RULES (iteration $ITERATION)..."
-            echo "y" | ufw delete "$REMAINING_RULES" >/dev/null 2>&1 || true
-        else
+        
+        # Validate REMAINING_RULES is numeric and greater than 0 before using
+        if [ -z "$REMAINING_RULES" ]; then
+            # No rules found, exit loop
             break
         fi
+        
+        # Check if REMAINING_RULES is a valid positive integer
+        if ! [[ "$REMAINING_RULES" =~ ^[0-9]+$ ]] || [ "$REMAINING_RULES" -le 0 ]; then
+            # Invalid rule number, exit loop to prevent passing invalid argument to ufw
+            echo "  ⚠️  Invalid rule number detected, stopping cleanup"
+            break
+        fi
+        
+        # Valid rule number, proceed with deletion
+        echo "  Removing remaining SSH rule #$REMAINING_RULES (iteration $ITERATION)..."
+        echo "y" | ufw delete "$REMAINING_RULES" >/dev/null 2>&1 || true
     done
     
     if [ $REMOVED_COUNT -gt 0 ]; then

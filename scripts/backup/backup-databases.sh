@@ -1,9 +1,20 @@
 #!/usr/bin/env bash
-set -euo pipefail
+# Purpose: Perform logical backups (pg_dump) of running Postgres containers
+# Usage: ./scripts/backup/backup-databases.sh
+# Dependencies: docker, gpg, postgres containers (inlock-db)
+# Environment Variables:
+#   BACKUP_DIR - Backup directory (default: $HOME/backups/inlock)
+#   BACKUP_ENCRYPTED_DIR - Encrypted backup directory (default: $BACKUP_DIR/encrypted)
+#   GPG_RECIPIENT - GPG recipient email/key (default: admin@inlock.ai)
+#   INLOCK_DB_NAME - Inlock database name (default: inlock)
+#   INLOCK_DB_USER - Inlock database user (default: inlock)
+#   N8N_DB_NAME - N8N database name (default: n8n)
+#   N8N_DB_USER - N8N database user (default: n8n)
+# Exit Codes: 0=success, 1=error
+# Author: INLOCK Infrastructure Team
+# Last Updated: 2026-01-03
 
-# Database Backup Script for Inlock AI
-# Performs logical backups (pg_dump) of running Postgres containers.
-# Outputs encrypted SQL dumps.
+set -euo pipefail
 
 timestamp="$(date +%F-%H%M%S)"
 backup_dir="${BACKUP_DIR:-$HOME/backups/inlock}"

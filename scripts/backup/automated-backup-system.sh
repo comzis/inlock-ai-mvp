@@ -1,16 +1,23 @@
-#!/bin/bash
-#
-# Automated backup system
-# Coordinates all backup operations with scheduling, verification, and retention
-#
+#!/usr/bin/env bash
+# Purpose: Coordinate all backup operations with scheduling, verification, and retention
 # Usage: ./scripts/backup/automated-backup-system.sh [OPTIONS]
-# Options:
-#   --backup-type <all|databases|volumes|full>  Type of backup to run
-#   --verify                                    Verify backups after creation
-#   --sync-offsite                             Sync backups to off-site storage
-#   --cleanup                                  Clean up old backups
+#   Options:
+#     --backup-type <all|databases|volumes|full>  Type of backup to run
+#     --verify                                    Verify backups after creation
+#     --sync-offsite                             Sync backups to off-site storage
+#     --cleanup                                  Clean up old backups
+# Dependencies: backup-databases.sh, backup-volumes.sh, gpg
+# Environment Variables:
+#   BACKUP_TYPE - Type of backup (default: all)
+#   VERIFY_BACKUPS - Verify backups after creation (default: false)
+#   SYNC_OFFSITE - Sync to off-site storage (default: false)
+#   CLEANUP_OLD - Clean up old backups (default: false)
+#   BACKUP_DIR - Backup directory (default: $HOME/backups/inlock)
+# Exit Codes: 0=success, 1=error
+# Author: INLOCK Infrastructure Team
+# Last Updated: 2026-01-03
 
-set -e
+set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
