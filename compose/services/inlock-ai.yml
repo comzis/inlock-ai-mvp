@@ -20,14 +20,16 @@ x-resource-hints: &resource-hints
 services:
   inlock-ai:
     # SECURITY: TODO - Replace :latest with version tag or SHA256 digest
-    # Current build process uses :latest tag
-    # Recommended: Implement version tagging in build script
+    # Current build process uses :latest tag (see scripts/deployment/deploy-inlock.sh)
+    # Recommended: Implement version tagging in build script:
+    #   docker build -t inlock-ai:v$(date +%Y%m%d-%H%M%S) -t inlock-ai:latest .
+    # Then update this compose file to use the versioned tag
     # See docs/security/IMAGE-VERSION-POLICY.md for details
-    image: inlock-ai:latest
+    image: inlock-ai@sha256:152076b99ff99c63f595e9fb34d986fc1cafd8dd4386cce55f5b046862d8c0b9
     restart: always
     env_file:
       - /opt/inlock-ai-secure-mvp/.env.production
-      - ../.env
+      - /home/comzis/inlock/.env
     networks:
       edge: {}
       internal: {}

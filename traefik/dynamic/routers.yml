@@ -24,7 +24,6 @@ http:
       rule: Host(`traefik.inlock.ai`) && (PathPrefix(`/dashboard`) || (PathPrefix(`/api/`) && !Path(`/api`) && !Path(`/api/`)))
       middlewares:
         - secure-headers
-        - allowed-admins
         - admin-forward-auth
         - mgmt-ratelimit
       service: api@internal
@@ -181,4 +180,4 @@ http:
         - secure-headers
       service: mailcow
       tls:
-        certResolver: le-tls
+        certResolver: le-dns
