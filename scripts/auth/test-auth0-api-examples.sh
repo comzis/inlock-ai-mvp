@@ -50,7 +50,11 @@ ACCESS_TOKEN=$(echo "$TOKEN_RESPONSE" | jq -r '.access_token')
 
 if [ -z "$ACCESS_TOKEN" ] || [ "$ACCESS_TOKEN" = "null" ]; then
     echo "❌ Failed to get access token"
-    echo "Response: $TOKEN_RESPONSE" | jq '.' 2>/dev/null || echo "$TOKEN_RESPONSE"
+    # Security: Only show error code, not full token response (may contain sensitive data)
+    ERROR_CODE=$(echo "$TOKEN_RESPONSE" | jq -r '.error // "unknown"')
+    ERROR_DESC=$(echo "$TOKEN_RESPONSE" | jq -r '.error_description // "See Auth0 logs for details"')
+    echo "Error: $ERROR_CODE"
+    echo "Description: $ERROR_DESC"
     exit 1
 fi
 

@@ -6,6 +6,7 @@ services:
       - /home/comzis/inlock/.env
     environment:
       - N8N_ENCRYPTION_KEY_FILE=/run/secrets/n8n-encryption-key
+      - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY}
       - DB_TYPE=postgresdb
       - DB_POSTGRESDB_HOST=inlock-db
       - DB_POSTGRESDB_PORT=5432

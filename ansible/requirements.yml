@@ -2,8 +2,11 @@
 # Ansible Collections and Roles
 
 collections:
+  # SECURITY: Pinned to exact version to prevent dependency drift
+  # Current version: 12.1.0 (verified installed)
+  # To update: Check changelog, test, then update version here
   - name: community.general
-    version: ">=7.0.0"
+    version: "12.1.0"
 
 
 
