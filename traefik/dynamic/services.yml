@@ -1,5 +1,9 @@
 http:
   serversTransports:
+    # SECURITY WARNING: insecureSkipVerify is enabled for Cockpit transport
+    # Risk: MitM attacks possible if network is compromised (lower risk on localhost)
+    # Mitigation: Cockpit runs on host (172.20.0.1:9090), not exposed externally
+    # TODO: Consider adding Cockpit's CA cert to Traefik trust store for proper verification
     cockpit-insecure:
       insecureSkipVerify: true
 

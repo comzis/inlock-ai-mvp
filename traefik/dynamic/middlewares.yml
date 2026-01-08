@@ -65,6 +65,10 @@ http:
           - X-Auth-Request-Groups
           - X-Auth-Request-Access-Token
           - X-Auth-Request-Redirect
+          # SECURITY NOTE: Authorization header forwarded to upstream services
+          # Risk: Credentials may appear in upstream service logs if they log headers
+          # Mitigation: Only forward to trusted internal services (admin tools)
+          # Consider: Remove if upstream services don't need Authorization header
           - Authorization
         authRequestHeaders:
           - X-Forwarded-Method
