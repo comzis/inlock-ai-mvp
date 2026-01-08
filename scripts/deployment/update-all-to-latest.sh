@@ -2,6 +2,34 @@
 # Update ALL services to latest versions (no hardcoded versions)
 # Run: ./scripts/update-all-to-latest.sh
 
+# SECURITY: THIS SCRIPT IS DISABLED
+# This script automatically updates all Docker images to :latest tags, which:
+# - Introduces unpredictable breaking changes
+# - Can silently introduce security vulnerabilities
+# - Makes deployments non-reproducible
+# - Violates security best practices for production
+#
+# RECOMMENDATION: Use manual version pinning with security review instead.
+# - Check release notes for breaking changes
+# - Test in staging environment
+# - Update compose files with specific version tags or SHA256 digests
+# - Review security advisories before updating
+#
+# See: docs/security/SECURITY-AUDIT-FIXES-2026-01-06.md
+# See: docs/security/AUDIT-RECOMMENDATIONS-REVIEW-2026-01-08.md
+
+echo "ERROR: This script has been disabled for security reasons." >&2
+echo "It automatically updates all services to :latest, which introduces security risks." >&2
+echo "" >&2
+echo "For safe updates:" >&2
+echo "  1. Review release notes and security advisories" >&2
+echo "  2. Test updates in staging environment" >&2
+echo "  3. Update compose files with specific version tags or SHA256 digests" >&2
+echo "  4. Commit changes with security review" >&2
+echo "" >&2
+echo "See docs/security/ for security guidelines." >&2
+exit 1
+
 set -euo pipefail
 
 echo "=== Update All Services to Latest Versions ==="
