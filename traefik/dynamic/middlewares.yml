@@ -50,6 +50,7 @@ http:
         customFrameOptionsValue: "SAMEORIGIN"
         customRequestHeaders:
           X-Forwarded-Proto: "https"
+          X-Forwarded-Host: "deploy.inlock.ai"
         # Don't override Content-Type - let Coolify set it correctly
         # Coolify uses modern JavaScript that may need different content types
     dashboard-auth:

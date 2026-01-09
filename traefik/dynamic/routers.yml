@@ -111,7 +111,8 @@ http:
       rule: Host(`cockpit.inlock.ai`)
       middlewares:
         - cockpit-headers
-        - admin-forward-auth
+        # admin-forward-auth removed to allow direct system authentication
+        # Users can now log in with their system credentials (comzis, etc.)
         - mgmt-ratelimit
       service: cockpit
       tls:
@@ -179,5 +180,83 @@ http:
       middlewares:
         - secure-headers
       service: mailcow
+      tls:
+        certResolver: le-dns
+
+    # Mailcow aliases - redirect to main mail subdomain
+    mailcow-alias:
+      entryPoints:
+        - websecure
+      rule: Host(`mailcow.inlock.ai`)
+      middlewares:
+        - secure-headers
+      service: mailcow
+      tls:
+        certResolver: le-dns
+
+    # Mailcow webmail alias
+    webmail:
+      entryPoints:
+        - websecure
+      rule: Host(`webmail.inlock.ai`)
+      middlewares:
+        - secure-headers
+      service: mailcow
+      tls:
+        certResolver: le-dns
+
+    # Mailcow admin alias
+    mailcow-admin:
+      entryPoints:
+        - websecure
+      rule: Host(`admin.inlock.ai`)
+      middlewares:
+        - secure-headers
+      service: mailcow
+      tls:
+        certResolver: le-dns
+
+    # Auth0 alias - redirect to auth subdomain
+    auth0-alias:
+      entryPoints:
+        - websecure
+      rule: Host(`auth0.inlock.ai`)
+      middlewares:
+        - secure-headers
+        - oauth2-to-deploy-redirect
+      service: oauth2-proxy
+      tls:
+        certResolver: le-dns
+
+    # API subdomain - route to Inlock AI API
+    api:
+      entryPoints:
+        - websecure
+      rule: Host(`api.inlock.ai`)
+      middlewares:
+        - secure-headers
+      service: inlock-ai
+      tls:
+        certResolver: le-dns
+
+    # App subdomain - alias for main app
+    app:
+      entryPoints:
+        - websecure
+      rule: Host(`app.inlock.ai`)
+      middlewares:
+        - secure-headers
+      service: inlock-ai
+      tls:
+        certResolver: le-dns
+
+    # Portal subdomain - route to main app
+    portal:
+      entryPoints:
+        - websecure
+      rule: Host(`portal.inlock.ai`)
+      middlewares:
+        - secure-headers
+      service: inlock-ai
       tls:
         certResolver: le-dns
