@@ -111,8 +111,9 @@ http:
       rule: Host(`cockpit.inlock.ai`)
       middlewares:
         - cockpit-headers
-        # admin-forward-auth removed to allow direct system authentication
-        # Users can now log in with their system credentials (comzis, etc.)
+        # allowed-admins temporarily removed - IP restriction needs proper Tailscale routing
+        # To enable: Access via Tailscale IP directly or configure device routing
+        # admin-forward-auth removed - direct system authentication
         - mgmt-ratelimit
       service: cockpit
       tls:
