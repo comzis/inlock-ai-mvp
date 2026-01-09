@@ -373,6 +373,6 @@
     "to": "now"
   },
   "title": "PostgreSQL Overview",
-  "uid": "postgres-overview",
+  "uid": "postgres-dashboard",
   "version": 1
 }
