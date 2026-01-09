@@ -38,7 +38,8 @@ http:
         serversTransport: cockpit-insecure
         servers:
           # Cockpit runs on host system using HTTPS; Traefik must connect via HTTPS and skip verification.
-          - url: https://172.20.0.1:9090
+          # Using mgmt network gateway (172.18.0.1) to reach host Cockpit service
+          - url: https://172.18.0.1:9090
     oauth2-proxy:
       loadBalancer:
         servers:

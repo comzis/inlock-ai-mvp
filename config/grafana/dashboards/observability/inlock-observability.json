@@ -379,8 +379,8 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Inlock AI Observability",
-  "uid": "inlock-observability",
+  "title": "Inlock Observability Dashboard",
+  "uid": "inlock-observability-dashboard",
   "version": 1,
   "weekStart": ""
 }

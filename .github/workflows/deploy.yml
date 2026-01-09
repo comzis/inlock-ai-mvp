@@ -6,13 +6,26 @@ on:
     tags: ["v*"] # Trigger on version tags
   workflow_dispatch: # Allow manual trigger
 
+# Security: Set minimum permissions and enable secret masking
+permissions:
+  contents: read
+  actions: read
+
+env:
+  # Security: Enable secret masking in logs
+  ACTIONS_STEP_DEBUG: false
+  ACTIONS_RUNNER_DEBUG: false
+
 jobs:
   security-scan:
     name: Security Scan (Trivy)
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Run Trivy vulnerability scanner in repo mode
         uses: aquasecurity/trivy-action@master
@@ -25,44 +38,62 @@ jobs:
           severity: 'CRITICAL'
 
   deploy:
+    name: Deploy to Production
     needs: security-scan
     runs-on: ubuntu-latest
+    # Security: Use environment protection with required reviewers
+    environment:
+      name: production
+      url: https://inlock.ai
+    permissions:
+      contents: read
+      actions: read
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Copy files via SCP
-        uses: appleboy/scp-action@master
+        uses: appleboy/scp-action@v0.1.7
+        # Security: Secrets are automatically masked by GitHub Actions
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           source: "./*"
           target: "/home/comzis/projects/inlock-ai-mvp"
-          rm: true # Clean target first? No, risky if secrets are there. But we have .env separation. Let's keep rm: false for safety, just overwrite.
+          rm: false # Security: Don't remove target directory to preserve secrets
 
       - name: Deploy via SSH
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@v1.0.3
+        # Security: Secrets are automatically masked by GitHub Actions
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
+            set -euo pipefail
             cd /home/comzis/projects/inlock-ai-mvp
             # No git pull needed
             scripts/deploy_production.sh
 
   verify:
+    name: Verify Deployment
     needs: deploy
     runs-on: ubuntu-latest
+    environment:
+      name: production
+    permissions:
+      contents: read
     steps:
       - name: Verify Health via SSH
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@v1.0.3
+        # Security: Secrets are automatically masked by GitHub Actions
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
+            set -euo pipefail
             # Give services 30s to stabilize
             sleep 30
             cd /home/comzis/projects/inlock-ai-mvp
@@ -70,16 +101,21 @@ jobs:
             ./scripts/health_check_remote.sh
 
   e2e-test:
+    name: End-to-End Tests
     needs: verify
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 18
+          cache: 'npm'
+          cache-dependency-path: e2e/package-lock.json
 
       - name: Install Dependencies
         working-directory: e2e
