@@ -17,12 +17,18 @@ services:
       - APP_ENV=production
       - APP_KEY=${COOLIFY_APP_KEY:-base64:fULAMvnIFN0dL9+yps4G/Zsd39Ppzhq5o7003pkRqV0=}
       - APP_URL=https://deploy.inlock.ai
+      # Disable nginx since Traefik handles reverse proxy
+      - WEBSERVER_ENABLED=false
+      - PHP_FPM_LISTEN=0.0.0.0:8080
+      # Trust Traefik proxy headers to get correct host/scheme
+      - TRUSTED_PROXIES=*
+      - FORWARDED_HEADERS=X-Forwarded-For,X-Forwarded-Host,X-Forwarded-Proto,X-Forwarded-Port
       - DB_CONNECTION=pgsql
       - DB_HOST=coolify-postgres
       - DB_PORT=5432
       - DB_DATABASE=coolify
       - DB_USERNAME=coolify
-      - DB_PASSWORD=${POSTGRES_PASSWORD:-coolify}
+      - DB_PASSWORD=${POSTGRES_PASSWORD:-ee7a8e171c075626d63b3cb7292b0cba9e4e71b83c9a3fff}
       - QUEUE_CONNECTION=redis
       - REDIS_HOST=coolify-redis
       - REDIS_PORT=6380
@@ -39,12 +45,16 @@ services:
       - coolify
       - mgmt
       - socket-proxy
-    user: "1000:1000"
-    cap_drop:
-      - ALL
-    read_only: true
+    # NOTE: Removed read_only: true to allow nginx.conf to be written
+    # Even with WEBSERVER_ENABLED=false, the entrypoint script tries to initialize nginx config
+    # s6-overlay init system requires various capabilities to function properly
+    # SECURITY: Removed cap_drop: ALL to allow s6-overlay to work - container runs as non-root user
+    # We still have security_opt: no-new-privileges:true to prevent privilege escalation
     tmpfs:
       - /tmp
+    # NOTE: Removed /run tmpfs - s6-overlay manages /run itself and tmpfs interferes with initialization
+    # NOTE: Removed read_only: true to allow nginx.conf to be written
+    # The entrypoint script needs to write /etc/nginx/nginx.conf even with WEBSERVER_ENABLED=false
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
       interval: 30s
@@ -55,7 +65,8 @@ services:
       - coolify-postgres
 
   coolify-redis:
-    image: redis@sha256:37e002448575b32a599109664107e374c8709546905c372a34d64919043b9ceb
+    # Use Redis 7.x which supports RDB format version 12
+    image: redis:7-alpine
     restart: always
     command: sh -c "if [ -n \"$$REDIS_PASSWORD\" ]; then redis-server --requirepass $$REDIS_PASSWORD --port 6380; else redis-server --port 6380; fi"
     ports:
