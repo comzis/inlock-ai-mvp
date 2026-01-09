@@ -1,0 +1,207 @@
+{
+    "active": false,
+    "versionId": "belgrade-weather-agent",
+    "name": "Daily Weather - Belgrade (AI Summary)",
+    "nodes": [
+        {
+            "parameters": {
+                "rule": {
+                    "interval": [
+                        {
+                            "field": "hours",
+                            "hoursInterval": 24
+                        }
+                    ]
+                }
+            },
+            "type": "n8n-nodes-base.scheduleTrigger",
+            "typeVersion": 1,
+            "position": [
+                0,
+                0
+            ],
+            "name": "Every 24 Hours"
+        },
+        {
+            "parameters": {},
+            "type": "n8n-nodes-base.manualTrigger",
+            "typeVersion": 1,
+            "position": [
+                0,
+                200
+            ],
+            "name": "Manual Trigger"
+        },
+        {
+            "parameters": {
+                "url": "https://api.open-meteo.com/v1/forecast?latitude=44.7872&longitude=20.4573&current_weather=true&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_probability_max,wind_speed_10m_max&timezone=Europe%2FBelgrade&forecast_days=1",
+                "options": {
+                    "timeout": 10000
+                }
+            },
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 3,
+            "position": [
+                240,
+                100
+            ],
+            "name": "Fetch Belgrade Weather"
+        },
+        {
+            "parameters": {
+                "jsCode": "const current = $json.current_weather || {};\nconst daily = $json.daily || {};\n\nconst date = (daily.time && daily.time[0]) || new Date().toISOString().slice(0, 10);\nconst currentTemp = current.temperature;\nconst currentWind = current.windspeed;\nconst weatherCode = current.weathercode;\nconst tempMax = daily.temperature_2m_max && daily.temperature_2m_max[0];\nconst tempMin = daily.temperature_2m_min && daily.temperature_2m_min[0];\nconst precipProb = daily.precipitation_probability_max && daily.precipitation_probability_max[0];\nconst windMax = daily.wind_speed_10m_max && daily.wind_speed_10m_max[0];\n\nconst prompt = [\n  'Location: Belgrade, Serbia',\n  `Date: ${date}`,\n  `Current: temp_c=${currentTemp}, wind_kph=${currentWind}, weathercode=${weatherCode}`,\n  `Today forecast: max_c=${tempMax}, min_c=${tempMin}, precip_prob_max=${precipProb}, wind_max_kph=${windMax}`,\n  'Timezone: Europe/Belgrade',\n  'Use metric units. Write a short daily summary. Return JSON with keys: subject, body.'\n].join('\\n');\n\nreturn [{\n  json: {\n    date,\n    currentTemp,\n    currentWind,\n    weatherCode,\n    tempMax,\n    tempMin,\n    precipProb,\n    windMax,\n    prompt\n  }\n}];"
+            },
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 1,
+            "position": [
+                460,
+                100
+            ],
+            "name": "Prepare Weather Context"
+        },
+        {
+            "parameters": {
+                "resource": "chat",
+                "operation": "chat",
+                "model": "gpt-4o",
+                "messages": {
+                    "values": [
+                        {
+                            "role": "system",
+                            "content": "You are a weather briefing assistant. Use only the provided data.\nReturn JSON only with keys: subject, body.\nSubject format: Belgrade Weather - YYYY-MM-DD.\nBody: 3-6 short sentences. Include current temperature, today's high/low, precipitation chance, wind, and notable conditions."
+                        },
+                        {
+                            "role": "user",
+                            "content": "={{ $json.prompt }}"
+                        }
+                    ]
+                }
+            },
+            "type": "n8n-nodes-base.openAi",
+            "typeVersion": 1,
+            "position": [
+                700,
+                100
+            ],
+            "name": "Summarize Weather (AI)",
+            "credentials": {
+                "openAiApi": {
+                    "id": "YOUR_OPENAI_CREDENTIAL_ID",
+                    "name": "OpenAI account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "jsCode": "const raw = ($json.message && $json.message.content) || $json.text || $json.content || '';\nconst today = new Date().toISOString().slice(0, 10);\nlet subject = `Belgrade Weather - ${today}`;\nlet body = raw || 'No summary generated.';\n\nconst tryParse = (text) => {\n  if (!text || typeof text !== 'string') return null;\n  try {\n    return JSON.parse(text);\n  } catch (err) {\n    // Ignore and try to extract JSON block\n  }\n  const match = text.match(/\\{[\\s\\S]*\\}/);\n  if (match) {\n    try {\n      return JSON.parse(match[0]);\n    } catch (err) {\n      return null;\n    }\n  }\n  return null;\n};\n\nconst parsed = tryParse(raw);\nif (parsed) {\n  if (parsed.subject) subject = parsed.subject;\n  if (parsed.body) {\n    body = parsed.body;\n  } else if (parsed.text) {\n    body = parsed.text;\n  }\n}\n\nreturn [{ json: { subject, body, raw } }];"
+            },
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 1,
+            "position": [
+                940,
+                100
+            ],
+            "name": "Normalize Output"
+        },
+        {
+            "parameters": {
+                "fromEmail": "n8n@inlock.ai",
+                "toEmail": "admin@inlock.ai",
+                "subject": "={{ $json.subject }}",
+                "text": "={{ $json.body }}",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.emailSend",
+            "typeVersion": 2,
+            "position": [
+                1180,
+                100
+            ],
+            "name": "Send Weather Email"
+        },
+        {
+            "parameters": {
+                "content": "## Setup Notes\n1. Open \"Summarize Weather (AI)\" and select your OpenAI credential.\n2. Open \"Send Weather Email\" and configure SMTP credentials.\n3. Update the recipient if needed (toEmail).\n4. Adjust the schedule time in the Schedule Trigger node if desired.",
+                "height": 240,
+                "width": 320,
+                "color": 4
+            },
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                1180,
+                -120
+            ],
+            "name": "Setup Notes"
+        }
+    ],
+    "connections": {
+        "Every 24 Hours": {
+            "main": [
+                [
+                    {
+                        "node": "Fetch Belgrade Weather",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Manual Trigger": {
+            "main": [
+                [
+                    {
+                        "node": "Fetch Belgrade Weather",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Fetch Belgrade Weather": {
+            "main": [
+                [
+                    {
+                        "node": "Prepare Weather Context",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Prepare Weather Context": {
+            "main": [
+                [
+                    {
+                        "node": "Summarize Weather (AI)",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Summarize Weather (AI)": {
+            "main": [
+                [
+                    {
+                        "node": "Normalize Output",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Normalize Output": {
+            "main": [
+                [
+                    {
+                        "node": "Send Weather Email",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "pinData": {}
+}
