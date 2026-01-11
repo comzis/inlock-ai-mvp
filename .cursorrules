@@ -78,13 +78,19 @@ inlock-ai-mvp/
    - **mgmt**: Admin/Internal services (Auth0 protected)
    - **internal**: Database/Backend only (No external access)
 
-5. **Deployment Commands**
+6.  **Mailcow Operations (CRITICAL)**
+    - **Swap**: MUST have 4GB+ swap active before starting (prevents Dovecot OOM).
+    - **Permissions**: `data/conf/*` MUST be owned by `root:root`.
+    - **Config**: `mailcow.conf` MUST be symlinked to `.env`.
+    - **Network**: Watch for subnet conflicts (default 172.22.1.0/24).
+
+7. **Deployment Commands**
    - Use unified scripts:
      - `./scripts/deployment/manage-services.sh ...`
      - `./scripts/deployment/populate-portainer.sh ...`
    - Always run from root: `docker compose -f compose/stack.yml ...`
 
-6. **Documentation Updates**
+8. **Documentation Updates**
    - Update `docs/index.md` for major changes (entry point)
    - Deployment guides → `docs/deployment/` and `docs/tooling-deployment/`
    - Day-2/Operations guides → `docs/guides/`
