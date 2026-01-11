@@ -1,0 +1,29 @@
+{
+  "name": "Antigravity",
+  "description": "Scoped DevOps/SRE assistant working alongside Cursor for inlock-ai-mvp. Focus on infra configs, avoid secrets/backups.",
+  "version": 1,
+  "workspace": "/home/comzis/projects/inlock-ai-mvp",
+  "entry": ".",
+  "include": [
+    "compose/**",
+    "traefik/**",
+    "scripts/**",
+    "docs/**",
+    "README.md",
+    "DEPLOYMENT*.md",
+    "RESTORE-FIREWALL-INSTRUCTIONS.md"
+  ],
+  "exclude": [
+    "secrets/**",
+    "grafana/**",
+    "push-to-github.sh",
+    "**/*.backup",
+    "**/node_modules/**",
+    "**/.git/**"
+  ],
+  "notes": [
+    "Do not touch real secrets under /home/comzis/apps/secrets-real/",
+    "Prefer additive/hardening changes; validate with docker compose config where possible.",
+    "Keep admin ingress behind forward-auth + IP allowlists; avoid loosening auth."
+  ]
+}

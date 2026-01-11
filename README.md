@@ -18,6 +18,20 @@ This repository contains the complete infrastructure configuration for INLOCK.AI
 - **Security**: Hardened with IP allowlists, authentication, rate limiting
 - **Application**: Inlock AI production application (Next.js)
 
+## AI Workspaces & Workflow
+
+This repo is the codebase. The AI control workspaces are separate and should not contain code changes.
+
+- **Code repo**: `/home/comzis/projects/inlock-ai-mvp`
+- **Cursor control workspace** (rules + health checks): `/home/comzis/.cursor/projects/home-comzis-inlock`
+- **Antigravity config workspace**: `/home/comzis/antigravity`
+
+Workflow for infra changes:
+
+1) Preflight: `bash /home/comzis/.cursor/projects/home-comzis-inlock/scripts/preflight.sh`
+2) Make changes in this repo only
+3) Postflight: `bash /home/comzis/.cursor/projects/home-comzis-inlock/scripts/postflight.sh`
+
 ## Quick Start
 
 ```bash
