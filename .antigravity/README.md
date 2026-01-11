@@ -11,11 +11,11 @@ This directory configures the Antigravity assistant for the inlock-ai-mvp repo. 
 
 Use the Antigravity app (Remote-SSH) to open this folder:
 - Host: `comzis@100.83.222.69`
-- Folder: `/home/comzis/antigravity`
+- Folder: `/home/comzis/projects/inlock-ai-mvp`
 
 CLI (only if the app installed the `antigravity` command on your Mac):
 ```
-antigravity --remote ssh-remote+comzis@100.83.222.69 /home/comzis/antigravity
+antigravity --remote ssh-remote+comzis@100.83.222.69 /home/comzis/projects/inlock-ai-mvp
 ```
 
 ## Related Locations
