@@ -1,186 +1,23 @@
-# Inlock AI Infrastructure - Cursor AI Rules
+# Inlock AI - Cursor Rules
+# These rules enforce safe deployment and development practices.
 
-## Project Overview
+## Critical Deployment Rules
+1. **Source of Truth**: 
+   - ALWAYS work in `/home/comzis/projects/inlock-ai-mvp`
+   - NEVER modify files in `/opt/inlock-ai-secure-mvp` directly
+   - App source code resides in `apps/inlock-ai`
 
-This is the Inlock AI infrastructure repository containing Docker Compose configurations, Traefik reverse proxy setup, deployment scripts, and comprehensive documentation.
+2. **Production Stack**:
+   - The production service is `inlock-ai` defined in `compose/services/stack.yml`
+   - NEVER deploy using `compose/services/inlock-ai.yml` standalone (missing deps)
+   - To restart production: `docker compose -p services -f compose/services/stack.yml up -d --force-recreate inlock-ai`
 
-## Directory Structure - DO NOT DEVIATE
+3. **Infrastructure**:
+   - Verify infrastructure changes with `scripts/preflight.sh`
+   - Check `docs/ANTIGRAVITY-WORKFLOW-GUIDE.md` for full protocol
 
-```
-inlock-ai-mvp/
-├── compose/              # ALL Docker Compose service definitions (Unified)
-│   ├── stack.yml         # Main infrastructure stack
-│   └── ...
-├── config/               # ALL Service configurations
-│   ├── traefik/
-│   ├── prometheus/
-│   └── ...
-├── docs/                 # ALL documentation
-│   ├── guides/           # Usage & Deployment Guides (Day 2)
-│   ├── security/         # Security Protocols
-│   ├── deployment/       # Deployment specifics
-│   ├── archive/          # Historical/Obsolete files
-│   └── ...
-├── scripts/              # ALL automation scripts
-│   ├── deployment/       # Manage, Populate, Deploy
-│   ├── infrastructure/   # Firewall, OS
-│   └── monitoring/       # Tests, Diagnostics
-├── infrastructure/       # Ansible configurations
-└── .env.example          # Environment variable template
-```
-
-## CRITICAL RULES - Never Break These
-
-### ❌ What to Avoid (NEVER DO)
-
-1. **DO NOT create competing directory structures**
-   - No `compose/services/` or `compose/config/` (deprecated)
-   - Use `compose/` for stacks and `config/` for configurations
-   - Use `docs/guides/` for new operational guides
-
-2. **DO NOT duplicate configuration files**
-   - One authoritative file per service
-   - Use `compose/stack.yml` for core infrastructure
-   - Use `compose/tooling.yml` for optional tooling (PostHog/Strapi)
-
-3. **DO NOT ignore Git workflow**
-   - No `.env` or secrets in Git
-   - Always check `docs/guides/GIT-WORKFLOW.md`
-
-### ✅ Best Practices - Always Follow
-
-1. **File Organization**
-   - Docker Compose: `compose/<service>.yml` (e.g., `compose/stack.yml`, `compose/tooling.yml`)
-   - Configs: `config/<service>/<config_file>`
-   - Scripts: `scripts/<category>/<script_name>.sh`
-   - Traefik routers: `config/traefik/dynamic/routers.yml`
-   - Deployment Guides: `docs/deployment/` and `docs/tooling-deployment/`
-   - Day-2 Operations: `docs/guides/`
-   - Architecture/Design: `docs/architecture/`
-   - References/Cheat Sheets: `docs/reference/`
-   - Reports/Status: `docs/reports/` or `docs/archive/reports/`
-   - Security Docs: `docs/security/`
-   - Service Docs: `docs/services/`
-   - Documentation Index: `docs/index.md`
-
-2. **Naming Conventions**
-   - Services: `<service-name>.yml` (e.g., `tooling.yml`, `n8n.yml`)
-   - Scripts: `<action>-<target>.sh` (e.g., `test-service-quick.sh`)
-   - Docs: Descriptive names in CAPS with hyphens
-   
-3. **Docker Persistence**
-   - **Custom Images:** For code changes / patches (e.g. custom service images)
-   - **Bind Mounts:** For configuration files (e.g. `/overrides/config.inc.php`)
-   - **Verify:** Always test `docker compose restart` after changes
-
-4. **Network Standards**
-   - **edge**: Public facing (Traefik entrypoints)
-   - **mgmt**: Admin/Internal services (Auth0 protected)
-   - **internal**: Database/Backend only (No external access)
-
-5. **Deployment Commands**
-   - Use unified scripts:
-     - `./scripts/deployment/manage-services.sh ...`
-     - `./scripts/deployment/populate-portainer.sh ...`
-   - Always run from root: `docker compose -f compose/stack.yml ...`
-
-6. **Documentation Updates**
-   - Update `docs/index.md` for major changes (entry point)
-   - Deployment guides → `docs/deployment/` and `docs/tooling-deployment/`
-   - Day-2/Operations guides → `docs/guides/`
-   - Architecture/Design docs → `docs/architecture/`
-   - References/Cheat sheets → `docs/reference/`
-   - Reports/Status → `docs/reports/` or `docs/archive/reports/`
-   - Security docs → `docs/security/`
-   - Service-specific docs → `docs/services/`
-   - Keep root directory clean (only README, QUICK-START, etc.)
-
-## Environment & Secrets
-
-**Locations:**
-
-- Templates: `.env.example`
-- Real Secrets: `secrets-real/` (GitIgnored) or Docker Secrets
-
-**Encryption:**
-
-- Consider Sops/Age for future secret management (see `docs/security/SECURITY-MANUAL.md`)
-
-## Security Guidelines
-
-1. **Network Isolation**
-   - Admin services → `mgmt` network
-   - Use `traefik` middleware for IP allowlisting (Tailscale CIDRs)
-
-2. **Authentication**
-   - Forward Auth (OAuth2-Proxy) is mandatory for admin UIs
-   - See `docs/security/SECURITY-MANUAL.md`
-   - **CRITICAL:** SSH access from MacBook via public key MUST be preserved
-   - Always verify `~/.ssh/authorized_keys` contains MacBook key before SSH changes
-   - See `.cursorrules-security` for detailed SSH preservation rules
-
-3. **Hardening**
-   - `no-new-privileges:true` on all containers
-   - Read-only root filesystems where feasible
-
-## Code Style
-
-**Docker Compose:**
-- Use secrets for sensitive data
-- Always define networks explicitly
-- Include health checks (mandatory for production services)
-- Set resource limits
-- Use specific image tags (not `latest` in production)
-- Use relative paths: `../config/...`
-- Define `container_name` for easy lookup
-
-**Shell Scripts:**
-- Include shebang: `#!/bin/bash`
-- Set error handling: `set -euo pipefail` (or `set -e` where appropriate)
-- Add help/usage text
-- Make executable: `chmod +x`
-
-## Making Changes
-
-### Adding a New Service
-
-1. Create `compose/<service>.yml`
-2. Add to `compose/stack.yml` if part of main stack (or use separate compose file)
-3. Validate: `docker compose -f compose/<service>.yml config`
-4. Create deployment guide in `docs/tooling-deployment/` or `docs/deployment/`
-5. Add Traefik routers to `config/traefik/dynamic/routers.yml`
-   - For admin services: Use `admin-forward-auth` middleware (Auth0)
-   - **DO NOT** add `allowed-admins` IP allowlist middleware after `admin-forward-auth`
-   - Correct order: `secure-headers`, `admin-forward-auth`, `mgmt-ratelimit`
-6. Update `.env.example` with new variables
-7. Test deployment
-8. Update README.md
-
-### Modifying Existing Service
-
-1. Check current state: `docker compose ps <service>`
-2. Edit `compose/<service>.yml`
-3. Validate: `docker compose -f compose/<service>.yml config`
-4. Deploy: `docker compose -f compose/<service>.yml up -d`
-5. Verify: Check logs and health
-6. Document changes
-
-### Organizing Files
-
-- **Status reports** → `docs/reports/<topic>/` or `docs/archive/reports/`
-- **Audit logs** → `docs/audit/`
-- **Deployment guides** → `docs/deployment/` and `docs/tooling-deployment/`
-- **Day-2 Operations** → `docs/guides/`
-- **Architecture/Design** → `docs/architecture/`
-- **References/Cheat sheets** → `docs/reference/`
-- **Security docs** → `docs/security/`
-- **Service docs** → `docs/services/`
-- **Scripts** → `scripts/`
-- **Service configs** → `config/<service>/` (templates only)
-- **Traefik static config** → `config/traefik/`
-- **Traefik dynamic config** → `config/traefik/dynamic/`
-
----
-
-*Last Updated: 2025-12-31*
-*Reflects Global Consolidation (v2.0)*
+## Development Context
+- This is a Next.js application (apps/inlock-ai)
+- Uses Docker for deployment
+- Enforces strict localization (EN, FR, SR)
+- Follows Apple Developer typography guidelines (no excessive bolding)
