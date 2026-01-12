@@ -118,9 +118,13 @@ services:
       - /home/comzis/inlock/.env
     environment:
       - OAUTH2_PROXY_PROVIDER=oidc
-      - OAUTH2_PROXY_CLIENT_ID=${AUTH0_ADMIN_CLIENT_ID}
-      - OAUTH2_PROXY_CLIENT_SECRET=${AUTH0_ADMIN_CLIENT_SECRET}
-      - OAUTH2_PROXY_COOKIE_SECRET=${OAUTH2_PROXY_COOKIE_SECRET}
+      # env_file loads AUTH0_ADMIN_CLIENT_ID, AUTH0_ADMIN_CLIENT_SECRET, and OAUTH2_PROXY_COOKIE_SECRET
+      # We map them to OAUTH2_PROXY_* variables that oauth2-proxy expects
+      # Note: Variable substitution requires these to be in shell env when docker-compose runs
+      # If not available, env_file will still load them, but we need to map the names
+      - OAUTH2_PROXY_CLIENT_ID=${AUTH0_ADMIN_CLIENT_ID:-}
+      - OAUTH2_PROXY_CLIENT_SECRET=${AUTH0_ADMIN_CLIENT_SECRET:-}
+      - OAUTH2_PROXY_COOKIE_SECRET=${OAUTH2_PROXY_COOKIE_SECRET:-}
       - OAUTH2_PROXY_COOKIE_NAME=inlock_session
       - OAUTH2_PROXY_COOKIE_DOMAIN=.inlock.ai
       - OAUTH2_PROXY_COOKIE_SECURE=true
