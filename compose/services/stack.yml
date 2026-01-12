@@ -66,8 +66,10 @@ services:
       - /home/comzis/inlock/.env
     environment:
       # Cloudflare token for ACME DNS-01 challenge
-      # Reads from .env file: CLOUDFLARE_DNS_API_TOKEN or falls back to CLOUDFLARE_API_TOKEN
-      - CLOUDFLARE_DNS_API_TOKEN=${CLOUDFLARE_DNS_API_TOKEN:-${CLOUDFLARE_API_TOKEN}}
+      # env_file loads CLOUDFLARE_DNS_API_TOKEN and CLOUDFLARE_API_TOKEN from /home/comzis/inlock/.env
+      # Traefik's Cloudflare provider expects CLOUDFLARE_DNS_API_TOKEN
+      # The env_file directive above will load these variables automatically
+      # No need to explicitly set here - env_file handles it
       - DOMAIN=${DOMAIN}
       - DOCKER_API_VERSION=1.46 # Docker Engine 29+ needs >=1.45 for provider connectivity
       - DOCKER_HOST=tcp://docker-socket-proxy:2375
