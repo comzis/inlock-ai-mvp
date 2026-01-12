@@ -1,0 +1,215 @@
+{
+  "Navigation": {
+    "home": "Početna",
+    "about": "O nama",
+    "pricing": "Cene",
+    "signIn": "Prijava",
+    "consulting": "Konsalting",
+    "readiness": "Spremnost",
+    "blueprint": "Plan",
+    "caseStudies": "Studije Slučaja",
+    "blog": "Blog",
+    "chat": "Chat",
+    "admin": "Admin",
+    "logout": "Odjava",
+    "login": "Prijava"
+  },
+  "Footer": {
+    "copyright": "© 2026 Inlock AI Konsalting - Privatnost na Prvom Mestu"
+  },
+  "Hero": {
+    "title": "Oslobodite Svoj Potencijal",
+    "subtitle": "Sigurna AI za Privatna Preduzeća",
+    "viewConsulting": "Pogledajte Konsultantske Usluge",
+    "runReadiness": "Pokrenite AI Proveru Spremnosti"
+  },
+  "HomePage": {
+    "coreCapabilities": "Osnovne Mogućnosti",
+    "aiStrategy": {
+      "title": "AI Strategija",
+      "description": "Od revizija spremnosti do kompletnih planova transformacije usklađenih sa vašom pozicijom rizika i usklađenosti."
+    },
+    "onPremiseLLMs": {
+      "title": "LLM-ovi Na Lokaciji",
+      "description": "Implementirajte Llama 3, Mistral i Qwen potpuno unutar vaše infrastrukture, bez curenja podataka."
+    },
+    "automationRAG": {
+      "title": "Automatizacija i RAG",
+      "description": "Izgradite sigurne interne asistente i tokove rada sa RAG, MCP i robusnom upravom podacima."
+    }
+  },
+  "Consulting": {
+    "hero": {
+      "title": "AI konsalting. Privatnost bez kompromisa",
+      "subtitle": "Inlock pomaže organizacijama da usvoje AI sigurno i efikasno kroz privatne, lokalne, usklađene sisteme koji čuvaju potpunu kontrolu podataka unutar vaše infrastrukture.",
+      "bookConsultation": "Zakažite Konsultaciju"
+    },
+    "coreServices": "Osnovne Usluge",
+    "services": {
+      "readiness": {
+        "title": "Procena Spremnosti za AI",
+        "description": "Potpuna revizija podataka, usklađenosti, tokova rada i potencijala automatizacije."
+      },
+      "blueprint": {
+        "title": "Plan Transformacije AI",
+        "description": "Plan za 6–12 meseci sa arhitekturom, tokovima rada i modelovanjem ROI."
+      },
+      "implementation": {
+        "title": "Podrška za Implementaciju",
+        "description": "Praktično postavljanje lokalnih LLM-ova, RAG sistema i sigurnih AI tokova rada."
+      }
+    },
+    "contactTitle": "Započnite"
+  },
+  "Readiness": {
+    "title": "Lista Provere Spremnosti za AI",
+    "subtitle": "Procenite spremnost vaše organizacije za usvajanje AI",
+    "startAssessment": "Započnite Procenu"
+  },
+  "Blueprint": {
+    "title": "Plan AI Transformacije",
+    "subtitle": "Dobijte prilagođen plan implementacije AI sa modelovanjem arhitekture, bezbednosti i ROI.",
+    "getBlueprint": "Dobijte Vaš Plan"
+  },
+  "CaseStudies": {
+    "title": "Studije Slučaja",
+    "subtitle": "Pogledajte kako organizacije implementiraju sigurnu AI",
+    "comingSoon": "Studije slučaja uskoro"
+  },
+  "Forms": {
+    "Readiness": {
+      "company": "Kompanija",
+      "companyPlaceholder": "Naziv vaše kompanije",
+      "contactName": "Ime Kontakta",
+      "contactPlaceholder": "Vaše ime",
+      "email": "E-pošta",
+      "emailPlaceholder": "vasa.email@primer.com",
+      "assessmentQuestions": "Pitanja Procene",
+      "questions": {
+        "q0": "Da li imate dokumentovanu politiku klasifikacije podataka?",
+        "q1": "Da li postoje jasni vlasnici za ključne izvore podataka?",
+        "q2": "Da li imate sistem upravljanja identitetom i pristupom?",
+        "q3": "Da li postoji DPO ili odgovorno lice za bezbednost AI inicijativa?",
+        "q4": "Da li beležite pristup osetljivim sistemima?"
+      },
+      "options": {
+        "no": "Ne / Nije na mestu",
+        "partial": "Delimično",
+        "yes": "Da / Zrelo"
+      },
+      "submit": "Pošaljite Procenu",
+      "submitting": "Slanje...",
+      "yourScore": "Vaš Rezultat Spremnosti",
+      "outOf": "od 10"
+    },
+    "Blueprint": {
+      "company": "Kompanija",
+      "companyPlaceholder": "Naziv vaše kompanije",
+      "contactName": "Ime Kontakta",
+      "contactNamePlaceholder": "Vaše ime",
+      "email": "E-pošta",
+      "emailPlaceholder": "vasa.email@primer.com",
+      "context": "Trenutna Situacija i Ciljevi",
+      "contextPlaceholder": "Opišite trenutno stanje vaše organizacije, izazove i ciljeve AI transformacije...",
+      "submit": "Generišite Plan",
+      "generating": "Generisanje...",
+      "resultTitle": "Vaš Plan AI Transformacije",
+      "summary": "Rezime",
+      "roadmap": "Plan Implementacije",
+      "security": "Bezbednost i Privatnost"
+    }
+  },
+  "Auth": {
+    "login": {
+      "title": "Prijava",
+      "description": "Prijavite se da biste pristupili administrativnoj tabli.",
+      "email": "E-pošta",
+      "password": "Lozinka",
+      "passwordPlaceholder": "Unesite vašu lozinku",
+      "submit": "Prijavite se",
+      "forgotPassword": "Zaboravili ste lozinku?",
+      "notRegistered": "Nemate nalog?",
+      "createAccount": "Napravite nalog"
+    },
+    "register": {
+      "title": "Napravite Nalog",
+      "description": "Napravite nalog da biste započeli.",
+      "name": "Ime",
+      "email": "E-pošta",
+      "password": "Lozinka",
+      "submit": "Napravite Nalog",
+      "alreadyRegistered": "Već imate nalog?",
+      "signIn": "Prijavite se"
+    },
+    "forgotPassword": {
+      "title": "Resetujte Lozinku",
+      "description": "Unesite vašu e-poštu da biste dobili link za resetovanje.",
+      "email": "E-pošta",
+      "submit": "Pošaljite Link za Resetovanje",
+      "backToLogin": "Nazad na prijavu"
+    },
+    "resetPassword": {
+      "title": "Postavite Novu Lozinku",
+      "description": "Unesite vašu novu lozinku ispod.",
+      "password": "Nova Lozinka",
+      "confirm": "Potvrdite Lozinku",
+      "submit": "Resetujte Lozinku"
+    }
+  },
+  "Blog": {
+    "pageTitle": "Inlock Blog",
+    "pageSubtitle": "Beleške o izgradnji upravljanog AI sloja fokusiranog na radne prostore za timove sa intenzivnim znanjem—pokrivajući konektor podataka, RAG kvalitet, izbore implementacije i sigurne planove uvođenja.",
+    "productHighlights": {
+      "governed": {
+        "title": "Upravljano po defaultu",
+        "description": "Izolacija radnih prostora, RBAC i citirani odgovori tako da timovi veruju svakom odgovoru."
+      },
+      "modelAgnostic": {
+        "title": "Model i dobavljač agnostični",
+        "description": "Zamenite konektore, embeddings i modele bez prepisivanja ili zaključavanja."
+      },
+      "pilotReady": {
+        "title": "UX spreman za pilot",
+        "description": "UI fokusiran na jasnoću za timove sa intenzivnim znanjem pod uslovim usklađenosti i lokalnosti podataka."
+      }
+    },
+    "latestArticles": "Najnoviji članci",
+    "sectionTitle": "Izgrađeno za upravljane, citirane odgovore",
+    "sectionDescription": "Svaki post se povezuje sa prioritetima Inlock rešenja: implementacije fokusirane na bezbednost, modularna arhitektura i održivi piloti.",
+    "seeBlueprint": "Pogledajte AI Plan",
+    "noPosts": "Još nema blog postova.",
+    "readArticle": "Pročitaj članak",
+    "backToBlog": "Nazad na Blog",
+    "pillars": {
+      "productAligned": "Uvidi usklađeni sa proizvodom",
+      "governed": "Upravljano i fokusirano na radni prostor",
+      "modelAgnostic": "Model-agnostičan"
+    },
+    "posts": {
+      "local-vs-cloud-ai": {
+        "title": "Lokalni naspram Cloud AI za regulisane industrije",
+        "excerpt": "Praktičan pregled kada odabrati lokalni AI umesto cloud ponuda, posebno pod GDPR-om i strogom usklađenošću."
+      },
+      "on-premise-llm-deployment": {
+        "title": "Implementacija LLM modela lokalno: Vodič za regulisane industrije",
+        "excerpt": "Naučite kako da implementirate velike jezičke modele (LLM) lokalno kako biste osigurali privatnost podataka i usklađenost sa propisima u vašoj organizaciji."
+      },
+      "building-private-ai-assistants": {
+        "title": "Izgradnja privatnih AI asistenata uz Inlock AI",
+        "excerpt": "Otkrijte kako Inlock AI omogućava kreiranje moćnih, privatnih AI asistenata koji bezbedno koriste interno znanje vaše organizacije."
+      },
+      "ai-security-compliance-checklist": {
+        "title": "Kontrolna lista za bezbednost i usklađenost veštačke inteligencije (AI)",
+        "excerpt": "Sveobuhvatna kontrolna lista za obezbeđivanje implementacija veštačke inteligencije (AI) u regulisanim industrijama i osiguravanje usklađenosti sa globalnim standardima."
+      },
+      "rag-implementation-best-practices": {
+        "title": "Najbolje prakse za RAG implementaciju",
+        "excerpt": "Najbolje prakse za implementaciju generisanja proširenog pretraživanjem (RAG) za privatne AI sisteme spremne za produkciju."
+      },
+      "cost-comparison-local-vs-cloud-ai": {
+        "title": "Poređenje troškova: Lokalni vs. Cloud AI",
+        "excerpt": "Detaljna analiza ukupnih troškova vlasništva za lokalnu implementaciju u poređenju sa AI rešenjima u oblaku."
+      }
+    }
+  }
+}

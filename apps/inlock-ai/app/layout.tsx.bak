@@ -1,0 +1,107 @@
+import "./globals.css";
+import type { Metadata, Viewport } from "next";
+import Link from "next/link";
+import { getCurrentUser } from "@/src/lib/auth";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { MobileNav } from "@/components/mobile-nav";
+import { Logo } from "@/components/brand/logo";
+import { LanguageSelector } from "@/components/LanguageSelector";
+
+export const metadata: Metadata = {
+  title: "Inlock — Secure AI Consulting",
+  description: "Privacy-first, local-first AI consulting and transformation services.",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon.png", type: "image/png", sizes: "32x32" },
+      { url: "/icon-192.png", type: "image/png", sizes: "192x192" },
+      { url: "/icon-512.png", type: "image/png", sizes: "512x512" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: [
+      { url: "/apple-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#f5f5f7",
+};
+
+const primaryNavigation = [
+  { href: "/consulting", label: "Consulting" },
+  { href: "/readiness-checklist", label: "Readiness" },
+  { href: "/ai-blueprint", label: "Blueprint" },
+  { href: "/case-studies", label: "Case Studies" },
+  { href: "/blog", label: "Blog" },
+];
+
+export default async function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const user = await getCurrentUser();
+  const isLoggedIn = Boolean(user);
+
+  return (
+    <html lang="en" className="light">
+      <body className="min-h-screen bg-background text-foreground antialiased">
+        <ErrorBoundary>
+            <div className="min-h-screen flex flex-col">
+              <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
+                <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between gap-4">
+                  <Logo width={145} height={35} priority />
+                  <nav className="hidden md:flex items-center gap-6 text-sm">
+                    {primaryNavigation.map((item) => (
+                      <Link key={item.href} href={item.href} className="text-muted hover:text-foreground transition-colors">
+                        {item.label}
+                      </Link>
+                    ))}
+                    {isLoggedIn ? (
+                      <>
+                        <Link href="/chat" className="text-muted hover:text-foreground transition-colors">
+                          Chat
+                        </Link>
+                        <Link href="/admin" className="text-muted hover:text-foreground transition-colors">
+                          Admin
+                        </Link>
+                        <form action="/api/auth/logout" method="post">
+                          <button
+                            className="text-xs text-muted hover:text-foreground transition-colors"
+                            type="submit"
+                          >
+                            Logout
+                          </button>
+                        </form>
+                      </>
+                    ) : (
+                      <Link href="/auth/login" className="text-muted hover:text-foreground transition-colors">
+                        Login
+                      </Link>
+                    )}
+                    <LanguageSelector />
+                  </nav>
+                  <div className="flex items-center gap-2 md:hidden">
+                    <LanguageSelector />
+                    <MobileNav items={primaryNavigation} isAuthenticated={isLoggedIn} />
+                  </div>
+                </div>
+              </header>
+              <main className="flex-1">{children}</main>
+              <footer className="border-t border-border/40 bg-surface/30 backdrop-blur-xl mt-20">
+                <div className="max-w-7xl mx-auto px-6 py-8 text-center">
+                  <p className="text-sm text-muted">
+                    © 2025 Inlock — Privacy-First AI Consulting
+                  </p>
+                </div>
+              </footer>
+            </div>
+        </ErrorBoundary>
+      </body>
+    </html>
+  );
+}

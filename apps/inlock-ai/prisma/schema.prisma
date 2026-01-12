@@ -1,0 +1,179 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id            String          @id @default(cuid())
+  email         String          @unique
+  name          String?
+  password      String
+  role          String          @default("user") // "admin" or "user". Workspace roles are in WorkspaceUser
+  newsletter    Boolean         @default(false)
+  createdAt     DateTime        @default(now())
+  sessions      Session[]
+  chatSessions  ChatSession[]
+  workspaces    WorkspaceUser[]
+  resetToken       String?
+  resetTokenExpiry DateTime?
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  token     String   @unique
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+}
+
+model Workspace {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  modelConfig Json?    // Configuration for default models
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  users       WorkspaceUser[]
+  dataSources DataSource[]
+  documents   Document[]
+  templates   Template[]
+}
+
+model WorkspaceUser {
+  id          String   @id @default(cuid())
+  workspaceId String
+  userId      String
+  role        String   // "manager", "member"
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, userId])
+}
+
+model DataSource {
+  id          String   @id @default(cuid())
+  workspaceId String
+  name        String
+  type        String   // "filesystem", "google_drive", etc.
+  config      Json     // Connection details (paths, credentials)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  workspace   Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  documents   Document[]
+}
+
+model Document {
+  id           String   @id @default(cuid())
+  workspaceId  String
+  dataSourceId String?
+  externalId   String?  // ID in the source system
+  title        String
+  content      String?  // Original text content
+  metadata     Json?    // Source path, type, date, tags
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  workspace    Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  dataSource   DataSource?     @relation(fields: [dataSourceId], references: [id])
+  chunks       DocumentChunk[]
+}
+
+model DocumentChunk {
+  id         String   @id @default(cuid())
+  documentId String
+  content    String
+  embedding  Bytes?   // Stored embedding vector (if using local storage)
+  index      Int      // Chunk index
+  metadata   Json?    // Chunk-specific metadata
+  createdAt  DateTime @default(now())
+
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+}
+
+model Template {
+  id          String   @id @default(cuid())
+  workspaceId String?  // Null for system templates
+  name        String
+  description String?
+  type        String   // "qa", "precedent", "review"
+  prompt      String
+  config      Json?    // Retrieval config, model overrides
+  isSystem    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  workspace   Workspace? @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+}
+
+// Legacy / General Chat Models (Keeping for backward compatibility or general use)
+model ChatSession {
+  id        String        @id @default(cuid())
+  userId    String
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String        @default("New Chat")
+  provider  String        @default("gemini")
+  model     String        @default("gemini-pro")
+  messages  ChatMessage[]
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+}
+
+model ChatMessage {
+  id        String      @id @default(cuid())
+  sessionId String
+  session   ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  role      String
+  content   String
+  provider  String
+  createdAt DateTime    @default(now())
+}
+
+model Contact {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  message   String
+  createdAt DateTime @default(now())
+}
+
+model Lead {
+  id        String   @id @default(cuid())
+  name      String?
+  email     String
+  company   String?
+  note      String?
+  createdAt DateTime @default(now())
+}
+
+model ReadinessAssessment {
+  id        String   @id @default(cuid())
+  company   String
+  contact   String
+  email     String
+  score     Int
+  answers   Json
+  notes     String?
+  createdAt DateTime @default(now())
+}
+
+model Blueprint {
+  id        String   @id @default(cuid())
+  company   String
+  contact   String
+  email     String
+  context   String
+  summary   String
+  roadmap   String
+  security  String
+  createdAt DateTime @default(now())
+}

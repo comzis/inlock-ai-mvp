@@ -1,0 +1,82 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        --background: 245 245 247;
+        --foreground: 10 10 22;
+        --card: 255 255 255;
+        --card-foreground: 10 10 22;
+        --popover: 255 255 255;
+        --popover-foreground: 10 10 22;
+        --primary: 130 39 254;
+        --primary-foreground: 255 255 255;
+        --secondary: 232 232 240;
+        --secondary-foreground: 20 20 32;
+        --muted: 120 120 132;
+        --muted-foreground: 35 35 48;
+        --accent: 0 245 255;
+        --accent-foreground: 0 0 0;
+        --destructive: 255 69 58;
+        --destructive-foreground: 255 255 255;
+        --border: 220 220 230;
+        --input: 215 215 225;
+        --ring: 130 39 254;
+        --radius: 1rem;
+
+        --surface: 255 255 255;
+        --surface-light: 240 240 246;
+    }
+
+    * {
+        @apply border-border;
+    }
+
+    html {
+        scroll-behavior: smooth;
+        overflow-x: hidden;
+        min-height: 100%;
+        text-size-adjust: 100%;
+        -webkit-text-size-adjust: 100%;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+        @apply bg-background text-foreground;
+        min-height: 100%;
+        font-feature-settings: "rlig" 1, "calt" 1;
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+        -webkit-text-size-adjust: 100%;
+        -webkit-tap-highlight-color: transparent;
+        padding-left: env(safe-area-inset-left);
+        padding-right: env(safe-area-inset-right);
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+}
+
+@layer utilities {
+    /* Glass morphism effect - Refined */
+    .glass {
+        @apply bg-white/10 backdrop-blur-xl border border-white/20 shadow-sm;
+    }
+
+    .glass-card {
+        @apply bg-white/50 backdrop-blur-lg border border-black/5 shadow-sm;
+    }
+
+    /* Subtle shadow for depth - Refined */
+    .shadow-apple {
+        box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.05), 0 2px 8px -2px rgba(0, 0, 0, 0.02);
+    }
+
+    .shadow-apple-lg {
+        box-shadow: 0 20px 40px -4px rgba(0, 0, 0, 0.08), 0 8px 16px -4px rgba(0, 0, 0, 0.04);
+    }
+    
+    .text-balance {
+        text-wrap: balance;
+    }
+}

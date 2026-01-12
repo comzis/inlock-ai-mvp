@@ -1,0 +1,215 @@
+{
+  "Navigation": {
+    "home": "Home",
+    "about": "About",
+    "pricing": "Pricing",
+    "signIn": "Sign In",
+    "consulting": "Consulting",
+    "readiness": "Readiness",
+    "blueprint": "Blueprint",
+    "caseStudies": "Case Studies",
+    "blog": "Blog",
+    "chat": "Chat",
+    "admin": "Admin",
+    "logout": "Logout",
+    "login": "Login"
+  },
+  "Footer": {
+    "copyright": "© 2026 Inlock Privacy-First AI Consulting"
+  },
+  "Hero": {
+    "title": "Unlock Your Potential",
+    "subtitle": "Secure AI for Private Enterprise",
+    "viewConsulting": "View Consulting Services",
+    "runReadiness": "Run AI Readiness Check"
+  },
+  "HomePage": {
+    "coreCapabilities": "Core Capabilities",
+    "aiStrategy": {
+      "title": "AI Strategy",
+      "description": "From readiness audits to full transformation blueprints aligned with your risk and compliance posture."
+    },
+    "onPremiseLLMs": {
+      "title": "On-Premise LLMs",
+      "description": "Deploy Llama 3, Mistral, and Qwen entirely inside your infrastructure, with zero data leaving."
+    },
+    "automationRAG": {
+      "title": "Automation & RAG",
+      "description": "Build secure internal assistants and workflows with RAG, MCP, and robust data governance."
+    }
+  },
+  "Consulting": {
+    "hero": {
+      "title": "Privacy-First AI Consulting",
+      "subtitle": "Inlock helps organizations adopt AI safely and efficiently through private, on-premise, compliant systems that keep full data control inside your infrastructure.",
+      "bookConsultation": "Book a Consultation"
+    },
+    "coreServices": "Core Services",
+    "services": {
+      "readiness": {
+        "title": "AI Readiness Assessment",
+        "description": "Full audit of data, compliance, workflows, and automation potential."
+      },
+      "blueprint": {
+        "title": "AI Transformation Blueprint",
+        "description": "6–12 month roadmap with architecture, workflows, and ROI modeling."
+      },
+      "implementation": {
+        "title": "Implementation Support",
+        "description": "Hands-on deployment of on-premise LLMs, RAG systems, and secure AI workflows."
+      }
+    },
+    "contactTitle": "Get Started"
+  },
+  "Readiness": {
+    "title": "AI Readiness Checklist",
+    "subtitle": "Evaluate your organization's readiness for AI adoption",
+    "startAssessment": "Start Assessment"
+  },
+  "Blueprint": {
+    "title": "AI Transformation Blueprint",
+    "subtitle": "Get a customized AI implementation roadmap with architecture, security, and ROI modeling.",
+    "getBlueprint": "Get Your Blueprint"
+  },
+  "CaseStudies": {
+    "title": "Case Studies",
+    "subtitle": "See how organizations are deploying secure AI",
+    "comingSoon": "Case studies coming soon"
+  },
+  "Forms": {
+    "Readiness": {
+      "company": "Company",
+      "companyPlaceholder": "Your company name",
+      "contactName": "Contact Name",
+      "contactPlaceholder": "Your name",
+      "email": "Email",
+      "emailPlaceholder": "your.email@example.com",
+      "assessmentQuestions": "Assessment Questions",
+      "questions": {
+        "q0": "Do you have a documented data classification policy?",
+        "q1": "Are there clear owners for key data sources?",
+        "q2": "Do you have an identity and access management system in place?",
+        "q3": "Is there a DPO or security lead responsible for AI initiatives?",
+        "q4": "Do you log access to sensitive systems?"
+      },
+      "options": {
+        "no": "No / Not in place",
+        "partial": "Partially",
+        "yes": "Yes / Mature"
+      },
+      "submit": "Submit Assessment",
+      "submitting": "Submitting...",
+      "yourScore": "Your Readiness Score",
+      "outOf": "out of 10"
+    },
+    "Blueprint": {
+      "company": "Company",
+      "companyPlaceholder": "Your company name",
+      "contactName": "Contact Name",
+      "contactNamePlaceholder": "Your name",
+      "email": "Email",
+      "emailPlaceholder": "your.email@example.com",
+      "context": "Current Situation & Goals",
+      "contextPlaceholder": "Describe your organization's current state, challenges, and AI transformation goals...",
+      "submit": "Generate Blueprint",
+      "generating": "Generating...",
+      "resultTitle": "Your AI Transformation Blueprint",
+      "summary": "Summary",
+      "roadmap": "Roadmap",
+      "security": "Security & Privacy"
+    }
+  },
+  "Auth": {
+    "login": {
+      "title": "Sign In",
+      "description": "Sign in to access the admin dashboard.",
+      "email": "Email",
+      "password": "Password",
+      "passwordPlaceholder": "Enter your password",
+      "submit": "Sign In",
+      "forgotPassword": "Forgot your password?",
+      "notRegistered": "Don't have an account?",
+      "createAccount": "Create an account"
+    },
+    "register": {
+      "title": "Create Account",
+      "description": "Create an account to get started.",
+      "name": "Name",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Create Account",
+      "alreadyRegistered": "Already have an account?",
+      "signIn": "Sign In"
+    },
+    "forgotPassword": {
+      "title": "Reset Password",
+      "description": "Enter your email to receive a reset link.",
+      "email": "Email",
+      "submit": "Send Reset Link",
+      "backToLogin": "Back to login"
+    },
+    "resetPassword": {
+      "title": "Set New Password",
+      "description": "Enter your new password below.",
+      "password": "New Password",
+      "confirm": "Confirm Password",
+      "submit": "Reset Password"
+    }
+  },
+  "Blog": {
+    "pageTitle": "Inlock Blog",
+    "pageSubtitle": "Notes from building a governed, workspace-first AI layer for knowledge-heavy teams—covering data connectors, RAG quality, deployment choices, and safe rollout playbooks.",
+    "productHighlights": {
+      "governed": {
+        "title": "Governed by default",
+        "description": "Workspace isolation, RBAC, and cited answers so teams trust every response."
+      },
+      "modelAgnostic": {
+        "title": "Model & vendor agnostic",
+        "description": "Swap connectors, embeddings, and models without rewrites or lock-in."
+      },
+      "pilotReady": {
+        "title": "Pilot-ready UX",
+        "description": "Clarity-first UI for knowledge-heavy teams under compliance and data locality needs."
+      }
+    },
+    "latestArticles": "Latest articles",
+    "sectionTitle": "Built for governed, cited answers",
+    "sectionDescription": "Every post links back to Inlock solution priorities: security-first deployments, modular architecture, and maintainable pilots.",
+    "seeBlueprint": "See the AI Blueprint",
+    "noPosts": "No blog posts yet.",
+    "readArticle": "Read article",
+    "backToBlog": "Back to Blog",
+    "pillars": {
+      "productAligned": "Product-aligned insights",
+      "governed": "Governed & workspace-first",
+      "modelAgnostic": "Model-agnostic"
+    },
+    "posts": {
+      "local-vs-cloud-ai": {
+        "title": "Local vs Cloud AI for Regulated Industries",
+        "excerpt": "A practical overview of when to choose local AI over cloud offerings, especially under GDPR and strict compliance."
+      },
+      "on-premise-llm-deployment": {
+        "title": "On-Premise LLM Deployment: A Guide for Regulated Industries",
+        "excerpt": "Learn how to deploy Large Language Models (LLMs) locally to ensure data privacy and regulatory compliance in your organization."
+      },
+      "building-private-ai-assistants": {
+        "title": "Building Private AI Assistants with Inlock AI",
+        "excerpt": "Discover how Inlock AI enables the creation of powerful, private AI assistants that leverage your organization's internal knowledge securely."
+      },
+      "ai-security-compliance-checklist": {
+        "title": "AI Security & Compliance Checklist",
+        "excerpt": "A comprehensive checklist for securing AI deployments in regulated industries and ensuring compliance with global standards."
+      },
+      "rag-implementation-best-practices": {
+        "title": "RAG Implementation Best Practices",
+        "excerpt": "Best practices for implementing Retrieval-Augmented Generation (RAG) for production-ready private AI systems."
+      },
+      "cost-comparison-local-vs-cloud-ai": {
+        "title": "Cost Comparison: Local vs. Cloud AI",
+        "excerpt": "A detailed analysis of the total cost of ownership for on-premise versus cloud-based AI deployments."
+      }
+    }
+  }
+}

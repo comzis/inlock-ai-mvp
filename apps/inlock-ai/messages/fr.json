@@ -1,0 +1,215 @@
+{
+  "Navigation": {
+    "home": "Accueil",
+    "about": "À propos",
+    "pricing": "Tarifs",
+    "signIn": "Se connecter",
+    "consulting": "Conseil",
+    "readiness": "Préparation",
+    "blueprint": "Plan Directeur",
+    "caseStudies": "Études de Cas",
+    "blog": "Blog",
+    "chat": "Chat",
+    "admin": "Admin",
+    "logout": "Déconnexion",
+    "login": "Connexion"
+  },
+  "Footer": {
+    "copyright": "© 2026 Inlock Conseil en IA Respectueux de la Privée"
+  },
+  "Hero": {
+    "title": "Libérez Votre Potentiel",
+    "subtitle": "IA Sécurisée pour l'Entreprise Privée",
+    "viewConsulting": "Voir les Services de Conseil",
+    "runReadiness": "Lancer la Vérification de Préparation IA"
+  },
+  "HomePage": {
+    "coreCapabilities": "Capacités Principales",
+    "aiStrategy": {
+      "title": "Stratégie IA",
+      "description": "Des audits de préparation aux plans de transformation complets alignés sur votre posture de risque et de conformité."
+    },
+    "onPremiseLLMs": {
+      "title": "LLMs Sur Site",
+      "description": "Déployez Llama 3, Mistral et Qwen entièrement dans votre infrastructure, sans aucune fuite de données."
+    },
+    "automationRAG": {
+      "title": "Automatisation et RAG",
+      "description": "Créez des assistants internes sécurisés et des workflows avec RAG, MCP et une gouvernance robuste des données."
+    }
+  },
+  "Consulting": {
+    "hero": {
+      "title": "Conseil IA Axé sur la Confidentialité",
+      "subtitle": "Inlock aide les organisations à adopter l'IA en toute sécurité et efficacement grâce à des systèmes privés, sur site et conformes qui maintiennent le contrôle total des données dans votre infrastructure.",
+      "bookConsultation": "Réserver une Consultation"
+    },
+    "coreServices": "Services Principaux",
+    "services": {
+      "readiness": {
+        "title": "Évaluation de Préparation IA",
+        "description": "Audit complet des données, de la conformité, des workflows et du potentiel d'automatisation."
+      },
+      "blueprint": {
+        "title": "Plan de Transformation IA",
+        "description": "Feuille de route de 6 à 12 mois avec architecture, workflows et modélisation du ROI."
+      },
+      "implementation": {
+        "title": "Support d'Implémentation",
+        "description": "Déploiement pratique de LLMs sur site, systèmes RAG et workflows IA sécurisés."
+      }
+    },
+    "contactTitle": "Commencer"
+  },
+  "Readiness": {
+    "title": "Liste de Vérification de Préparation IA",
+    "subtitle": "Évaluez la préparation de votre organisation pour l'adoption de l'IA",
+    "startAssessment": "Commencer l'Évaluation"
+  },
+  "Blueprint": {
+    "title": "Plan de Transformation IA",
+    "subtitle": "Obtenez une feuille de route personnalisée pour l'IA avec modélisation d'architecture, de sécurité et de ROI.",
+    "getBlueprint": "Obtenir Votre Plan"
+  },
+  "CaseStudies": {
+    "title": "Études de Cas",
+    "subtitle": "Découvrez comment les organisations déploient l'IA sécurisée",
+    "comingSoon": "Études de cas à venir"
+  },
+  "Forms": {
+    "Readiness": {
+      "company": "Entreprise",
+      "companyPlaceholder": "Nom de votre entreprise",
+      "contactName": "Nom du Contact",
+      "contactPlaceholder": "Votre nom",
+      "email": "E-mail",
+      "emailPlaceholder": "votre.email@exemple.com",
+      "assessmentQuestions": "Questions d'Évaluation",
+      "questions": {
+        "q0": "Avez-vous une politique de classification des données documentée?",
+        "q1": "Y a-t-il des propriétaires clairs pour les sources de données clés?",
+        "q2": "Avez-vous un système de gestion des identités et des accès en place?",
+        "q3": "Y a-t-il un DPO ou un responsable de la sécurité pour les initiatives IA?",
+        "q4": "Enregistrez-vous l'accès aux systèmes sensibles?"
+      },
+      "options": {
+        "no": "Non / Pas en place",
+        "partial": "Partiellement",
+        "yes": "Oui / Mature"
+      },
+      "submit": "Soumettre l'Évaluation",
+      "submitting": "Envoi en cours...",
+      "yourScore": "Votre Score de Préparation",
+      "outOf": "sur 10"
+    },
+    "Blueprint": {
+      "company": "Entreprise",
+      "companyPlaceholder": "Nom de votre entreprise",
+      "contactName": "Nom du Contact",
+      "contactNamePlaceholder": "Votre nom",
+      "email": "E-mail",
+      "emailPlaceholder": "votre.email@exemple.com",
+      "context": "Situation Actuelle et Objectifs",
+      "contextPlaceholder": "Décrivez l'état actuel de votre organisation, les défis et les objectifs de transformation IA...",
+      "submit": "Générer le Plan Directeur",
+      "generating": "Génération...",
+      "resultTitle": "Votre Plan de Transformation IA",
+      "summary": "Résumé",
+      "roadmap": "Feuille de Route",
+      "security": "Sécurité et Confidentialité"
+    }
+  },
+  "Auth": {
+    "login": {
+      "title": "Connexion",
+      "description": "Connectez-vous pour accéder au tableau de bord administrateur.",
+      "email": "E-mail",
+      "password": "Mot de passe",
+      "passwordPlaceholder": "Entrez votre mot de passe",
+      "submit": "Se connecter",
+      "forgotPassword": "Mot de passe oublié ?",
+      "notRegistered": "Vous n'avez pas de compte ?",
+      "createAccount": "Créer un compte"
+    },
+    "register": {
+      "title": "Créer un Compte",
+      "description": "Créez un compte pour commencer.",
+      "name": "Nom",
+      "email": "E-mail",
+      "password": "Mot de passe",
+      "submit": "Créer un Compte",
+      "alreadyRegistered": "Vous avez déjà un compte ?",
+      "signIn": "Se connecter"
+    },
+    "forgotPassword": {
+      "title": "Réinitialiser le Mot de Passe",
+      "description": "Entrez votre e-mail pour recevoir un lien de réinitialisation.",
+      "email": "E-mail",
+      "submit": "Envoyer le Lien de Réinitialisation",
+      "backToLogin": "Retour à la connexion"
+    },
+    "resetPassword": {
+      "title": "Définir un Nouveau Mot de Passe",
+      "description": "Entrez votre nouveau mot de passe ci-dessous.",
+      "password": "Nouveau Mot de Passe",
+      "confirm": "Confirmer le Mot de Passe",
+      "submit": "Réinitialiser le Mot de Passe"
+    }
+  },
+  "Blog": {
+    "pageTitle": "Blog Inlock",
+    "pageSubtitle": "Notes sur la construction d'une couche IA gouvernée et axée sur les espaces de travail pour les équipes à forte intensité de connaissances—couvrant les connecteurs de données, la qualité RAG, les choix de déploiement et les plans de déploiement sécurisés.",
+    "productHighlights": {
+      "governed": {
+        "title": "Gouverné par défaut",
+        "description": "Isolation des espaces de travail, RBAC et réponses citées pour que les équipes fassent confiance à chaque réponse."
+      },
+      "modelAgnostic": {
+        "title": "Modèle et fournisseur agnostiques",
+        "description": "Échangez les connecteurs, les embeddings et les modèles sans réécriture ni verrouillage."
+      },
+      "pilotReady": {
+        "title": "UX prête pour le pilote",
+        "description": "Interface axée sur la clarté pour les équipes à forte intensité de connaissances sous contraintes de conformité et de localisation des données."
+      }
+    },
+    "latestArticles": "Derniers articles",
+    "sectionTitle": "Conçu pour des réponses gouvernées et citées",
+    "sectionDescription": "Chaque article renvoie aux priorités de la solution Inlock : déploiements axés sur la sécurité, architecture modulaire et pilotes maintenables.",
+    "seeBlueprint": "Voir le Plan IA",
+    "noPosts": "Aucun article de blog pour le moment.",
+    "readArticle": "Lire l'article",
+    "backToBlog": "Retour au Blog",
+    "pillars": {
+      "productAligned": "Informations alignées sur le produit",
+      "governed": "Gouverné et axé sur l'espace de travail",
+      "modelAgnostic": "Modèle-agnostique"
+    },
+    "posts": {
+      "local-vs-cloud-ai": {
+        "title": "IA locale vs IA cloud pour les industries réglementées",
+        "excerpt": "Un aperçu pratique du moment où choisir l'IA locale plutôt que les offres cloud, en particulier sous le RGPD et une conformité stricte."
+      },
+      "on-premise-llm-deployment": {
+        "title": "Déploiement de LLM sur site : Un guide pour les industries réglementées",
+        "excerpt": "Découvrez comment déployer des modèles de langage (LLM) localement pour garantir la confidentialité des données et la conformité réglementaire dans votre organisation."
+      },
+      "building-private-ai-assistants": {
+        "title": "Construire des assistants IA privés avec Inlock AI",
+        "excerpt": "Découvrez comment Inlock AI permet la création d'assistants IA puissants et privés qui exploitent les connaissances internes de votre organisation en toute sécurité."
+      },
+      "ai-security-compliance-checklist": {
+        "title": "Liste de contrôle de sécurité et de conformité de l'IA",
+        "excerpt": "Une liste de contrôle complète pour sécuriser les déploiements d'IA dans les industries réglementées et garantir la conformité aux normes mondiales."
+      },
+      "rag-implementation-best-practices": {
+        "title": "Meilleures pratiques pour l'implémentation du RAG",
+        "excerpt": "Meilleures pratiques pour l'implémentation de la génération augmentée par récupération (RAG) pour des systèmes d'IA privés prêts pour la production."
+      },
+      "cost-comparison-local-vs-cloud-ai": {
+        "title": "Comparaison des coûts : IA locale vs Cloud",
+        "excerpt": "Une analyse détaillée du coût total de possession pour les déploiements d'IA sur site par rapport aux déploiements basés sur le cloud."
+      }
+    }
+  }
+}
