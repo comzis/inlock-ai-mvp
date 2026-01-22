@@ -2,6 +2,14 @@ services:
   coolify:
     image: ghcr.io/coollabsio/coolify@sha256:e9468bfe9dd6fc1e50515a60ee2b1c3819c9e02575963060438f1d65f77bdcc0
     restart: always
+    mem_limit: 1536m
+    mem_reservation: 512m
+    deploy:
+      resources:
+        limits:
+          memory: 1536m
+        reservations:
+          memory: 512m
     # Exposed only through Traefik (no host port bindings)
     volumes:
       - /data/coolify:/data/coolify
@@ -68,6 +76,14 @@ services:
     # Use Redis 7.x which supports RDB format version 12
     image: redis:7-alpine
     restart: always
+    mem_limit: 512m
+    mem_reservation: 128m
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+        reservations:
+          memory: 128m
     command: sh -c "if [ -n \"$$REDIS_PASSWORD\" ]; then redis-server --requirepass $$REDIS_PASSWORD --port 6380; else redis-server --port 6380; fi"
     ports:
       - "127.0.0.1:6380:6380"
@@ -84,6 +100,14 @@ services:
   coolify-postgres:
     image: postgres@sha256:2e7b888f221193cddee9ce554d3311dc8be197a5d0c904fe30f5f568e0f99851
     restart: always
+    mem_limit: 1g
+    mem_reservation: 256m
+    deploy:
+      resources:
+        limits:
+          memory: 1g
+        reservations:
+          memory: 256m
     environment:
       - POSTGRES_USER=coolify
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
@@ -103,6 +127,14 @@ services:
   coolify-soketi:
     image: quay.io/soketi/soketi@sha256:fe7e68cdec157343b40cdbe604dd3ca2788d3fbf5624d3ab8f085b623d700ece
     restart: always
+    mem_limit: 512m
+    mem_reservation: 128m
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+        reservations:
+          memory: 128m
     environment:
       - SOKETI_DEFAULT_APP_ID=coolify
       - SOKETI_DEFAULT_APP_KEY=${PUSHER_APP_KEY}
