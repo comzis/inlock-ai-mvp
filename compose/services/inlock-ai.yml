@@ -19,6 +19,8 @@ x-resource-hints: &resource-hints
 
 services:
   inlock-ai:
+    mem_limit: 768m
+    mem_reservation: 256m
     # SECURITY: TODO - Replace :latest with version tag or SHA256 digest
     # Current build process uses :latest tag (see scripts/deployment/deploy-inlock.sh)
     # Recommended: Implement version tagging in build script:
@@ -50,7 +52,13 @@ services:
     cap_drop:
       - ALL
     user: "1001:1001"
-    <<: [*hardening, *default-logging, *resource-hints]
+    deploy:
+      resources:
+        limits:
+          memory: 768m
+        reservations:
+          memory: 256m
+    <<: [*hardening, *default-logging]
 
 networks:
   edge:

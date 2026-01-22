@@ -19,6 +19,8 @@ x-resource-hints: &resource-hints
 
 services:
   inlock-db:
+    mem_limit: 768m
+    mem_reservation: 256m
     image: postgres@sha256:a5074487380d4e686036ce61ed6f2d363939ae9a0c40123d1a9e3bb3a5f344b4
     restart: always
     environment:
@@ -48,7 +50,13 @@ services:
       - no-new-privileges:true
     secrets:
       - inlock-db-password
-    <<: [*default-logging, *resource-hints]
+    deploy:
+      resources:
+        limits:
+          memory: 768m
+        reservations:
+          memory: 256m
+    <<: [*default-logging]
 
 networks:
   internal:
