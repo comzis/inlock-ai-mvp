@@ -1,0 +1,25 @@
+[Unit]
+Description=ClickHouse Migration Check Timer (Off-Peak)
+Documentation=file:///home/comzis/.cursor/projects/home-comzis-inlock/docs/optimization/migration-job-throttling.md
+Requires=migrate-clickhouse.service
+
+[Timer]
+# Run daily at 02:00 CET (off-peak hours)
+# Note: systemd uses UTC, so 02:00 CET = 01:00 UTC (winter) or 00:00 UTC (summer)
+# Adjust based on your timezone. For CET (UTC+1 in winter, UTC+2 in summer):
+# Winter: 02:00 CET = 01:00 UTC
+# Summer: 02:00 CET = 00:00 UTC
+# Using 01:00 UTC as a compromise (will be 02:00 or 03:00 local time depending on DST)
+OnCalendar=*-*-* 01:00:00
+
+# Add randomized delay to avoid thundering herd (0-15 minutes)
+RandomizedDelaySec=15m
+
+# If the system was off during the scheduled time, run immediately on boot
+Persistent=true
+
+# Accuracy: allow up to 1 minute drift (default is 1 minute)
+AccuracySec=1m
+
+[Install]
+WantedBy=timers.target
