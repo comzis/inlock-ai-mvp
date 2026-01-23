@@ -5,11 +5,13 @@ export async function sendMail({
   name,
   subject,
   body,
+  replyTo,
 }: {
   to: string;
   name: string;
   subject: string;
   body: string;
+  replyTo?: string;
 }) {
   const { SMTP_PASSWORD, SMTP_USER, SMTP_HOST, SMTP_PORT, SMTP_FROM } =
     process.env;
@@ -33,13 +35,20 @@ export async function sendMail({
   });
 
   try {
-    const info = await transport.sendMail({
-      from: SMTP_FROM || '"Inlock AI" <webmaster@inlock.ai>',
+    const mailOptions: any = {
+      from: SMTP_FROM || '"Inlock Support" <contact@inlock.ai>',
       to,
       subject,
       html: body,
       text: body.replace(/<[^>]*>?/gm, ""),
-    });
+    };
+    
+    // Add Reply-To header if provided (for contact forms - replies go to customer)
+    if (replyTo) {
+      mailOptions.replyTo = replyTo;
+    }
+    
+    const info = await transport.sendMail(mailOptions);
     console.log("Email sent successfully:", info.messageId);
     return info;
   } catch (error) {
