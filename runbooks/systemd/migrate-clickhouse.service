@@ -1,0 +1,43 @@
+[Unit]
+Description=ClickHouse Migration Check (Throttled)
+Documentation=file:///home/comzis/.cursor/projects/home-comzis-inlock/docs/optimization/migration-job-throttling.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+# Use the throttled wrapper script
+ExecStart=/home/comzis/.cursor/projects/home-comzis-inlock/scripts/run-migrate-clickhouse-throttled.sh
+
+# Resource throttling (applied at systemd level)
+# CPU quota: 200% = ~2 cores on 6-core system (can be overridden via env)
+CPUQuota=200%
+
+# Process priority: lower priority (10 = nice level)
+Nice=10
+
+# I/O scheduling: best-effort class (2) with lowest priority (7)
+IOSchedulingClass=2
+IOSchedulingPriority=7
+
+# Environment variables (can be overridden by systemd override)
+Environment="CPU_QUOTA_PERCENT=200"
+Environment="IONICE_CLASS=2"
+Environment="IONICE_PRIO=7"
+Environment="NICE_LEVEL=10"
+Environment="LOAD_FACTOR=0.80"
+Environment="PROJECT_DIR=/home/comzis/projects/inlock-ai-mvp"
+Environment="MIGRATION_CMD=python manage.py migrate_clickhouse --check"
+Environment="LOG_FILE=/var/log/migrate-clickhouse.log"
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=migrate-clickhouse
+
+# Security
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
