@@ -2,6 +2,14 @@ services:
   loki:
     image: grafana/loki:2.9.4
     restart: always
+    mem_limit: 768m
+    mem_reservation: 256m
+    deploy:
+      resources:
+        limits:
+          memory: 768m
+        reservations:
+          memory: 256m
     command:
       - "-config.file=/etc/loki/local-config.yaml"
     volumes:
@@ -22,6 +30,14 @@ services:
   promtail:
     image: grafana/promtail:2.9.4
     restart: always
+    mem_limit: 256m
+    mem_reservation: 64m
+    deploy:
+      resources:
+        limits:
+          memory: 256m
+        reservations:
+          memory: 64m
     command:
       - "-config.file=/etc/promtail/config.yml"
     volumes:
