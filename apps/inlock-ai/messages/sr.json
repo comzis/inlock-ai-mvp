@@ -59,7 +59,22 @@
         "description": "Praktično postavljanje lokalnih LLM-ova, RAG sistema i sigurnih AI tokova rada."
       }
     },
-    "contactTitle": "Započnite"
+    "contactTitle": "Započnite",
+    "Contact": {
+      "title": "Kontaktirajte nas",
+      "subtitle": "Recite nam o vašem projektu i mi ćemo vam pomoći da ga izgradite.",
+      "name": "Ime",
+      "email": "E-mail adresa",
+      "company": "Kompanija (opciono)",
+      "message": "Kako vam možemo pomoći?",
+      "submit": "Pošalji poruku",
+      "sending": "Slanje...",
+      "successTitle": "Poruka poslata",
+      "successMessage": "Hvala što ste nas kontaktirali. Odgovorićemo vam uskoro.",
+      "sendAnother": "Pošalji drugu",
+      "errorTitle": "Greška",
+      "errorGeneric": "Nešto je pošlo po zlu. Molimo pokušajte ponovo."
+    }
   },
   "Readiness": {
     "title": "Lista Provere Spremnosti za AI",
@@ -122,7 +137,7 @@
   "Auth": {
     "login": {
       "title": "Prijava",
-      "description": "Prijavite se da biste pristupili administrativnoj tabli.",
+      "description": "Prijavite se da biste pristupili tabli za prijavu.",
       "email": "E-pošta",
       "password": "Lozinka",
       "passwordPlaceholder": "Unesite vašu lozinku",
@@ -130,6 +145,14 @@
       "forgotPassword": "Zaboravili ste lozinku?",
       "notRegistered": "Nemate nalog?",
       "createAccount": "Napravite nalog"
+    },
+    "comingSoon": {
+      "title": "Uskoro",
+      "subtitle": "Trenutno radimo na nečemu uzbudljivom. Tabla za prijavu će uskoro biti dostupna.",
+      "help": "Hvala na strpljenju. Ako vam je potrebna pomoć, molimo vas da nas",
+      "contactUs": "kontaktirate",
+      "helpSuffix": "i rado ćemo vam pomoći.",
+      "backToHome": "Nazad na početnu"
     },
     "register": {
       "title": "Napravite Nalog",
