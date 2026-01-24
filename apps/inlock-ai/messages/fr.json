@@ -59,7 +59,22 @@
         "description": "Déploiement pratique de LLMs sur site, systèmes RAG et workflows IA sécurisés."
       }
     },
-    "contactTitle": "Commencer"
+    "contactTitle": "Commencer",
+    "Contact": {
+      "title": "Contactez-nous",
+      "subtitle": "Parlez-nous de votre projet et nous vous aiderons à le réaliser.",
+      "name": "Nom",
+      "email": "Adresse e-mail",
+      "company": "Entreprise (facultatif)",
+      "message": "Comment pouvons-nous vous aider ?",
+      "submit": "Envoyer le Message",
+      "sending": "Envoi...",
+      "successTitle": "Message Envoyé",
+      "successMessage": "Merci de nous avoir contactés. Nous vous répondrons sous peu.",
+      "sendAnother": "Envoyer un autre",
+      "errorTitle": "Erreur",
+      "errorGeneric": "Quelque chose s'est mal passé. Veuillez réessayer."
+    }
   },
   "Readiness": {
     "title": "Liste de Vérification de Préparation IA",
@@ -122,7 +137,7 @@
   "Auth": {
     "login": {
       "title": "Connexion",
-      "description": "Connectez-vous pour accéder au tableau de bord administrateur.",
+      "description": "Connectez-vous pour accéder au tableau de bord de connexion.",
       "email": "E-mail",
       "password": "Mot de passe",
       "passwordPlaceholder": "Entrez votre mot de passe",
@@ -130,6 +145,14 @@
       "forgotPassword": "Mot de passe oublié ?",
       "notRegistered": "Vous n'avez pas de compte ?",
       "createAccount": "Créer un compte"
+    },
+    "comingSoon": {
+      "title": "Bientôt Disponible",
+      "subtitle": "Nous travaillons actuellement sur quelque chose d'excitant. Le tableau de bord de connexion sera bientôt disponible.",
+      "help": "Merci de votre patience. Si vous avez besoin d'aide, veuillez",
+      "contactUs": "nous contacter",
+      "helpSuffix": "et nous serons heureux de vous aider.",
+      "backToHome": "Retour à l'accueil"
     },
     "register": {
       "title": "Créer un Compte",

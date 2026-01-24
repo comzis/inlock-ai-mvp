@@ -59,7 +59,22 @@
         "description": "Hands-on deployment of on-premise LLMs, RAG systems, and secure AI workflows."
       }
     },
-    "contactTitle": "Get Started"
+    "contactTitle": "Get Started",
+    "Contact": {
+      "title": "Get in touch",
+      "subtitle": "Tell us about your project and we'll help you build it.",
+      "name": "Name",
+      "email": "Email address",
+      "company": "Company (optional)",
+      "message": "How can we help?",
+      "submit": "Send Message",
+      "sending": "Sending...",
+      "successTitle": "Message Sent",
+      "successMessage": "Thank you for reaching out. We will get back to you shortly.",
+      "sendAnother": "Send another",
+      "errorTitle": "Error",
+      "errorGeneric": "Something went wrong. Please try again."
+    }
   },
   "Readiness": {
     "title": "AI Readiness Checklist",
@@ -122,7 +137,7 @@
   "Auth": {
     "login": {
       "title": "Sign In",
-      "description": "Sign in to access the admin dashboard.",
+      "description": "Sign in to access the login dashboard.",
       "email": "Email",
       "password": "Password",
       "passwordPlaceholder": "Enter your password",
@@ -130,6 +145,14 @@
       "forgotPassword": "Forgot your password?",
       "notRegistered": "Don't have an account?",
       "createAccount": "Create an account"
+    },
+    "comingSoon": {
+      "title": "Coming Soon",
+      "subtitle": "We're currently working on something exciting. The login dashboard will be available soon.",
+      "help": "Thank you for your patience. If you need assistance, please",
+      "contactUs": "contact us",
+      "helpSuffix": "and we'll be happy to help.",
+      "backToHome": "Back to homepage"
     },
     "register": {
       "title": "Create Account",
