@@ -279,11 +279,14 @@ services:
     deploy:
       resources:
         limits:
+          cpus: '0.5'
           memory: 384m
         reservations:
           memory: 128m
     command:
       - "--disable_metrics=percpu,udp,process,sched"
+      - "--housekeeping_interval=10s"
+      - "--max_housekeeping_interval=15s"
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:ro
@@ -304,6 +307,7 @@ services:
     deploy:
       resources:
         limits:
+          cpus: '1'
           memory: 1536m
         reservations:
           memory: 512m
