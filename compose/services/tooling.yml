@@ -91,6 +91,11 @@ services:
       - CLICKHOUSE_USER=default
       - CLICKHOUSE_PASSWORD=${POSTHOG_CLICKHOUSE_PASSWORD:?Required}
       - CLICKHOUSE_DB=posthog
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512m
     networks:
       - tooling_net
 
@@ -158,6 +163,7 @@ services:
     command: ./bin/docker-worker
     env_file: .env.tooling
     environment:
+      - WEB_CONCURRENCY=2
       - CLICKHOUSE_HOST=posthog_clickhouse
       - CLICKHOUSE_PORT=8123
       - CLICKHOUSE_SECURE=false
@@ -173,6 +179,11 @@ services:
       - posthog_redis
       - posthog_clickhouse
       - posthog_kafka
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1g
     networks:
       - tooling_net
 
@@ -180,7 +191,7 @@ services:
     image: posthog/posthog@sha256:3079e0b6a10bbda02f0f325fcf0051316957b22a7800890e9811dc053f758761
     container_name: posthog_plugins
     restart: unless-stopped
-    command: ./bin/docker-plugins-server
+    command: ./bin/plugin-server
     env_file: .env.tooling
     environment:
       - DATABASE_URL=postgres://posthog:${POSTHOG_DB_PASSWORD}@posthog_db:5432/posthog
@@ -198,6 +209,11 @@ services:
       - posthog_redis
       - posthog_clickhouse
       - posthog_kafka
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512m
     networks:
       - tooling_net
 
