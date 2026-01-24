@@ -6,7 +6,7 @@ GitOps-ready, hardened Docker Compose infrastructure stack for INLOCK.AI.
 
 ## Overview
 
-Latest changes: see [Release Notes](docs/RELEASE-NOTES.md)
+Latest changes: see [Release Notes](docs/RELEASE-NOTES.md). Recent SRE updates: PostHog `tooling` (plugin-server, limits), Netdata go.d docker `timeout` override, inlock-ai-secure-mvp DB health (app_user LOGIN).
 
 This repository contains the complete infrastructure configuration for INLOCK.AI, including:
 
@@ -14,7 +14,7 @@ This repository contains the complete infrastructure configuration for INLOCK.AI
 - **Container Management**: Portainer
 - **Workflow Automation**: n8n
 - **Database**: PostgreSQL (multiple instances)
-- **Monitoring & Observability**: Prometheus, Alertmanager, Grafana, Node Exporter, Blackbox Exporter, cAdvisor, Loki/Promtail
+- **Monitoring & Observability**: Prometheus, Alertmanager, Grafana, Netdata, Node Exporter, Blackbox Exporter, cAdvisor, Loki/Promtail
 - **Security**: Hardened with IP allowlists, authentication, rate limiting
 - **Application**: Inlock AI production application (Next.js)
 
@@ -119,24 +119,19 @@ sudo ./scripts/apply-firewall-manual.sh
 ```
 inlock-infra/
 ├── compose/              # Docker Compose files
-│   ├── stack.yml        # Main stack (Traefik, Portainer, etc.)
-│   ├── postgres.yml     # PostgreSQL database
-│   ├── inlock-db.yml    # Inlock AI database
-│   ├── inlock-ai.yml    # Inlock AI application service
-│   ├── logging.yml      # Loki & Promtail logging stack
-│   ├── n8n.yml         # n8n workflow automation
-│   ├── prometheus.yml  # Prometheus monitoring
-│   ├── prometheus/     # Prometheus configuration
-│   │   ├── prometheus.yml
-│   │   └── rules/      # Alert rules
-│   ├── alertmanager/   # Alertmanager configuration
-│   │   └── alertmanager.yml
-│   ├── monitoring/     # Monitoring exporters
-│   │   └── blackbox.yml
-│   ├── logging/        # Logging configuration
-│   │   ├── loki-config.yaml
-│   │   └── promtail-config.yaml
-│   └── grafana/        # Grafana configuration
+│   ├── services/
+│   │   ├── stack.yml    # Main stack (Traefik, Portainer, Netdata, etc.)
+│   │   ├── tooling.yml  # PostHog, Strapi (analytics, CMS)
+│   │   ├── inlock-db.yml
+│   │   ├── inlock-ai.yml
+│   │   ├── n8n.yml
+│   │   └── ...
+│   ├── config/          # Prometheus, Alertmanager, logging, monitoring
+│   │   ├── prometheus/
+│   │   ├── alertmanager/
+│   │   ├── monitoring/
+│   │   └── logging/    # loki-config, promtail
+│   └── grafana/         # (or under config/) provisioning, dashboards
 │       ├── provisioning/
 │       │   ├── datasources/
 │       │   ├── dashboards/
@@ -339,6 +334,7 @@ See [Automation Scripts](docs/AUTOMATION-SCRIPTS.md) for detailed usage.
 - **Alertmanager**: Handles alert fan-out (config: `compose/alertmanager/alertmanager.yml`)
 - **Node Exporter**: Host CPU/memory/disk/network metrics
 - **Blackbox Exporter**: Synthetic HTTP + TCP probes for public routes and internal services
+- **Netdata**: Real-time host and container metrics; Docker container health (go.d docker collector). If health charts are stale or `context deadline exceeded` appears in logs, increase `timeout` in `/etc/netdata/go.d/docker.conf` (e.g. 2 → 10).
 - **Grafana**: Visualization and dashboards
   - Auto-provisioned datasources: Prometheus, Loki
   - Dashboards:
@@ -407,6 +403,6 @@ See [Git Publish Guide](docs/GIT-PUBLISH-GUIDE.md) for publishing workflows.
 
 ---
 
-**Last Updated**: December 30, 2025  
+**Last Updated**: 2026-01-24  
 **Version**: GitOps-ready hardened stack  
 **Maintainer**: INLOCK.AI Infrastructure Team
