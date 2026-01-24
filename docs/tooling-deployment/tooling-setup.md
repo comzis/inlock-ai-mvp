@@ -160,6 +160,9 @@ docker compose -f infrastructure/docker-compose/tooling.yml logs -f
 
 ## Maintenance
 
+**PostHog: Pause / Resume (reduce CPU)**  
+To stop only the CPU-heavy PostHog worker and plugins: [POSTHOG-PAUSE-RESUME.md](./POSTHOG-PAUSE-RESUME.md).
+
 **Update images:**
 ```bash
 docker compose -f infrastructure/docker-compose/tooling.yml pull

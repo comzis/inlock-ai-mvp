@@ -1,0 +1,35 @@
+# Cockpit Proxy - Bridges Docker network to host Cockpit
+# This container runs on the edge network and proxies to host Cockpit
+services:
+  cockpit-proxy:
+    image: alpine/socat@sha256:c784805dfa575bc66a20850d0857cc7b524923de3cda694e95b8064256de176c
+    restart: always
+    mem_limit: 128m
+    mem_reservation: 32m
+    deploy:
+      resources:
+        limits:
+          memory: 128m
+        reservations:
+          memory: 32m
+    networks:
+      - edge
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    command: ["tcp-listen:8080,fork,reuseaddr", "tcp-connect:host.docker.internal:9090"]
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z host.docker.internal 9090"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  edge:
+    external: true
+    name: edge
+
