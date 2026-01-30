@@ -32,6 +32,8 @@ services:
     env_file:
       - /opt/inlock-ai-secure-mvp/.env.production
       - /home/comzis/inlock/.env
+    extra_hosts:
+      - "mail.inlock.ai:172.17.0.1"
     networks:
       edge: {}
       internal: {}
