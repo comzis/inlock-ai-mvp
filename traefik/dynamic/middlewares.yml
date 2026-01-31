@@ -14,6 +14,8 @@ http:
       headers:
         customRequestHeaders:
           X-Forwarded-Proto: "https"
+    # n8n: Host + X-Forwarded-Host must be n8n.inlock.ai or n8n returns "Cannot GET /"
+    # See docs/services/n8n/N8N-TRAEFIK-PROXY-REQUIREMENTS.md
     n8n-headers:
       headers:
         sslRedirect: true
@@ -26,6 +28,8 @@ http:
         customFrameOptionsValue: "SAMEORIGIN"
         customRequestHeaders:
           X-Forwarded-Proto: "https"
+          X-Forwarded-Host: "n8n.inlock.ai"
+          Host: "n8n.inlock.ai"
         # Don't override Content-Type - let n8n set it correctly
         # ES modules work with both text/javascript and application/javascript
     cockpit-headers:
@@ -85,6 +89,12 @@ http:
       rateLimit:
         average: 50
         burst: 100
+    # n8n: use n8n-ratelimit (not mgmt-ratelimit) — SPA loads 30+ parallel requests
+    # See docs/services/n8n/N8N-TRAEFIK-PROXY-REQUIREMENTS.md
+    n8n-ratelimit:
+      rateLimit:
+        average: 200
+        burst: 400
     # IP allowlist for admin services (Traefik dashboard, Portainer, n8n, etc.)
     # 
     # SECURITY NOTE: This only works if Cloudflare proxy is OFF (gray cloud)
@@ -104,12 +114,13 @@ http:
           - "100.83.222.69/32"   # Tailscale server
           - "172.18.0.0/16"      # Docker mgmt network (for Traefik forwardAuth)
           - "172.20.0.0/16"      # Docker edge network (for Traefik forwardAuth)
-    # Mailcow admin: only these IPs can reach /admin (mail.inlock.ai/admin or admin.inlock.ai)
+    # Mailcow admin: Tailscale range so any tailnet device can reach /admin (IPs can change)
     mailcow-admin-allowlist:
       ipAllowList:
         sourceRange:
-          - "100.83.222.69/32"   # Tailscale server
-          - "100.96.110.8/32"    # Tailscale MacBook
+          - "100.64.0.0/10"      # Tailscale (entire tailnet)
+          - "172.18.0.0/16"     # Docker mgmt (Traefik)
+          - "172.20.0.0/16"     # Docker edge
     dashboard-redirect:
       redirectRegex:
         regex: "^https://traefik.inlock.ai/$"

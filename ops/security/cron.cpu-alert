@@ -1,0 +1,4 @@
+# CPU / load alert check (emails when host load exceeds threshold)
+# Runs every 5 minutes. Uses alert.sh; email requires mail/sendmail (e.g. msmtp-mta).
+ALERT_EMAIL=milorad.stevanovic@inlock.ai
+*/5 * * * * root /home/comzis/inlock/ops/security/cpu-alert-check.sh

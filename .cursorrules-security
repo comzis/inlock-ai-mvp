@@ -14,7 +14,7 @@
 |---------|--------|-------------------------|
 | UFW Firewall | ACTIVE | Must remain enabled |
 | Fail2Ban | ACTIVE | Must remain enabled and monitoring SSH |
-| Unattended-Upgrades | ACTIVE | Must remain enabled for auto-patching |dedededededdddd
+| Unattended-Upgrades | ACTIVE | Must remain enabled for auto-patching |
 | Tailscale SSH Restriction | ACTIVE | Port 22 ONLY accessible via Tailscale (100.64.0.0/10) |
 | Sudo Password Required | ENFORCED | NEVER add NOPASSWD back |
 | SSH Public Key Auth | REQUIRED | MUST preserve MacBook key access - `PubkeyAuthentication yes`, `PasswordAuthentication no` |

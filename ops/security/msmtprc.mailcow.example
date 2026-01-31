@@ -1,0 +1,26 @@
+# msmtp config for sending alert emails via Mailcow SMTP.
+# Copy to /etc/msmtprc and set password file; chmod 600 /etc/msmtprc and the password file.
+#
+# 1) Install: sudo apt-get install -y msmtp msmtp-mta
+# 2) Create a Mailcow mailbox for alerts (e.g. contact@inlock.ai; alias to no-reply is fine).
+# 3) echo "mailbox-password" | sudo tee /etc/msmtp/alert-secret && sudo chmod 600 /etc/msmtp/alert-secret
+# 4) sudo cp ops/security/msmtprc.mailcow.example /etc/msmtprc
+#    Edit /etc/msmtprc: set 'from', 'user', and passwordeval path if needed.
+# 5) sudo chmod 600 /etc/msmtprc
+# 6) Test (as root): sudo ops/security/test-alert-email.sh
+# If you get 451 "Temporary lookup failure": add sender_allowed to Mailcow alias (and mailbox) table; see docs/security/SERVER-SECURITY-AUDIT-2026-01-31.md §7.6.1
+
+defaults
+port 587
+tls on
+tls_starttls on
+
+account mailcow
+host mail.inlock.ai
+from contact@inlock.ai
+auth login
+user contact@inlock.ai
+# Password from file (create /etc/msmtp/alert-secret with mailbox password, chmod 600)
+passwordeval "cat /etc/msmtp/alert-secret"
+
+account default : mailcow

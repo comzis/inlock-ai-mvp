@@ -82,6 +82,13 @@ These **variable names** are stored with plaintext values in `/home/comzis/mailc
 
 (Actual secret values are not listed here.)
 
+### 2.2 Backup encryption policy
+
+Any backup that includes `/home/comzis/mailcow/` (or `mailcow.conf`) must be stored encrypted. Unencrypted copies must not be stored off-host or in untrusted locations.
+
+**Pre-commit hook (this repo):** To block commits containing `mailcow.conf` or secret patterns (e.g. `DBPASS=`, `REDISPASS=`), install:  
+`cp ops/security/pre-commit-secrets-blocker.sh .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit`
+
 ---
 
 ## 3. Remediation Plan
@@ -197,6 +204,11 @@ Prepared files (no sudo needed):
 
 - `ops/security/ssh-hardening.conf` – sets `MaxAuthTries 3` and `LoginGraceTime 20`
 - `ops/security/cron.mailcow-backup` – daily Mailcow backups + prune after 14 days
+- `ops/security/verify-mailcow-backup.sh` + `ops/security/cron.mailcow-backup-verify` – backup-failure check (runs at 04:00)
+- `ops/security/daily-security-summary.sh` + `ops/security/cron.daily-security-summary` – daily fail2ban/netfilter summary (05:00)
+- `ops/security/cpu-alert-check.sh` + `ops/security/cron.cpu-alert` – host CPU/load alert (every 5 min; emails **milorad.stevanovic@inlock.ai** when load exceeds threshold, same §7.6 for mail)
+- `ops/security/pre-commit-secrets-blocker.sh` – pre-commit hook to block commits containing mailcow.conf or secret patterns (install to `.git/hooks/pre-commit`)
+- `ops/security/msmtprc.mailcow.example` – msmtp config template for sending alert emails via Mailcow SMTP (see §7.6)
 - `ops/security/iptables-docker-user-admin-ports.sh` – restrict admin ports (default 8080/8443) to Tailscale
 
 Notes:
@@ -228,6 +240,9 @@ sudo bash /home/comzis/inlock/ops/security/iptables-docker-user-admin-ports.sh
 sudo apt-get update -y
 sudo apt-get install -y iptables-persistent
 sudo netfilter-persistent save
+
+# 6) Optional: CPU/load alert (emails when host load > ~85% of cores, every 5 min; uses ALERT_EMAIL in cron)
+sudo install -m 644 /home/comzis/inlock/ops/security/cron.cpu-alert /etc/cron.d/cpu-alert
 ```
 
 ### 7.2 Verify
@@ -307,6 +322,48 @@ sudo netfilter-persistent save
 - Perform a backup integrity check and a restore test (non-prod or dry run).
 - Add monitoring/alerting for Mailcow netfilter bans and SSH auth anomalies.
 - Review Tailscale ACLs and device posture settings for admin devices.
+
+### 7.6 Alert email via Mailcow (optional)
+
+To have backup-failure and security-threshold alerts sent to **milorad.stevanovic@inlock.ai** via Mailcow SMTP (instead of syslog only):
+
+1. **Install msmtp and sendmail wrapper** (on the server where cron runs):
+   ```bash
+   sudo apt-get install -y msmtp msmtp-mta
+   ```
+2. **Create a Mailcow mailbox** for sending alerts (e.g. `no-reply@inlock.ai` or `alerts@inlock.ai`) in Mailcow Admin if you do not already have one.
+3. **Create the password file** (use the mailbox password):
+   ```bash
+   sudo mkdir -p /etc/msmtp
+   echo "mailbox-password" | sudo tee /etc/msmtp/alert-secret
+   sudo chmod 600 /etc/msmtp/alert-secret
+   ```
+4. **Install msmtp config** (edit `from`/`user` if you use a different mailbox):
+   ```bash
+   sudo cp /home/comzis/inlock/ops/security/msmtprc.mailcow.example /etc/msmtprc
+   # Edit /etc/msmtprc: set 'from' and 'user' to your mailbox (e.g. no-reply@inlock.ai)
+   sudo chmod 600 /etc/msmtprc
+   ```
+5. **Test reception:** Run as root so msmtp can read `/etc/msmtprc`:
+   ```bash
+   sudo /home/comzis/inlock/ops/security/test-alert-email.sh
+   ```
+   Or: `sudo ALERT_EMAIL=milorad.stevanovic@inlock.ai /home/comzis/inlock/ops/security/alert.sh "Test" "Body"`. Check **milorad.stevanovic@inlock.ai** (inbox and spam). Cron jobs already set `ALERT_EMAIL=milorad.stevanovic@inlock.ai`; once msmtp is configured, they will send email through Mailcow.
+
+6. **Password file:** Use no newline (e.g. `printf '%s' 'password' | sudo tee /etc/msmtp/alert-secret > /dev/null`). If the secret file is empty, msmtp will fail with "cannot read output of 'cat /etc/msmtp/alert-secret'".
+
+#### 7.6.1 If you get 451 "Temporary lookup failure" (Mailcow sender ACL)
+
+Postfix uses `mysql_virtual_sender_acl.cf`, which expects a `sender_allowed` column. If your Mailcow DB schema is older, add it and allow the sender:
+
+1. **mailbox table** (if missing):  
+   `ALTER TABLE mailbox ADD COLUMN sender_allowed TEXT NULL DEFAULT NULL;`
+2. **alias table** (required for the lookup):  
+   `ALTER TABLE alias ADD COLUMN sender_allowed TINYINT(1) NOT NULL DEFAULT 1;`  
+   Then: `UPDATE alias SET sender_allowed = 1 WHERE address = 'contact@inlock.ai';` (or your sender address).
+3. Restart Postfix: `cd /home/comzis/mailcow && docker compose restart postfix-mailcow`.
+
+Run these in the Mailcow MySQL container: `docker compose exec -it mysql-mailcow mysql -u mailcow -p mailcow`. Use the DBPASS from `mailcow.conf` when prompted.
 
 ---
 
@@ -403,13 +460,13 @@ Validated (no action):
 | **Firewall** | 15 | INPUT: SSH Tailscale + f2b + DROP; DOCKER-USER: 8080/8443 Tailscale-only, else DROP; martian logging; netfilter-persistent | 15/15 |
 | **Docker / Traefik** | 20 | DOCKER_HOST=socket-proxy; no docker.sock; admin routes: allowed-admins + admin-forward-auth + mgmt-ratelimit; no temp public IP; Mailcow /admin: mailcow-admin-allowlist | 20/20 |
 | **Mailcow** | 20 | DB/Redis on 127.0.0.1; netfilter isolation; admin restricted (Traefik + nginx); HTTP_REDIRECT=y; backup dir + cron + **manual backup verified** | 20/20 |
-| **Credentials** | 15 | mailcow.conf mode 600, owner comzis; not in git; plaintext on disk (accepted risk; protect backups) | 12/15 |
-| **Monitoring & ops** | 15 | log_martians; fail2ban; netfilter bans; backup verified; no formal alerting on bans/auth | 12/15 |
+| **Credentials** | 15 | mailcow.conf mode 600, owner comzis; not in git; backup encryption policy documented; pre-commit hook blocks secrets; plaintext on disk (accepted risk) | 13/15 |
+| **Monitoring & ops** | 15 | log_martians; fail2ban; netfilter bans; backup verified; backup-failure check (cron) added; optional daily security summary; optional webhook/email alerts | 13/15 |
 
 **Deductions:**
 
-- **Credentials (−3):** Sensitive values (DBPASS, REDISPASS, etc.) in plaintext in mailcow.conf; file permissions and backup policy mitigate but do not remove risk.
-- **Monitoring (−3):** No automated alerting for netfilter bans, SSH anomalies, or backup failures.
+- **Credentials (−2):** Sensitive values (DBPASS, REDISPASS, etc.) in plaintext in mailcow.conf; file permissions, backup encryption policy, and pre-commit hook mitigate.
+- **Monitoring (−2):** Alerting exists (optional webhook/email), but escalation/ack workflows are not formally defined.
 
 ### 9.2 Scoring rubric
 
@@ -423,7 +480,7 @@ Validated (no action):
 
 | Metric | Value |
 | ------ | ----- |
-| **Total score** | **94 / 100** |
+| **Total score** | **95 / 100** |
 | **Grade** | **Strong (A)** |
 
-**Summary:** Critical and high findings from the initial audit have been addressed (SSH restriction, DOCKER-USER, Traefik allowlists/ratelimits, Mailcow admin restriction, HTTP redirect, backups cron and verification). Remaining deductions are for credential storage (plaintext, mitigated by 600 and backup policy) and lack of formal alerting. Optional improvements: LoginGraceTime 120 if 2 minutes preferred; restore testing for Mailcow backups; alerting for netfilter/SSH/backup failures.
+**Summary:** Critical and high findings from the initial audit have been addressed. Backup-failure verification cron and daily security summary (optional) added; optional webhook/email alerts (e.g. ALERT_EMAIL=milorad.stevanovic@inlock.ai) for backup failures and security thresholds. Backup encryption policy documented; pre-commit hook blocks commits containing mailcow.conf or secret patterns. Remaining deductions: credential plaintext on disk; escalation/ack workflows not formally defined. Optional: LoginGraceTime 120; restore testing for Mailcow backups.

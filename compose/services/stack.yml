@@ -11,10 +11,17 @@ networks:
   socket-proxy:
     external: true
     name: socket-proxy
+  mail:
+    external: true
+    name: mail
+  mailcow:
+    external: true
+    name: mailcowdockerized_mailcow-network
 
 include:
   - inlock-db.yml
   - inlock-ai.yml
+  - n8n.yml
   - ../config/monitoring/logging.yml
   - cockpit-proxy.yml
 
@@ -100,6 +107,7 @@ services:
       - edge
       - socket-proxy
       - mgmt
+      - mailcow
     secrets:
       - traefik-basicauth
       - positive_ssl_cert

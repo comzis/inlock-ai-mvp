@@ -6,6 +6,9 @@ http:
     # TODO: Consider adding Cockpit's CA cert to Traefik trust store for proper verification
     cockpit-insecure:
       insecureSkipVerify: true
+    mailcow-https:
+      serverName: mail.inlock.ai
+      insecureSkipVerify: false
 
   services:
     # Homepage service removed - replaced by inlock-ai
@@ -50,5 +53,6 @@ http:
           - url: http://oauth2-proxy:4180
     mailcow:
       loadBalancer:
+        serversTransport: mailcow-https
         servers:
-          - url: http://host.docker.internal:8080
+          - url: https://nginx-mailcow:8443

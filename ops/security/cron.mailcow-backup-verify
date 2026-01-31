@@ -1,0 +1,5 @@
+# Mailcow backup verification (runs after backup cron; backup at 03:30, prune at 03:45)
+MAILCOW_BACKUP_LOCATION=/home/comzis/mailcow/backups
+# Check at 04:00 that a recent backup exists. Optional: ALERT_WEBHOOK_URL.
+ALERT_EMAIL=milorad.stevanovic@inlock.ai
+0 4 * * * root MAILCOW_BACKUP_LOCATION=/home/comzis/mailcow/backups /home/comzis/inlock/ops/security/verify-mailcow-backup.sh

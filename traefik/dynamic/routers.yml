@@ -54,6 +54,7 @@ http:
       tls:
         certResolver: le-dns
     
+    # n8n: n8n-headers (Host), n8n-ratelimit (not mgmt-ratelimit) — see docs/services/n8n/N8N-TRAEFIK-PROXY-REQUIREMENTS.md
     n8n:
       entryPoints:
         - websecure
@@ -61,7 +62,7 @@ http:
       middlewares:
         - n8n-headers
         - admin-forward-auth
-        - mgmt-ratelimit
+        - n8n-ratelimit
       service: n8n
       tls:
         certResolver: le-dns
@@ -200,6 +201,7 @@ http:
       rule: Host(`mail.inlock.ai`) && PathPrefix(`/admin`)
       middlewares:
         - secure-headers
+        - proto-header
         - mailcow-admin-allowlist
       service: mailcow
       priority: 200
@@ -212,6 +214,7 @@ http:
       rule: Host(`mail.inlock.ai`)
       middlewares:
         - secure-headers
+        - proto-header
       service: mailcow
       tls:
         certResolver: le-dns
@@ -234,6 +237,7 @@ http:
       rule: Host(`webmail.inlock.ai`)
       middlewares:
         - secure-headers
+        - proto-header
       service: mailcow
       tls:
         certResolver: le-dns
@@ -245,6 +249,7 @@ http:
       rule: Host(`admin.inlock.ai`)
       middlewares:
         - secure-headers
+        - proto-header
         - mailcow-admin-allowlist
       service: mailcow
       tls:

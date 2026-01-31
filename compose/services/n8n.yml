@@ -13,8 +13,11 @@ services:
       - DB_POSTGRESDB_DATABASE=n8n
       - DB_POSTGRESDB_USER=n8n
       - DB_POSTGRESDB_PASSWORD_FILE=/run/secrets/n8n-db-password
+      # Required behind Traefik: see docs/services/n8n/N8N-TRAEFIK-PROXY-REQUIREMENTS.md
       - N8N_EDITOR_BASE_URL=https://n8n.${DOMAIN}
       - WEBHOOK_URL=https://n8n.${DOMAIN}
+      - N8N_HOST=n8n.${DOMAIN}
+      - N8N_PROTOCOL=https
       - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
       - N8N_RUNNERS_ENABLED=true
       - N8N_BLOCK_ENV_ACCESS_IN_NODE=false
