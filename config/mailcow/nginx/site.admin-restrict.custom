@@ -1,0 +1,15 @@
+# Mailcow admin IP restriction (copy to /home/comzis/mailcow/data/conf/nginx/)
+# Filename on server: site.admin-restrict.custom
+# See docs/security/MAILCOW-ACCESS-HARDENING-2026-01-31.md
+#
+# When using Traefik in front of Mailcow, Traefik already enforces this via
+# mailcow-admin-allowlist middleware. This snippet is for defense-in-depth.
+#
+# Allow only Tailscale IPs for /admin/; deny all others (403).
+# Webmail (/, /SOGo) remains public. Uses ^~ and try_files so existing PHP handling applies.
+location ^~ /admin/ {
+    allow 100.83.222.69;   # Tailscale server
+    allow 100.96.110.8;    # Tailscale MacBook
+    deny all;
+    try_files $uri $uri/ @strip-ext;
+}

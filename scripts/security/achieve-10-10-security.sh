@@ -61,7 +61,7 @@ backend = %(sshd_backend)s
 maxretry = 5
 bantime = 3600
 findtime = 600
-ignoreip = 127.0.0.1/8 ::1 100.83.222.69 100.96.110.8
+ignoreip = 127.0.0.1/8 ::1 100.83.222.69 100.96.110.8 31.10.147.220
 EOF
 
 # Enable and start fail2ban

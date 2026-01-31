@@ -1,0 +1,6 @@
+# Mailcow backups (daily)
+MAILCOW_BACKUP_LOCATION=/home/comzis/mailcow/backups
+# Full backup
+30 3 * * * root /home/comzis/mailcow/helper-scripts/backup_and_restore.sh backup all
+# Prune backups older than 14 days
+45 3 * * * root /home/comzis/mailcow/helper-scripts/backup_and_restore.sh backup --delete-days 14

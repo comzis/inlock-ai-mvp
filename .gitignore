@@ -2,7 +2,11 @@
 .env
 .env.local
 .env.*.local
+compose/.env
+compose/services/.env
 compose/services/.env.tooling
+scripts/mta_sts_align_test.env
+**/mta_sts_*_test.env
 
 # Secrets
 secrets-real/

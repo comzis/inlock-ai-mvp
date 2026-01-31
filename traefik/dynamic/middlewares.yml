@@ -102,9 +102,14 @@ http:
           - "100.64.0.0/10"      # Tailscale (tailnet range)
           - "100.96.110.8/32"    # Tailscale client (MacBook)
           - "100.83.222.69/32"   # Tailscale server
-          - "31.10.147.220/32"   # Temporary: Public IP (browser access via normal internet)
           - "172.18.0.0/16"      # Docker mgmt network (for Traefik forwardAuth)
           - "172.20.0.0/16"      # Docker edge network (for Traefik forwardAuth)
+    # Mailcow admin: only these IPs can reach /admin (mail.inlock.ai/admin or admin.inlock.ai)
+    mailcow-admin-allowlist:
+      ipAllowList:
+        sourceRange:
+          - "100.83.222.69/32"   # Tailscale server
+          - "100.96.110.8/32"    # Tailscale MacBook
     dashboard-redirect:
       redirectRegex:
         regex: "^https://traefik.inlock.ai/$"

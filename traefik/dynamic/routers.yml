@@ -61,7 +61,7 @@ http:
       middlewares:
         - n8n-headers
         - admin-forward-auth
-        # mgmt-ratelimit removed - was causing 429 errors on asset loading
+        - mgmt-ratelimit
       service: n8n
       tls:
         certResolver: le-dns
@@ -101,6 +101,7 @@ http:
       middlewares:
         - secure-headers
         - admin-forward-auth
+        - mgmt-ratelimit
       service: homarr
       tls:
         certResolver: le-dns
@@ -111,9 +112,8 @@ http:
       rule: Host(`cockpit.inlock.ai`)
       middlewares:
         - cockpit-headers
-        # allowed-admins temporarily removed - IP restriction needs proper Tailscale routing
-        # To enable: Access via Tailscale IP directly or configure device routing
-        # admin-forward-auth removed - direct system authentication
+        - allowed-admins
+        - admin-forward-auth
         - mgmt-ratelimit
       service: cockpit
       tls:
@@ -193,6 +193,19 @@ http:
       tls:
         certResolver: le-dns
 
+    # Mailcow /admin path: restrict to Tailscale IPs only (higher priority than catch-all mailcow)
+    mailcow-admin-path:
+      entryPoints:
+        - websecure
+      rule: Host(`mail.inlock.ai`) && PathPrefix(`/admin`)
+      middlewares:
+        - secure-headers
+        - mailcow-admin-allowlist
+      service: mailcow
+      priority: 200
+      tls:
+        certResolver: le-dns
+
     mailcow:
       entryPoints:
         - websecure
@@ -225,13 +238,14 @@ http:
       tls:
         certResolver: le-dns
 
-    # Mailcow admin alias
+    # Mailcow admin alias (admin.inlock.ai) - same IP restriction as /admin
     mailcow-admin:
       entryPoints:
         - websecure
       rule: Host(`admin.inlock.ai`)
       middlewares:
         - secure-headers
+        - mailcow-admin-allowlist
       service: mailcow
       tls:
         certResolver: le-dns
