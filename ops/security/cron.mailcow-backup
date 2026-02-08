@@ -1,6 +1,8 @@
 # Mailcow backups (daily)
+# MAILTO sends cron errors to this address instead of root (avoids mail loop on mail.inlock.ai)
+MAILTO=milorad.stevanovic@inlock.ai
 MAILCOW_BACKUP_LOCATION=/home/comzis/mailcow/backups
-# Full backup
-30 3 * * * root /home/comzis/mailcow/helper-scripts/backup_and_restore.sh backup all
-# Prune backups older than 14 days
-45 3 * * * root /home/comzis/mailcow/helper-scripts/backup_and_restore.sh backup --delete-days 14
+# Full backup (stdout suppressed; only errors reach MAILTO)
+30 3 * * * root /home/comzis/mailcow/helper-scripts/backup_and_restore.sh backup all >/dev/null
+# Prune backups older than 14 days (stdout suppressed; only errors reach MAILTO)
+45 3 * * * root /home/comzis/mailcow/helper-scripts/backup_and_restore.sh backup --delete-days 14 >/dev/null

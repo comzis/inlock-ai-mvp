@@ -2,21 +2,23 @@
 
 GitOps-ready, hardened Docker Compose infrastructure stack for INLOCK.AI.
 
-**Repository:** [https://github.com/comzis/inlock-ai-mvp](https://github.com/comzis/inlock-ai-mvp)
+**Repository:** [https://github.com/comzis/inlock-ai-mvp](https://github.com/comzis/inlock-ai-mvp)  
+**Security audit score:** **96 / 100** (Strong, A) — see [SERVER-SECURITY-AUDIT-2026-01-31.md](docs/security/SERVER-SECURITY-AUDIT-2026-01-31.md)
 
 ## Overview
 
-Latest changes: see [Release Notes](docs/RELEASE-NOTES.md). Recent SRE updates: PostHog `tooling` (plugin-server, limits), Netdata go.d docker `timeout` override, inlock-ai-secure-mvp DB health (app_user LOGIN).
-
 This repository contains the complete infrastructure configuration for INLOCK.AI, including:
 
-- **Reverse Proxy**: Traefik with TLS termination (Positive SSL + Let's Encrypt)
+- **Reverse Proxy**: Traefik v3 with TLS termination (Positive SSL + Let's Encrypt via Cloudflare DNS)
 - **Container Management**: Portainer
 - **Workflow Automation**: n8n
+- **Deployment**: Coolify (self-hosted PaaS)
 - **Database**: PostgreSQL (multiple instances)
-- **Monitoring & Observability**: Prometheus, Alertmanager, Grafana, Netdata, Node Exporter, Blackbox Exporter, cAdvisor, Loki/Promtail
-- **Security**: Hardened with IP allowlists, authentication, rate limiting
+- **Monitoring & Observability**: Prometheus, Alertmanager, Grafana, Node Exporter, Blackbox Exporter, cAdvisor, Loki/Promtail
+- **Security**: Hardened with IP allowlists, Auth0/OAuth2-Proxy, rate limiting, Docker socket proxy, file integrity monitoring
+- **Operational Automation**: CPU alerts, backup verification, Coolify auto-recovery, integrity-diff checks (all via cron)
 - **Application**: Inlock AI production application (Next.js)
+- **Email**: Mailcow (mail.inlock.ai)
 
 ## AI Workspaces & Workflow
 
@@ -117,46 +119,47 @@ sudo ./scripts/apply-firewall-manual.sh
 ## Structure
 
 ```
-inlock-infra/
+inlock/
 ├── compose/              # Docker Compose files
 │   ├── services/
-│   │   ├── stack.yml    # Main stack (Traefik, Portainer, Netdata, etc.)
-│   │   ├── tooling.yml  # PostHog, Strapi (analytics, CMS)
-│   │   ├── inlock-db.yml
-│   │   ├── inlock-ai.yml
-│   │   ├── n8n.yml
+│   │   ├── stack.yml       # Main stack (Traefik, Portainer, Prometheus, Grafana, etc.)
+│   │   ├── coolify.yml     # Coolify deployment platform
+│   │   ├── inlock-db.yml   # PostgreSQL databases
+│   │   ├── inlock-ai.yml   # Inlock AI application
+│   │   ├── n8n.yml         # Workflow automation
 │   │   └── ...
-│   ├── config/          # Prometheus, Alertmanager, logging, monitoring
+│   ├── config/             # Prometheus, Alertmanager, logging, monitoring
 │   │   ├── prometheus/
 │   │   ├── alertmanager/
 │   │   ├── monitoring/
-│   │   └── logging/    # loki-config, promtail
-│   └── grafana/         # (or under config/) provisioning, dashboards
-│       ├── provisioning/
-│       │   ├── datasources/
-│       │   ├── dashboards/
-│       │   └── alerting/
-│       └── dashboards/
-├── traefik/             # Traefik configuration
-│   ├── traefik.yml      # Static configuration
-│   └── dynamic/        # Dynamic configuration
+│   │   └── logging/        # Loki, Promtail
+│   └── n8n/workflows/      # n8n workflow exports
+├── config/                 # Application config
+│   ├── grafana/            # Dashboards and provisioning
+│   ├── traefik/            # Static Traefik config
+│   ├── nginx/              # Nginx configs
+│   └── mailcow/            # Mailcow nginx customization
+├── traefik/                # Traefik dynamic configuration
+│   └── dynamic/
 │       ├── routers.yml
 │       ├── services.yml
 │       ├── middlewares.yml
 │       └── tls.yml
-├── ansible/             # Ansible automation
-│   ├── playbooks/      # Deployment playbooks
-│   ├── roles/          # Ansible roles
-│   └── inventories/    # Host inventories
-├── scripts/            # Management scripts
-│   ├── deploy-inlock.sh           # Full deployment automation
-│   ├── verify-inlock-deployment.sh # Deployment verification
-│   ├── cleanup-orphan-containers.sh # Container cleanup
-│   ├── nightly-regression.sh      # Automated regression testing
-│   └── ...             # Other management scripts
-├── docs/               # Documentation
-├── secrets/            # Secret files (not in Git)
-└── .env                # Environment variables (not in Git)
+├── ops/security/           # Operational security scripts and cron files
+│   ├── alert.sh            # Lightweight alert helper (syslog + email + webhook)
+│   ├── cpu-alert-check.sh  # CPU/load alert (persistent check, not spikes)
+│   ├── daily-security-summary.sh  # Daily fail2ban/netfilter summary
+│   ├── integrity-diff-check.sh    # File integrity diff vs baseline
+│   ├── start-coolify-if-down.sh   # Coolify auto-recovery
+│   ├── verify-mailcow-backup.sh   # Backup verification
+│   ├── test-alert-email.sh        # Test email delivery
+│   └── cron.*              # Cron entries (all with MAILTO, no root mail loop)
+├── ansible/                # Ansible automation
+├── scripts/                # Management & deployment scripts
+├── runbooks/               # Operational runbooks
+├── docs/                   # Documentation
+├── secrets/                # Secret files (not in Git)
+└── .env                    # Environment variables (not in Git)
 ```
 
 ## Services
@@ -167,6 +170,7 @@ inlock-infra/
 |---------|-----|--------|
 | **Inlock AI** | https://inlock.ai | Public |
 | **Inlock AI (WWW)** | https://www.inlock.ai | Public |
+| **Mailcow (Webmail)** | https://mail.inlock.ai | Public (login required) |
 | **Prometheus** | http://localhost:9090 (internal) | Internal only |
 | **Alertmanager** | http://localhost:9093 (internal) | Internal only |
 
@@ -188,15 +192,21 @@ inlock-infra/
 
 ## Security
 
-- ✅ **Auth0 Authentication** - Single sign-on for all admin services (Google/Apple/Passkeys)
-- ✅ IP Allowlisting (Tailscale VPN required for admin services)
-- ✅ Forward Auth (OAuth2-Proxy for admin, NextAuth.js for frontend)
-- ✅ Rate Limiting (50 req/min, 100 burst)
-- ✅ Secure Headers (HSTS, CSP, etc.)
-- ✅ TLS/SSL Encryption (Let's Encrypt + PositiveSSL)
-- ✅ Firewall (UFW with deny-by-default)
-- ✅ Network Segmentation (Docker networks)
-- ✅ Role-Based Access Control (via Auth0 roles)
+**Audit score: 96/100** — [Full audit](docs/security/SERVER-SECURITY-AUDIT-2026-01-31.md)
+
+- ✅ **Auth0 Authentication** — Single sign-on for all admin services (Google/Apple/Passkeys)
+- ✅ **IP Allowlisting** — Tailscale VPN required for admin services
+- ✅ **Forward Auth** — OAuth2-Proxy for admin, NextAuth.js for frontend
+- ✅ **Rate Limiting** — 50 req/min, 100 burst (per-service tuning for n8n)
+- ✅ **Secure Headers** — HSTS, CSP, X-Content-Type-Options, etc.
+- ✅ **TLS/SSL Encryption** — Let's Encrypt (Cloudflare DNS) + PositiveSSL
+- ✅ **Firewall** — SSH restricted to Tailscale; DOCKER-USER restricts admin ports; iptables persisted
+- ✅ **Network Segmentation** — Docker networks (edge, mgmt, internal, socket-proxy, mail, mailcow)
+- ✅ **Docker Socket Proxy** — No direct docker.sock mount; Traefik uses socket-proxy
+- ✅ **Container Hardening** — cap_drop ALL, no-new-privileges, read-only filesystems, resource limits
+- ✅ **File Integrity Monitoring** — Daily integrity-diff check against baseline (`ops/security/integrity-diff-check.sh`)
+- ✅ **Pre-commit Secrets Blocker** — Blocks commits containing mailcow.conf or secret patterns
+- ✅ **Role-Based Access Control** — Via Auth0 roles
 
 ## Prerequisites
 
@@ -283,26 +293,22 @@ docker compose -f compose/stack.yml --env-file .env logs -f inlock-ai
 ./scripts/restore-volumes.sh
 ```
 
-### Automation / Regression
+Mailcow backups run daily at 03:30 via cron (`ops/security/cron.mailcow-backup`), with verification at 04:00 (`ops/security/cron.mailcow-backup-verify`).
 
-**Application-Level Scripts** (in `/opt/inlock-ai-secure-mvp/`):
-- **Regression suite**: `scripts/regression-check.sh` - Runs lint, tests, and build (uses Docker by default)
-- **Pre-deploy checks**: `scripts/pre-deploy.sh` - Validates readiness before deployment
+### Operational Automation (cron)
 
-**Infrastructure-Level Scripts** (in `/home/comzis/inlock-infra/scripts/`):
-- **Full deploy**: `scripts/deploy-inlock.sh` - Complete deployment pipeline (pre-check → build → deploy → verify)
-- **Nightly regression wrapper**: `scripts/nightly-regression.sh` - Cron-safe regression testing
-- **Deployment verification**: `scripts/verify-inlock-deployment.sh` - Post-deployment health checks
-- **Orphan container cleanup**: `scripts/cleanup-orphan-containers.sh` - Removes unused containers
+All cron files are in `ops/security/` with `MAILTO=milorad.stevanovic@inlock.ai` (no root mail loop).
 
-**Scheduling Nightly Regression:**
-```bash
-# Add to crontab
-crontab -e
-# Add: 0 3 * * * /home/comzis/inlock-infra/scripts/nightly-regression.sh
-```
+| Cron file | Schedule | Purpose |
+|-----------|----------|---------|
+| `cron.mailcow-backup` | 03:30, 03:45 | Mailcow full backup + prune (14 days) |
+| `cron.mailcow-backup-verify` | 04:00 | Verify recent backup exists; alert on failure |
+| `cron.daily-security-summary` | 05:00 | fail2ban + netfilter ban summary |
+| `cron.integrity-diff-check` | 06:00 | File integrity check vs baseline |
+| `cron.cpu-alert` | */5 min | CPU/load alert (persistent, not spikes) |
+| `cron.start-coolify-if-down` | */15 min | Auto-start Coolify if container is down |
 
-See [Automation Scripts](docs/AUTOMATION-SCRIPTS.md) for detailed usage.
+Install: `sudo install -m 644 ops/security/cron.<name> /etc/cron.d/<name>`
 
 ## Testing
 
@@ -377,10 +383,11 @@ Configured alerts in Prometheus:
 
 ## Security Notes
 
-- **Never commit secrets** - All secrets are in `.gitignore`
-- **Review firewall changes** - Use Ansible for production changes
-- **Audit regularly** - Review firewall rules and access logs monthly
-- **Keep updated** - Apply security updates regularly
+- **Never commit secrets** — All secrets are in `.gitignore`; pre-commit hook blocks mailcow.conf and secret patterns
+- **Review firewall changes** — SSH restricted to Tailscale; DOCKER-USER restricts admin ports
+- **File integrity** — Daily integrity-diff check; review with `sudo ops/security/integrity-diff-check.sh --show`
+- **Audit regularly** — Review firewall rules and access logs monthly; see [latest audit](docs/security/SERVER-SECURITY-AUDIT-2026-01-31.md)
+- **Keep updated** — Apply security updates regularly; update integrity baseline after: `sudo ops/security/integrity-diff-check.sh --init`
 
 ## License
 
@@ -403,6 +410,7 @@ See [Git Publish Guide](docs/GIT-PUBLISH-GUIDE.md) for publishing workflows.
 
 ---
 
-**Last Updated**: 2026-01-24  
+**Last Updated**: 2026-02-01  
 **Version**: GitOps-ready hardened stack  
+**Security Score**: 96/100 (Strong, A)  
 **Maintainer**: INLOCK.AI Infrastructure Team

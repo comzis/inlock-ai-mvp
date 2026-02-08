@@ -1,4 +1,8 @@
-# CPU / load alert check (emails when host load exceeds threshold)
+# CPU / load alert check (emails when host load sustained above threshold)
 # Runs every 5 minutes. Uses alert.sh; email requires mail/sendmail (e.g. msmtp-mta).
+# Default: only alerts when 5m average is also high (reduces noise from brief spikes).
+# To require 15m sustained: CPU_LOAD_PERSISTENCE=15m in env or in this file.
+# MAILTO sends cron errors to this address instead of root (avoids mail loop on mail.inlock.ai)
+MAILTO=milorad.stevanovic@inlock.ai
 ALERT_EMAIL=milorad.stevanovic@inlock.ai
 */5 * * * * root /home/comzis/inlock/ops/security/cpu-alert-check.sh

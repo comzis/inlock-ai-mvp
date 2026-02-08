@@ -1,5 +1,7 @@
 # Daily security summary (fail2ban sshd + optional netfilter)
 # Runs at 05:00
+# MAILTO sends cron errors to this address instead of root (avoids mail loop on mail.inlock.ai)
+MAILTO=milorad.stevanovic@inlock.ai
 # Optional alerting: ALERT_WEBHOOK_URL (webhook); ALERT_EMAIL (email, requires mail/sendmail)
 ALERT_EMAIL=milorad.stevanovic@inlock.ai
 0 5 * * * root /home/comzis/inlock/ops/security/daily-security-summary.sh

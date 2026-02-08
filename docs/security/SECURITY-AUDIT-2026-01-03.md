@@ -4,11 +4,13 @@
 **Project:** Inlock AI Infrastructure  
 **Scope:** Full project security assessment
 
+**Update (2026-02-01):** For current server audit and score, see `docs/security/SERVER-SECURITY-AUDIT-2026-01-31.md`. Documented score **96/100**; operational (daily report) **9.2/10**. Integrity-diff and Coolify auto-recovery crons added Feb 2026.
+
 ---
 
 ## Executive Summary
 
-**Overall Security Score: 8.7/10** ✅
+**Overall Security Score: 8.7/10** ✅ (Jan 2026; superseded by server audit 96/100)
 
 The project demonstrates **strong security practices** with comprehensive container hardening, proper network isolation, and robust authentication mechanisms. The infrastructure follows security best practices with minor areas for improvement.
 

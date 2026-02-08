@@ -1,0 +1,8 @@
+# Integrity diff check (file integrity vs baseline)
+# Runs daily at 06:00. Creates baseline on first run if missing.
+# Install: sudo install -m 644 /home/comzis/inlock/ops/security/cron.integrity-diff-check /etc/cron.d/integrity-diff-check
+# Baseline: /var/lib/inlock-integrity/baseline.sha256 (create with: ops/security/integrity-diff-check.sh --init)
+# MAILTO sends cron errors to this address instead of root (avoids mail loop on mail.inlock.ai)
+MAILTO=milorad.stevanovic@inlock.ai
+INLOCK_REPO_ROOT=/home/comzis/inlock
+0 6 * * * root /home/comzis/inlock/ops/security/integrity-diff-check.sh

@@ -3,14 +3,24 @@
 # Uses alert.sh; set ALERT_EMAIL (e.g. milorad.stevanovic@inlock.ai) for email.
 # Cron: see cron.cpu-alert (e.g. every 5 min with ALERT_EMAIL set).
 #
+# Persistence (reduce noise): by default only alerts when load is sustained, not a brief spike.
+#   CPU_LOAD_PERSISTENCE=5m  (default) — require 5m average also above threshold
+#   CPU_LOAD_PERSISTENCE=15m — require 15m average also above threshold (stricter)
+#   CPU_LOAD_PERSISTENCE=1m  — legacy: alert on 1m only (no persistence check)
+#
 # Usage:
-#   ./cpu-alert-check.sh           # normal: only emails when load > threshold
+#   ./cpu-alert-check.sh           # normal: only emails when load sustained above threshold
 #   ./cpu-alert-check.sh --test     # send one test email (verify delivery)
 set -euo pipefail
 
 TAG="cpu-alert"
-# Per-core load threshold (alert when load1 > nproc * this). 0.85 ≈ 85% CPU.
+# Per-core load threshold (alert when load > nproc * this). 0.85 ≈ 85% CPU.
 CPU_LOAD_THRESHOLD="${CPU_LOAD_THRESHOLD:-0.85}"
+# Persistence: require this average to also exceed threshold (reduces noise from brief spikes).
+#   "5m" = require load5 > threshold (sustained ~5 min)
+#   "15m" = require load15 > threshold (sustained ~15 min)
+#   "" or "1m" = legacy: alert on load1 only (no persistence check)
+CPU_LOAD_PERSISTENCE="${CPU_LOAD_PERSISTENCE:-5m}"
 # Min minutes between email alerts (avoid flood)
 COOLDOWN_MINUTES="${COOLDOWN_MINUTES:-60}"
 COOLDOWN_FILE="${COOLDOWN_FILE:-/tmp/cpu-alert-cooldown.$(hostname -s 2>/dev/null || echo 'localhost')}"
@@ -57,17 +67,36 @@ Normal runs only send when load exceeds the threshold."
   exit 0
 fi
 
-logger -t "$TAG" "load1=$LOAD1 load5=$LOAD5 load15=$LOAD15 cores=$CORES threshold=$THRESHOLD"
+logger -t "$TAG" "load1=$LOAD1 load5=$LOAD5 load15=$LOAD15 cores=$CORES threshold=$THRESHOLD persistence=$CPU_LOAD_PERSISTENCE"
 
-# Compare load1 to threshold (use awk for float)
-OVER=$(awk "BEGIN {print ($LOAD1 > $THRESHOLD) ? 1 : 0}")
-if [ "$OVER" -eq 0 ]; then
-  # Clear cooldown when under threshold so next spike can alert
+# Require load1 over threshold
+OVER1=$(awk "BEGIN {print ($LOAD1 > $THRESHOLD) ? 1 : 0}")
+if [ "$OVER1" -eq 0 ]; then
   rm -f "$COOLDOWN_FILE"
   exit 0
 fi
 
-logger -t "$TAG" "WARN: host load high load1=$LOAD1 threshold=$THRESHOLD (${CPU_LOAD_THRESHOLD} per core)"
+# Persistence: only alert if a longer average is also over threshold (avoids brief spikes)
+case "${CPU_LOAD_PERSISTENCE}" in
+  5m)
+    OVER_PERSIST=$(awk "BEGIN {print ($LOAD5 > $THRESHOLD) ? 1 : 0}")
+    ;;
+  15m)
+    OVER_PERSIST=$(awk "BEGIN {print ($LOAD15 > $THRESHOLD) ? 1 : 0}")
+    ;;
+  1m|""|none)
+    OVER_PERSIST=1
+    ;;
+  *)
+    OVER_PERSIST=1
+    ;;
+esac
+if [ "$OVER_PERSIST" -eq 0 ]; then
+  logger -t "$TAG" "load1 high but ${CPU_LOAD_PERSISTENCE} not sustained (load5=$LOAD5 load15=$LOAD15); skipping alert"
+  exit 0
+fi
+
+logger -t "$TAG" "WARN: host load high (persistent) load1=$LOAD1 load5=$LOAD5 load15=$LOAD15 threshold=$THRESHOLD (${CPU_LOAD_THRESHOLD} per core)"
 
 # Cooldown: skip sending if we sent recently
 if [ -f "$COOLDOWN_FILE" ]; then

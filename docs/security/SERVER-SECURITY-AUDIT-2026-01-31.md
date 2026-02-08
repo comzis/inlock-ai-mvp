@@ -194,7 +194,7 @@ Any backup that includes `/home/comzis/mailcow/` (or `mailcow.conf`) must be sto
 
 ---
 
-*Report generated 2026-01-31. Option 6 changes applied on 2026-01-31; see §7.4 for verification results.*
+*Report generated 2026-01-31. Option 6 changes applied on 2026-01-31; see §7.4 for verification results. Score and Monitoring & ops updated 2026-02-01 (integrity-diff + Coolify auto-recovery; see §10).*
 
 ---
 
@@ -461,12 +461,12 @@ Validated (no action):
 | **Docker / Traefik** | 20 | DOCKER_HOST=socket-proxy; no docker.sock; admin routes: allowed-admins + admin-forward-auth + mgmt-ratelimit; no temp public IP; Mailcow /admin: mailcow-admin-allowlist | 20/20 |
 | **Mailcow** | 20 | DB/Redis on 127.0.0.1; netfilter isolation; admin restricted (Traefik + nginx); HTTP_REDIRECT=y; backup dir + cron + **manual backup verified** | 20/20 |
 | **Credentials** | 15 | mailcow.conf mode 600, owner comzis; not in git; backup encryption policy documented; pre-commit hook blocks secrets; plaintext on disk (accepted risk) | 13/15 |
-| **Monitoring & ops** | 15 | log_martians; fail2ban; netfilter bans; backup verified; backup-failure check (cron) added; optional daily security summary; optional webhook/email alerts | 13/15 |
+| **Monitoring & ops** | 15 | log_martians; fail2ban; netfilter bans; backup verified; backup-failure check (cron); daily security summary; optional webhook/email alerts; integrity-diff cron (Feb 2026); Coolify auto-start cron (Feb 2026) | 14/15 |
 
 **Deductions:**
 
 - **Credentials (−2):** Sensitive values (DBPASS, REDISPASS, etc.) in plaintext in mailcow.conf; file permissions, backup encryption policy, and pre-commit hook mitigate.
-- **Monitoring (−2):** Alerting exists (optional webhook/email), but escalation/ack workflows are not formally defined.
+- **Monitoring (−1):** Integrity-diff and Coolify auto-recovery crons added (Feb 2026). Escalation/ack workflows still not formally defined.
 
 ### 9.2 Scoring rubric
 
@@ -480,7 +480,23 @@ Validated (no action):
 
 | Metric | Value |
 | ------ | ----- |
-| **Total score** | **95 / 100** |
+| **Total score** | **96 / 100** |
 | **Grade** | **Strong (A)** |
+| **Daily host report (external)** | **9.2 / 10** (as reported by external host status; as of 2026-02-01; not computed in this repo) |
 
 **Summary:** Critical and high findings from the initial audit have been addressed. Backup-failure verification cron and daily security summary (optional) added; optional webhook/email alerts (e.g. ALERT_EMAIL=milorad.stevanovic@inlock.ai) for backup failures and security thresholds. Backup encryption policy documented; pre-commit hook blocks commits containing mailcow.conf or secret patterns. Remaining deductions: credential plaintext on disk; escalation/ack workflows not formally defined. Optional: LoginGraceTime 120; restore testing for Mailcow backups.
+
+---
+
+## 10. Post-audit updates (2026-02-01)
+
+The following automation and checks were added after the 2026-01-31 audit. They improve operational resilience and file-integrity visibility; they do not change the 0–100 audit score above.
+
+| Update | Description |
+|--------|-------------|
+| **Integrity diff (file integrity)** | `ops/security/integrity-diff-check.sh` + `cron.integrity-diff-check` — daily checksum comparison of critical paths (e.g. `/etc/ssh`, `/etc/cron.d`, repo config/traefik/compose) vs baseline. Baseline: `/var/lib/inlock-integrity/baseline.sha256`. Use `--show` to list changed files (compromise check). |
+| **Integrity diff verified** | First diff run showed only **NEW** files: `/etc/cron.d/integrity-diff-check`, `/etc/cron.d/start-coolify-if-down` — both expected (new automation). No compromise indicated. Baseline updated with `--init`. |
+| **Coolify auto-recovery** | `ops/security/start-coolify-if-down.sh` + `cron.start-coolify-if-down` — every 15 min, if `services-coolify-1` is not running, stack is started. Reduces failed-container window in daily report. |
+| **Daily host report (external)** | External daily host status report showed **Security score 9.2/10** as of 2026-02-01 (not computed in this repo). Containers: Coolify restored; integrity diff: changes reviewed and baseline updated. |
+
+**References:** `runbooks/DAILY-HOST-STATUS-INVESTIGATION.md` (investigation, install steps, integrity diff interpretation).
