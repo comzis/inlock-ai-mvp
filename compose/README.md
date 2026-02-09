@@ -11,7 +11,7 @@ Individual service compose files:
 - `postgres.yml` - PostgreSQL databases
 - `n8n.yml` - N8N workflow automation
 - `coolify.yml` - Coolify deployment platform
-- `tooling.yml` - Development tools
+- `tooling.yml` - Tooling services (placeholder, currently empty)
 
 ### `monitoring/`
 Monitoring and observability stack:

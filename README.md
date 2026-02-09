@@ -389,6 +389,32 @@ Configured alerts in Prometheus:
 - **Audit regularly** — Review firewall rules and access logs monthly; see [latest audit](docs/security/SERVER-SECURITY-AUDIT-2026-01-31.md)
 - **Keep updated** — Apply security updates regularly; update integrity baseline after: `sudo ops/security/integrity-diff-check.sh --init`
 
+## Changelog
+
+### 2026-02-09 — Resource cleanup (PostHog, Strapi, orphaned containers, Docker disk)
+
+Removed unused services and cleaned up Docker resources to reduce load and free disk/RAM.
+
+**PostHog Analytics** (8 containers) — removed entirely. Was deployed but never integrated into the application (no SDK, no event tracking). ClickHouse was memory-starved at 512 MB with 694 PIDs, causing sustained load spikes (1m=5.87) above the 6-core threshold.
+
+**Strapi CMS** (2 containers) — removed. CMS not currently in use; database was running with no app container.
+
+**Orphaned Coolify deployment** (`inlock-ai-secure-mvp-web` + `inlock-ai-secure-mvp-db`) — removed. Old deployment on isolated network, not serving traffic. The active app runs as `services-inlock-ai-1`.
+
+**Stopped containers** (`coolify-sentinel`, `preview-inlock`) — removed.
+
+**Docker disk cleanup** — pruned unused images (~8.4 GB), dangling volumes (~786 MB), build cache (~6.2 GB). Total: **~15.3 GB reclaimed**.
+
+**Impact:** Server load dropped from 5.87 to 0.30, freed ~2 GB RAM, reduced containers from 47 to 38, reclaimed ~15 GB disk.
+
+**Files changed:**
+- `compose/services/tooling.yml` — emptied (placeholder for future tooling)
+- `compose/services/.env.tooling` — deleted
+- `traefik/dynamic/tooling_routers.yml` — emptied (placeholder)
+- `.env` and `env.example` — removed all tooling env vars (PostHog + Strapi)
+- `docs/tooling-deployment/POSTHOG-PAUSE-RESUME.md` — deleted
+- `docs/tooling-deployment/tooling-setup.md` — deleted
+
 ## License
 
 Proprietary - INLOCK.AI Infrastructure
@@ -410,7 +436,7 @@ See [Git Publish Guide](docs/GIT-PUBLISH-GUIDE.md) for publishing workflows.
 
 ---
 
-**Last Updated**: 2026-02-01  
+**Last Updated**: 2026-02-09  
 **Version**: GitOps-ready hardened stack  
 **Security Score**: 96/100 (Strong, A)  
 **Maintainer**: INLOCK.AI Infrastructure Team
