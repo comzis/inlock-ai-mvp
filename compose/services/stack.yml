@@ -128,7 +128,7 @@ services:
     <<: [*hardening, *default-logging]
 
   oauth2-proxy:
-    image: quay.io/oauth2-proxy/oauth2-proxy:v7.6.0
+    image: quay.io/oauth2-proxy/oauth2-proxy:v7.13.0
     restart: always
     mem_limit: 256m
     mem_reservation: 64m
@@ -280,7 +280,7 @@ services:
     <<: [*hardening, *default-logging]
 
   cadvisor:
-    image: gcr.io/cadvisor/cadvisor:v0.49.1
+    image: ghcr.io/google/cadvisor:0.56.2
     restart: always
     mem_limit: 384m
     mem_reservation: 128m
@@ -381,7 +381,7 @@ services:
     <<: [*hardening, *default-logging]
 
   alertmanager:
-    image: prom/alertmanager:v0.27.0
+    image: prom/alertmanager:v0.30.0
     restart: always
     mem_limit: 256m
     mem_reservation: 64m

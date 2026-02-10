@@ -1,6 +1,6 @@
 services:
   loki:
-    image: grafana/loki:2.9.4
+    image: grafana/loki:2.9.13
     restart: always
     mem_limit: 768m
     mem_reservation: 256m
@@ -28,7 +28,7 @@ services:
       - ALL
 
   promtail:
-    image: grafana/promtail:2.9.4
+    image: grafana/promtail:2.9.13
     restart: always
     mem_limit: 256m
     mem_reservation: 64m
