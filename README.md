@@ -156,14 +156,22 @@ inlock/
 │   ├── test-alert-email.sh        # Test email delivery
 │   └── cron.*              # Cron entries (all with MAILTO, no root mail loop)
 ├── scripts/                # Management & deployment scripts
-│   └── maintenance/
-│       ├── daily-update-check.sh       # Daily detect + report (cron)
-│       ├── phased-rollout.sh           # Phased rollout with gates + rollback
-│       ├── maintenance-report.sh       # Report viewer
-│       ├── update-libexpat1.sh         # OS security patch
-│       └── update-inlock-compose-services.sh  # Simple compose updater
+│   ├── preflight.sh            # Pre-change health checks
+│   ├── postflight.sh           # Post-change health checks
+│   ├── daily-status-report.sh  # Daily host status report (cron)
+│   ├── mta_sts_daily_check.sh  # MTA-STS daily check (cron)
+│   ├── maintenance/            # Maintenance automation
+│   │   ├── daily-update-check.sh       # Daily detect + report
+│   │   ├── phased-rollout.sh           # Phased rollout with gates + rollback
+│   │   ├── maintenance-report.sh       # Report viewer
+│   │   └── ...
+│   ├── health-checks/          # Service and certificate health checks
+│   ├── mailcow/                # Mailcow diagnostics, testing, admin scripts (28 scripts)
+│   ├── diagnostics/            # Network, security, memory diagnostics
+│   └── system/                 # Host integrity, scheduled tasks, swap, resource limits
 ├── runbooks/               # Operational runbooks
-│   └── ZERO-SURPRISE-UPGRADE-WINDOW.md # Maintenance window procedure
+│   ├── ZERO-SURPRISE-UPGRADE-WINDOW.md
+│   └── mailcow-admin-password-reset.sh
 ├── ansible/                # Ansible automation
 ├── docs/                   # Documentation
 ├── secrets/                # Secret files (not in Git)
