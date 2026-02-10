@@ -82,6 +82,8 @@ sudo ./scripts/apply-firewall-manual.sh
 ### Automation & Scripts
 
 - **[Automation Scripts](docs/guides/AUTOMATION-SCRIPTS.md)** - Regression, deploy, monitoring, and cron automation
+- **[Maintenance Runbook](runbooks/ZERO-SURPRISE-UPGRADE-WINDOW.md)** - Zero-surprise upgrade window procedure with human-in-the-loop automation
+- **[Security Scorecard](ops/security/security-scorecard.md)** - Current security posture and areas to watch
 - **[Orphan Container Cleanup](docs/guides/ORPHAN-CONTAINER-CLEANUP.md)** - Managing orphaned Docker containers
 - **[Directory Cleanup](docs/guides/DIRECTORY-CLEANUP.md)** - Directory organization and cleanup procedures
 - **[Home Directory Cleanup](docs/guides/HOME-DIRECTORY-CLEANUP.md)** - Home directory organization and cleanup summary
@@ -153,9 +155,16 @@ inlock/
 │   ├── verify-mailcow-backup.sh   # Backup verification
 │   ├── test-alert-email.sh        # Test email delivery
 │   └── cron.*              # Cron entries (all with MAILTO, no root mail loop)
-├── ansible/                # Ansible automation
 ├── scripts/                # Management & deployment scripts
+│   └── maintenance/
+│       ├── daily-update-check.sh       # Daily detect + report (cron)
+│       ├── phased-rollout.sh           # Phased rollout with gates + rollback
+│       ├── maintenance-report.sh       # Report viewer
+│       ├── update-libexpat1.sh         # OS security patch
+│       └── update-inlock-compose-services.sh  # Simple compose updater
 ├── runbooks/               # Operational runbooks
+│   └── ZERO-SURPRISE-UPGRADE-WINDOW.md # Maintenance window procedure
+├── ansible/                # Ansible automation
 ├── docs/                   # Documentation
 ├── secrets/                # Secret files (not in Git)
 └── .env                    # Environment variables (not in Git)
@@ -307,6 +316,61 @@ All cron files are in `ops/security/` with `MAILTO=milorad.stevanovic@inlock.ai`
 
 Install: `sudo install -m 644 ops/security/cron.<name> /etc/cron.d/<name>`
 
+### Maintenance Automation (Human-in-the-Loop)
+
+Automated detection and reporting with manual approval gates. No changes are applied without operator go-ahead.
+
+**Workflow:**
+
+```
+Daily detection (cron 06:30)     Operator reviews          Operator executes
+┌──────────────────────┐        ┌───────────────────┐     ┌──────────────────────────┐
+│ daily-update-check.sh│───────▶│ maintenance-      │────▶│ phased-rollout.sh        │
+│                      │        │ report.sh         │     │ --ticket MAINT-001       │
+│ • OS security updates│        │                   │     │                          │
+│ • Image staleness    │        │ Manual go/no-go   │     │ Phase 0: OS patches      │
+│ • Unhealthy ctrs     │        │ decision          │     │ Phase 1: Auth (oauth2)   │
+│ • TLS cert expiry    │        │                   │     │ Phase 2: Monitoring      │
+│                      │        │                   │     │ Phase 3: Logging         │
+│ → Report + email     │        │                   │     │                          │
+│   if action needed   │        │                   │     │ Auto-rollback on failure │
+└──────────────────────┘        └───────────────────┘     │ Auto-report + email      │
+                                                          └──────────────────────────┘
+```
+
+**Scripts:**
+
+| Script | Purpose | Trigger |
+|--------|---------|---------|
+| `scripts/maintenance/daily-update-check.sh` | Detect OS + image updates, TLS expiry, generate report | Cron daily 06:30 |
+| `scripts/maintenance/phased-rollout.sh` | Phased container rollout with health gates + auto-rollback | Manual (operator) |
+| `scripts/maintenance/maintenance-report.sh` | View latest or historical maintenance reports | Manual |
+| `scripts/maintenance/update-libexpat1.sh` | Targeted OS security patch for libexpat1 | Manual |
+| `scripts/maintenance/update-inlock-compose-services.sh` | Simple pull + up -d for pinned services | Manual |
+
+**Quick reference:**
+
+```bash
+# View latest daily check report
+./scripts/maintenance/maintenance-report.sh
+
+# Preview rollout plan (no changes)
+./scripts/maintenance/phased-rollout.sh --dry-run
+
+# Execute phased rollout with health gates
+./scripts/maintenance/phased-rollout.sh --ticket MAINT-001 --window 60
+
+# View last rollout result
+./scripts/maintenance/maintenance-report.sh --rollout
+
+# List all reports
+./scripts/maintenance/maintenance-report.sh --all
+```
+
+**Runbook:** [ZERO-SURPRISE-UPGRADE-WINDOW.md](runbooks/ZERO-SURPRISE-UPGRADE-WINDOW.md) — full 60-minute maintenance window procedure with preflight, phased rollout, validation gates, and rollback steps.
+
+**Security scorecard:** [ops/security/security-scorecard.md](ops/security/security-scorecard.md) — current security posture (access control, TLS, network, Docker socket, areas to watch).
+
 ## Testing
 
 ```bash
@@ -387,6 +451,17 @@ Configured alerts in Prometheus:
 - **Keep updated** — Apply security updates regularly; update integrity baseline after: `sudo ops/security/integrity-diff-check.sh --init`
 
 ## Changelog
+
+### 2026-02-10 — Human-in-the-loop maintenance automation
+
+Added automated detection + manual approval + gated execution workflow:
+
+- `scripts/maintenance/daily-update-check.sh` — daily cron detects OS security updates, stale images, unhealthy containers, TLS cert expiry. Writes Markdown report, alerts only when action needed.
+- `scripts/maintenance/phased-rollout.sh` — operator-triggered phased container rollout with health gates after each phase and auto-rollback on failure. Generates before/after report.
+- `scripts/maintenance/maintenance-report.sh` — report viewer for daily checks and rollout results.
+- `ops/security/cron.maintenance-check` — cron entry for daily detection at 06:30.
+- `ops/security/security-scorecard.md` — live security posture document.
+- `runbooks/ZERO-SURPRISE-UPGRADE-WINDOW.md` — updated with automation section and operator checklist.
 
 ### 2026-02-10 — Remove Coolify, Homarr, broken cron/timers, deep audit
 
