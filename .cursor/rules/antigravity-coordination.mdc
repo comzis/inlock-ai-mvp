@@ -1,0 +1,32 @@
+---
+description: Coordination rules between Cursor (infrastructure) and Antigravity (feature development)
+alwaysApply: false
+---
+
+# Antigravity Coordination
+
+## Tool Responsibilities
+
+| Tool | Purpose | Changes |
+|------|---------|---------|
+| **Cursor** | Infrastructure, ops, deployment | Docker Compose, Traefik, certs, services |
+| **Antigravity** | Feature development, testing | Application code, frontend, features |
+
+## Before Infrastructure Changes
+
+1. Check recent app commits: `git log --oneline -10`
+2. Check active branches: `git branch -a`
+3. If Antigravity is working on related features, coordinate timing
+4. Document changes that affect the development workflow
+
+## Protected Files (coordinate with Antigravity)
+
+- `compose/services/inlock-ai.yml` — application service config
+- `compose/services/inlock-db.yml` — database config
+- `apps/inlock-ai/` — application source code (Antigravity's domain)
+
+## After Infrastructure Changes
+
+- Update relevant docs
+- Commit with clear messages
+- Ensure Antigravity's changes won't conflict with infrastructure

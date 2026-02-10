@@ -1,0 +1,42 @@
+---
+description: Infrastructure change workflow — preflight, backup, verify, coordinate
+alwaysApply: true
+---
+
+# Infrastructure Workflow
+
+## Before ANY Infrastructure Change
+
+1. Run preflight: `bash scripts/preflight.sh`
+2. Backup critical files before modifying:
+   ```bash
+   cp traefik/dynamic/routers.yml traefik/dynamic/routers.yml.backup.$(date +%Y%m%d-%H%M%S)
+   ```
+3. Check service status: `docker compose -f compose/services/stack.yml --env-file .env ps`
+
+## After ANY Infrastructure Change
+
+1. Run postflight: `bash scripts/postflight.sh`
+2. Test affected services: `curl -I https://service.inlock.ai`
+3. Check logs: `docker compose -f compose/services/stack.yml --env-file .env logs <service> --tail 50`
+
+## Repository Structure
+
+- **Main repo**: `/home/comzis/inlock` (git-tracked, CI/CD, production)
+- All scripts, configs, and docs belong here
+- Crontab entries point to `/home/comzis/inlock/`
+- Docker Compose deployments run from this path
+
+## Maintenance Automation
+
+- Daily detection: `scripts/maintenance/daily-update-check.sh` (cron 06:30)
+- View reports: `scripts/maintenance/maintenance-report.sh`
+- Phased rollout: `scripts/maintenance/phased-rollout.sh --dry-run`
+- Runbook: `runbooks/ZERO-SURPRISE-UPGRADE-WINDOW.md`
+
+## Removed Services (do not recreate)
+
+- PostHog (removed 2026-02-09)
+- Strapi (removed 2026-02-09)
+- Coolify (removed 2026-02-10)
+- Homarr (removed 2026-02-10)

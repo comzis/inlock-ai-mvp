@@ -1,0 +1,46 @@
+---
+description: Service configuration safeguards for Docker Compose services
+globs: compose/**/*.yml
+alwaysApply: false
+---
+
+# Service Configuration Safeguards
+
+## Protected Services
+
+### Grafana
+- `GF_SERVER_DOMAIN=grafana.inlock.ai` MUST be hardcoded (NOT `${DOMAIN}`)
+- `GF_SERVER_ROOT_URL=https://grafana.inlock.ai` MUST be hardcoded
+- NEVER use environment variables that may be empty
+
+### Database Passwords
+- PostgreSQL container password MUST match application `DB_PASSWORD`
+- Application MUST have default fallback password
+- NEVER remove default fallback values
+
+## Docker Compose Environment Variables
+
+Docker Compose `${VAR}` substitution only works if the variable is in the shell environment when `docker compose` runs. Variables from `env_file` load AFTER substitution.
+
+**Always use `--env-file .env`:**
+```bash
+docker compose -f compose/services/stack.yml --env-file .env up -d
+```
+
+## Error Signals
+
+If you see these, check environment variables:
+- `missing setting: cookie-secret` (oauth2-proxy)
+- `provider missing setting: client-id` (oauth2-proxy)
+- `some credentials information are missing` (Traefik ACME)
+- Service starts but immediately restarts
+
+## Pre/Post Change
+
+```bash
+# Before changes
+bash scripts/preflight.sh
+
+# After changes
+bash scripts/postflight.sh
+```

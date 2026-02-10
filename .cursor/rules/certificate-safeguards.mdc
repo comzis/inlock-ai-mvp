@@ -1,0 +1,41 @@
+---
+description: TLS/SSL certificate protection rules — Positive SSL for inlock.ai, Let's Encrypt for subdomains
+globs: traefik/**/*.yml, compose/**/*.yml
+alwaysApply: false
+---
+
+# Certificate Safeguards
+
+## Critical Rule
+
+`inlock.ai` and `www.inlock.ai` MUST use **Positive SSL** (NOT Let's Encrypt). All other subdomains use Let's Encrypt via `certResolver: le-dns`.
+
+## Protected Configuration
+
+- Router `inlock-ai` in `traefik/dynamic/routers.yml` MUST use `tls.options: default`
+- NEVER add `certResolver` to `inlock.ai` / `www.inlock.ai` routers
+- NEVER modify `traefik/dynamic/tls.yml` default store without verification
+- Certificate files: `/home/comzis/apps/secrets-real/positive-ssl.crt` and `.key`
+
+## Verification
+
+After ANY Traefik/TLS change:
+
+```bash
+# Verify Positive SSL fingerprint
+openssl s_client -connect inlock.ai:443 -servername inlock.ai 2>/dev/null | \
+  openssl x509 -noout -fingerprint -sha256 | \
+  grep -q "FB:FD:85:7E:20:F0:E3:9C:79:D4:0D:BC:7B:7F:5A:2C:5F:E9:1D:39:BF:08:41:C4:53:A4:06:D5:E4:D2:2B:E8" && \
+  echo "OK: Positive SSL verified" || echo "FAIL: CERTIFICATE MISMATCH"
+```
+
+## When Adding Subdomains
+
+- `inlock.ai` / `www.inlock.ai` -> `tls.options: default` (Positive SSL)
+- All other `*.inlock.ai` -> `tls.certResolver: le-dns` (Let's Encrypt)
+- Cloudflare API token (`CLOUDFLARE_DNS_API_TOKEN`) must have DNS:Edit for the zone
+
+## Certificate Expiry
+
+- Positive SSL: December 7, 2026
+- Let's Encrypt certs auto-renew via Traefik
