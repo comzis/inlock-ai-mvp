@@ -1,0 +1,7 @@
+# Daily maintenance check — detect OS security updates and stale container images.
+# Writes report to /home/comzis/logs/maintenance/check-YYYY-MM-DD.md
+# Sends alert email only when action is needed.
+#
+# Install: sudo install -m 644 /home/comzis/inlock/ops/security/cron.maintenance-check /etc/cron.d/maintenance-check
+MAILTO=milorad.stevanovic@inlock.ai
+30 6 * * * comzis /home/comzis/inlock/scripts/maintenance/daily-update-check.sh --quiet >> /home/comzis/logs/maintenance/cron.log 2>&1

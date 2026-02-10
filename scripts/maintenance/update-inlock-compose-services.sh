@@ -5,6 +5,7 @@
 # Usage:
 #   ./scripts/maintenance/update-inlock-compose-services.sh --dry-run
 #   ./scripts/maintenance/update-inlock-compose-services.sh
+#   ./scripts/maintenance/update-inlock-compose-services.sh --reconcile-all
 #
 # Notes:
 # - Uses compose/services/stack.yml (Compose v2 include-based stack).
@@ -18,19 +19,32 @@ COMPOSE_FILE="$PROJECT_ROOT/compose/services/stack.yml"
 ENV_FILE="$PROJECT_ROOT/.env"
 
 DRY_RUN=false
+RECONCILE_ALL=false
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --dry-run)
       DRY_RUN=true
       shift
       ;;
+    --reconcile-all)
+      RECONCILE_ALL=true
+      shift
+      ;;
     *)
       echo "Unknown option: $1" >&2
-      echo "Usage: $0 [--dry-run]" >&2
+      echo "Usage: $0 [--dry-run] [--reconcile-all]" >&2
       exit 1
       ;;
   esac
 done
+
+TARGET_SERVICES=(
+  oauth2-proxy
+  alertmanager
+  cadvisor
+  loki
+  promtail
+)
 
 if ! command -v docker >/dev/null 2>&1; then
   echo "ERROR: docker is not installed/available" >&2
@@ -70,21 +84,29 @@ echo ""
 
 if [ "$DRY_RUN" = true ]; then
   echo "DRY RUN: would run:"
-  echo "  docker compose -f \"$COMPOSE_FILE\" --env-file \"$ENV_FILE\" pull"
-  echo "  docker compose -f \"$COMPOSE_FILE\" --env-file \"$ENV_FILE\" up -d"
+  echo "  docker compose -f \"$COMPOSE_FILE\" --env-file \"$ENV_FILE\" pull ${TARGET_SERVICES[*]}"
+  echo "  docker compose -f \"$COMPOSE_FILE\" --env-file \"$ENV_FILE\" up -d ${TARGET_SERVICES[*]}"
+  if [ "$RECONCILE_ALL" = true ]; then
+    echo "  docker compose -f \"$COMPOSE_FILE\" --env-file \"$ENV_FILE\" up -d"
+  fi
   exit 0
 fi
 
 echo "Pulling images..."
-docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" pull
+docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" pull "${TARGET_SERVICES[@]}"
 echo ""
 
 echo "Applying updates (up -d)..."
-docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d
+docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d "${TARGET_SERVICES[@]}"
+if [ "$RECONCILE_ALL" = true ]; then
+  echo ""
+  echo "Running full stack reconcile (requested)..."
+  docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d
+fi
 echo ""
 
 echo "Status:"
-docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" ps --format "table {{.Name}}\t{{.Status}}\t{{.Health}}" | head -n 30
+docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" ps "${TARGET_SERVICES[@]}" --format "table {{.Name}}\t{{.Status}}\t{{.Health}}"
 echo ""
 
 echo "Done."

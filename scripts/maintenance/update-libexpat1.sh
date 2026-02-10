@@ -19,6 +19,11 @@ log() {
     echo -e "$(date '+%Y-%m-%d %H:%M:%S') - $1" | tee -a "$LOG_FILE"
 }
 
+get_installed_version() {
+    dpkg-query -W -f='${Status} ${Version}\n' libexpat1 2>/dev/null \
+        | awk '$1=="install" && $2=="ok" && $3=="installed" {print $4; exit}'
+}
+
 if [ "$EUID" -ne 0 ]; then
     echo -e "${RED}Error: This script must be run as root (use sudo)${NC}"
     exit 1
@@ -27,7 +32,7 @@ fi
 log "=== libexpat1 Update Script ==="
 log ""
 
-CURRENT_VERSION="$(dpkg -l | awk '$2=="libexpat1" {print $3; exit}')"
+CURRENT_VERSION="$(get_installed_version || true)"
 if [ -z "$CURRENT_VERSION" ]; then
     log "${YELLOW}libexpat1 is not installed (installing)${NC}"
 else
@@ -41,10 +46,10 @@ if apt list --upgradable 2>/dev/null | grep -q "^libexpat1/"; then
     log "Update available for libexpat1"
     log "Updating libexpat1..."
     if apt install -y libexpat1 2>&1 | tee -a "$LOG_FILE"; then
-        NEW_VERSION="$(dpkg -l | awk '$2=="libexpat1" {print $3; exit}')"
+        NEW_VERSION="$(get_installed_version || true)"
         log "${GREEN}✓ Successfully updated libexpat1${NC}"
         [ -n "$CURRENT_VERSION" ] && log "Old version: $CURRENT_VERSION"
-        log "New version: $NEW_VERSION"
+        [ -n "$NEW_VERSION" ] && log "New version: $NEW_VERSION" || log "New version: (unable to detect)"
     else
         log "${RED}✗ Error updating libexpat1${NC}"
         exit 1

@@ -236,22 +236,72 @@ cd /home/comzis/inlock
 
 This script validates compose config, pulls images, runs `up -d`, and prints status.
 
+## Automated Path (Human-in-the-Loop)
+
+For production use the phased rollout engine with health gates and auto-rollback:
+
+```bash
+# 1. Daily check runs automatically (cron at 06:30) — or run manually:
+./scripts/maintenance/daily-update-check.sh
+
+# 2. Review report:
+./scripts/maintenance/maintenance-report.sh
+
+# 3. Operator approves → start phased rollout:
+./scripts/maintenance/phased-rollout.sh --ticket MAINT-001 --window 60
+
+# 4. Or dry-run first to see the plan:
+./scripts/maintenance/phased-rollout.sh --dry-run
+```
+
+The phased rollout:
+
+- Snapshots current image IDs before any changes
+- Runs OS security patches (Phase 0)
+- Updates containers in 3 blast-radius phases:
+  1. Auth path (`oauth2-proxy`)
+  2. Monitoring control (`alertmanager`, `cadvisor`)
+  3. Logging plane (`loki`, `promtail`)
+- Runs health gate after each phase (endpoint + container health checks)
+- Auto-rolls back the failed phase if any gate fails
+- Generates a full report with before/after versions, pass/fail, rollback status
+- Sends email alert with summary
+
+### Automation Scripts
+
+| Script | Purpose | Trigger |
+|--------|---------|---------|
+| `scripts/maintenance/daily-update-check.sh` | Detect OS + image updates, generate report | Cron daily 06:30 |
+| `scripts/maintenance/phased-rollout.sh` | Execute phased rollout with gates + rollback | Manual (operator) |
+| `scripts/maintenance/maintenance-report.sh` | View latest or historical reports | Manual |
+| `scripts/maintenance/update-libexpat1.sh` | Targeted OS security patch | Manual |
+| `scripts/maintenance/update-inlock-compose-services.sh` | Simple pull + up -d (no gates) | Manual |
+
+### Cron Entry
+
+Install the daily check:
+
+```bash
+sudo install -m 644 ops/security/cron.maintenance-check /etc/cron.d/maintenance-check
+```
+
 ## Operator Checklist
 
 Before window:
 
 - [ ] Maintenance window approved
-- [ ] Backup evidence captured (`/tmp/inlock-maintenance-<ts>/`)
+- [ ] Daily check report reviewed (`./scripts/maintenance/maintenance-report.sh`)
 - [ ] Rollback owner assigned
 
 During window:
 
-- [ ] Checkpoint A passed (OS patch)
-- [ ] Checkpoint B passed (phased containers)
+- [ ] Phased rollout started (`./scripts/maintenance/phased-rollout.sh --ticket <ID>`)
+- [ ] All health gates passed (or rollback confirmed)
 - [ ] Full reconcile done
 
 After window:
 
-- [ ] 15-minute monitoring hold passed
+- [ ] Post-change monitoring hold passed (15 min)
+- [ ] Report reviewed (`./scripts/maintenance/maintenance-report.sh --rollout`)
 - [ ] Security scorecard updated if versions changed
 - [ ] Maintenance notes committed to repo

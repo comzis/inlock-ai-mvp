@@ -303,6 +303,7 @@ All cron files are in `ops/security/` with `MAILTO=milorad.stevanovic@inlock.ai`
 | `cron.daily-security-summary` | 05:00 | fail2ban + netfilter ban summary |
 | `cron.integrity-diff-check` | 06:00 | File integrity check vs baseline |
 | `cron.cpu-alert` | */5 min | CPU/load alert (persistent, not spikes) |
+| `cron.maintenance-check` | 06:30 daily | Detect OS/image updates, generate report, alert if needed |
 
 Install: `sudo install -m 644 ops/security/cron.<name> /etc/cron.d/<name>`
 
