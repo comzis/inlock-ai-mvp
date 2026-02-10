@@ -7,6 +7,12 @@
 
 Regular security maintenance tasks to maintain and improve security posture.
 
+## Upgrade Execution Runbook
+
+For production upgrade execution steps (preflight, phased rollout, validation, rollback), use:
+
+- `runbooks/ZERO-SURPRISE-UPGRADE-WINDOW.md`
+
 ## Monthly Tasks
 
 ### Week 1: Image Scanning
@@ -252,4 +258,3 @@ After each maintenance task:
 - **Monthly:** Review maintenance schedule effectiveness
 - **Quarterly:** Update schedule based on findings
 - **Annually:** Comprehensive schedule review
-
