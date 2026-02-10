@@ -24,14 +24,8 @@ http:
       loadBalancer:
         servers:
           - url: http://grafana:3000
-    coolify:
-      loadBalancer:
-        servers:
-          - url: http://coolify:8080
-    homarr:
-      loadBalancer:
-        servers:
-          - url: http://homarr:7575
+    # coolify: REMOVED (2026-02-10) — unused, broken auth loop
+    # homarr: REMOVED (2026-02-10) — no container running, orphaned routes
     inlock-ai:
       loadBalancer:
         servers:

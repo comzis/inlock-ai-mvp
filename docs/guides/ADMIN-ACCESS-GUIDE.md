@@ -133,31 +133,15 @@ Some services require additional authentication (Basic Auth, service login).
 
 ---
 
-#### 5. Coolify
+#### ~~5. Coolify~~ (Removed 2026-02-10)
 
-**URL:** [https://deploy.inlock.ai](https://deploy.inlock.ai)
-
-**Access:** IP allowlist  
-**Authentication:** Service login
-
-**Features:**
-- Application deployment management
-- Git-based deployments
-- Docker container orchestration
+> Service removed — was unused, broken auth loop for 10+ days. See README.md changelog.
 
 ---
 
-#### 6. Homarr Dashboard
+#### ~~6. Homarr Dashboard~~ (Removed 2026-02-10)
 
-**URL:** [https://dashboard.inlock.ai](https://dashboard.inlock.ai)
-
-**Access:** IP allowlist  
-**Authentication:** Service login (if configured)
-
-**Features:**
-- Unified dashboard for all services
-- Quick access to all admin tools
-- Service monitoring and shortcuts
+> Service removed — no container was running. See README.md changelog.
 
 ---
 
@@ -378,8 +362,8 @@ All services use DNS records in Cloudflare pointing to server IP: `156.67.29.52`
 | Portainer | [https://portainer.inlock.ai](https://portainer.inlock.ai) | ✅ Yes | Service login | ✅ Live |
 | n8n | [https://n8n.inlock.ai](https://n8n.inlock.ai) | ✅ Yes | Service login | ✅ Live |
 | Grafana | [https://grafana.inlock.ai](https://grafana.inlock.ai) | ✅ Yes | Service login | ✅ Live |
-| Coolify | [https://deploy.inlock.ai](https://deploy.inlock.ai) | ✅ Yes | Service login | ✅ Live |
-| Homarr | [https://dashboard.inlock.ai](https://dashboard.inlock.ai) | ✅ Yes | Service login | ✅ Live |
+| ~~Coolify~~ | ~~https://deploy.inlock.ai~~ | — | — | ❌ Removed 2026-02-10 |
+| ~~Homarr~~ | ~~https://dashboard.inlock.ai~~ | — | — | ❌ Removed 2026-02-10 |
 | Prometheus | Internal only | ✅ Yes | N/A | ✅ Live |
 | cAdvisor | Internal only | ✅ Yes | N/A | ✅ Live |
 
@@ -475,8 +459,8 @@ Monitor service health via:
 - 🐳 [Portainer](https://portainer.inlock.ai) - Container management
 - 🔄 [n8n](https://n8n.inlock.ai) - Workflow automation
 - 📊 [Grafana](https://grafana.inlock.ai) - Metrics and dashboards
-- 🚀 [Coolify](https://deploy.inlock.ai) - Deployment management
-- 📱 [Homarr Dashboard](https://dashboard.inlock.ai) - Unified dashboard
+- ~~🚀 Coolify~~ - Removed (2026-02-10)
+- ~~📱 Homarr Dashboard~~ - Removed (2026-02-10)
 
 ### Internal Services
 - 📈 Prometheus - Metrics collection (via Grafana)

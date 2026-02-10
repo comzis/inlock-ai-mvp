@@ -42,21 +42,7 @@ http:
         referrerPolicy: no-referrer-when-downgrade
         frameDeny: false
         customFrameOptionsValue: "SAMEORIGIN"
-    coolify-headers:
-      headers:
-        sslRedirect: true
-        stsSeconds: 63072000
-        stsIncludeSubdomains: true
-        stsPreload: true
-        contentTypeNosniff: false
-        referrerPolicy: no-referrer-when-downgrade
-        frameDeny: false
-        customFrameOptionsValue: "SAMEORIGIN"
-        customRequestHeaders:
-          X-Forwarded-Proto: "https"
-          X-Forwarded-Host: "deploy.inlock.ai"
-        # Don't override Content-Type - let Coolify set it correctly
-        # Coolify uses modern JavaScript that may need different content types
+    # coolify-headers: REMOVED (2026-02-10) — Coolify service removed
     dashboard-auth:
       basicAuth:
         usersFile: /run/secrets/traefik-basicauth
@@ -140,20 +126,16 @@ http:
     oauth2-redirect-fix:
       redirectRegex:
         regex: "^https://auth.inlock.ai/?$"
-        replacement: "https://deploy.inlock.ai/"
+        replacement: "https://inlock.ai/"
         permanent: false
     oauth2-root-redirect:
       redirectRegex:
         regex: "^https://auth.inlock.ai/?$"
-        replacement: "https://deploy.inlock.ai/"
+        replacement: "https://inlock.ai/"
         permanent: false
     oauth2-to-deploy-redirect:
       redirectRegex:
         regex: ".*"
-        replacement: "https://deploy.inlock.ai/"
+        replacement: "https://inlock.ai/"
         permanent: false
-    coolify-login-to-root:
-      redirectRegex:
-        regex: "^https://deploy.inlock.ai/login"
-        replacement: "https://deploy.inlock.ai/"
-        permanent: true
+    # coolify-login-to-root: REMOVED (2026-02-10) — Coolify service removed

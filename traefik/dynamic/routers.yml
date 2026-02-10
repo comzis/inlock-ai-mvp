@@ -80,32 +80,8 @@ http:
       tls:
         certResolver: le-dns
     
-    coolify:
-      entryPoints:
-        - websecure
-      rule: Host(`deploy.inlock.ai`)
-      middlewares:
-        - coolify-headers
-        - admin-forward-auth
-        - mgmt-ratelimit
-      service: coolify
-      tls:
-        certResolver: le-dns
-    # coolify-login-redirect removed - was causing redirect loop
-    # Coolify handles its own redirects, and this middleware was interfering
-    # with the authentication flow
-    
-    homarr:
-      entryPoints:
-        - websecure
-      rule: Host(`dashboard.inlock.ai`)
-      middlewares:
-        - secure-headers
-        - admin-forward-auth
-        - mgmt-ratelimit
-      service: homarr
-      tls:
-        certResolver: le-dns
+    # coolify: REMOVED (2026-02-10) — deploy.inlock.ai no longer served
+    # homarr: REMOVED (2026-02-10) — dashboard.inlock.ai no longer served
 
     cockpit:
       entryPoints:

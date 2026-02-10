@@ -12,11 +12,10 @@ This repository contains the complete infrastructure configuration for INLOCK.AI
 - **Reverse Proxy**: Traefik v3 with TLS termination (Positive SSL + Let's Encrypt via Cloudflare DNS)
 - **Container Management**: Portainer
 - **Workflow Automation**: n8n
-- **Deployment**: Coolify (self-hosted PaaS)
 - **Database**: PostgreSQL (multiple instances)
 - **Monitoring & Observability**: Prometheus, Alertmanager, Grafana, Node Exporter, Blackbox Exporter, cAdvisor, Loki/Promtail
 - **Security**: Hardened with IP allowlists, Auth0/OAuth2-Proxy, rate limiting, Docker socket proxy, file integrity monitoring
-- **Operational Automation**: CPU alerts, backup verification, Coolify auto-recovery, integrity-diff checks (all via cron)
+- **Operational Automation**: CPU alerts, backup verification, integrity-diff checks (all via cron)
 - **Application**: Inlock AI production application (Next.js)
 - **Email**: Mailcow (mail.inlock.ai)
 
@@ -123,7 +122,7 @@ inlock/
 ├── compose/              # Docker Compose files
 │   ├── services/
 │   │   ├── stack.yml       # Main stack (Traefik, Portainer, Prometheus, Grafana, etc.)
-│   │   ├── coolify.yml     # Coolify deployment platform
+│   │   ├── coolify.yml     # (removed, placeholder)
 │   │   ├── inlock-db.yml   # PostgreSQL databases
 │   │   ├── inlock-ai.yml   # Inlock AI application
 │   │   ├── n8n.yml         # Workflow automation
@@ -150,7 +149,7 @@ inlock/
 │   ├── cpu-alert-check.sh  # CPU/load alert (persistent check, not spikes)
 │   ├── daily-security-summary.sh  # Daily fail2ban/netfilter summary
 │   ├── integrity-diff-check.sh    # File integrity diff vs baseline
-│   ├── start-coolify-if-down.sh   # Coolify auto-recovery
+│   ├── start-coolify-if-down.sh   # (disabled, Coolify removed)
 │   ├── verify-mailcow-backup.sh   # Backup verification
 │   ├── test-alert-email.sh        # Test email delivery
 │   └── cron.*              # Cron entries (all with MAILTO, no root mail loop)
@@ -185,8 +184,6 @@ inlock/
 | Prometheus | http://localhost:9090 (internal) | Internal only |
 | Loki | http://localhost:3100 (internal) | Internal only |
 | n8n | https://n8n.inlock.ai | Auth0 + IP allowlist |
-| Coolify | https://deploy.inlock.ai | Auth0 + IP allowlist |
-| Homarr | https://dashboard.inlock.ai | Auth0 + IP allowlist |
 
 **Note:** All admin services use Auth0 authentication via OAuth2-Proxy. See [Auth0 Stack Consistency](docs/AUTH0-STACK-CONSISTENCY.md) for details.
 
@@ -306,7 +303,6 @@ All cron files are in `ops/security/` with `MAILTO=milorad.stevanovic@inlock.ai`
 | `cron.daily-security-summary` | 05:00 | fail2ban + netfilter ban summary |
 | `cron.integrity-diff-check` | 06:00 | File integrity check vs baseline |
 | `cron.cpu-alert` | */5 min | CPU/load alert (persistent, not spikes) |
-| `cron.start-coolify-if-down` | */15 min | Auto-start Coolify if container is down |
 
 Install: `sudo install -m 644 ops/security/cron.<name> /etc/cron.d/<name>`
 
@@ -345,7 +341,7 @@ Install: `sudo install -m 644 ops/security/cron.<name> /etc/cron.d/<name>`
   - Auto-provisioned datasources: Prometheus, Loki
   - Dashboards:
     - `grafana/dashboards/observability/inlock-observability.json` – host fundamentals + synthetic probes
-    - `grafana/dashboards/devops/devops-platform.json` – Traefik, Portainer, Grafana, n8n, Coolify, Homarr status and capacity
+    - `grafana/dashboards/devops/devops-platform.json` – Traefik, Portainer, Grafana, n8n status and capacity
     - `grafana/dashboards/devops/inlock-web.json` – inlock.ai HTTPS probe, visits/req per second, response time, 4xx/5xx error rates
     - `grafana/dashboards/postgres/postgres-overview.json` – PostgreSQL connections, database size, cache hit ratio, BGWriter metrics
   - Access: https://grafana.inlock.ai (IP restricted)
@@ -369,8 +365,8 @@ Configured alerts in Prometheus:
 - `ExternalHTTPProbeFailed` - Public routes failing HTTP probe
 - `ServiceTCPProbeFailed` - Internal service port unreachable
 - `TraefikContainerDown` - Traefik container not reporting metrics
-- `AdminServiceContainerDown` - Grafana/Portainer/n8n/Coolify/Homarr container missing
-- `AdminHttpProbeFailed` - Grafana/n8n/Coolify/Homarr HTTPS probe failing
+- `AdminServiceContainerDown` - Grafana/Portainer/n8n container missing
+- `AdminHttpProbeFailed` - Grafana/n8n HTTPS probe failing
 - `TraefikHighErrorRate` - 5xx responses > 2% across entrypoints
 - `PostgreSQL` metrics exposed via `postgres-exporter` for dashboards (connections, cache hit, BGWriter)
 
@@ -390,6 +386,32 @@ Configured alerts in Prometheus:
 - **Keep updated** — Apply security updates regularly; update integrity baseline after: `sudo ops/security/integrity-diff-check.sh --init`
 
 ## Changelog
+
+### 2026-02-10 — Remove Coolify, Homarr, broken cron/timers, deep audit
+
+Continued resource cleanup based on investigation of a second load spike (1m=6.35 at 22:40).
+
+**Coolify Platform** (4 containers: app, postgres, redis, soketi) — removed entirely. Had been in a broken authentication loop for 10+ days (13,918 failed PostgreSQL auth attempts), consuming ~367 MB RAM with no active deployments.
+
+**Homarr Dashboard** — orphaned routes and 3 Docker volumes removed. No container was running.
+
+**Broken cron jobs (comzis crontab):**
+- `self_heal.sh` — ran every minute, but script path was wrong and target container (`compose-inlock-ai-1`) didn't exist. Removed.
+- `backup-inlock-ai-secure-mvp.sh` — backed up old Coolify deployment that no longer exists. Removed.
+
+**Zombie systemd timers** (require sudo to disable):
+- `migrate-clickhouse.timer` — daily ClickHouse migration check, but ClickHouse was removed on 2026-02-09.
+- `start-coolify-if-down` cron in `/etc/cron.d/` — would restart Coolify every 15 min.
+
+**Config cleanup:**
+- `compose/services/coolify.yml` — emptied (placeholder)
+- `traefik/dynamic/routers.yml` — removed Coolify and Homarr routers
+- `traefik/dynamic/services.yml` — removed Coolify and Homarr services
+- `traefik/dynamic/middlewares.yml` — removed `coolify-headers`, `coolify-login-to-root`; fixed `oauth2-*-redirect` middlewares to point to `inlock.ai` instead of dead `deploy.inlock.ai`
+- `.env` — removed all `COOLIFY_*`, `PUSHER_*` variables
+- `README.md` — removed Coolify and Homarr references from services, cron, structure sections
+
+**Impact:** Load dropped from 6.35 → 0.26 (after removing Coolify + fixing broken cron). Freed ~370 MB RAM. Reduced containers from 38 to 34.
 
 ### 2026-02-09 — Resource cleanup (PostHog, Strapi, orphaned containers, Docker disk)
 
@@ -436,7 +458,7 @@ See [Git Publish Guide](docs/GIT-PUBLISH-GUIDE.md) for publishing workflows.
 
 ---
 
-**Last Updated**: 2026-02-09  
+**Last Updated**: 2026-02-10  
 **Version**: GitOps-ready hardened stack  
 **Security Score**: 96/100 (Strong, A)  
 **Maintainer**: INLOCK.AI Infrastructure Team

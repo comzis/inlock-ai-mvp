@@ -10,8 +10,8 @@ Individual service compose files:
 - `inlock-ai.yml` - Inlock AI application
 - `postgres.yml` - PostgreSQL databases
 - `n8n.yml` - N8N workflow automation
-- `coolify.yml` - Coolify deployment platform
-- `tooling.yml` - Tooling services (placeholder, currently empty)
+- `coolify.yml` - Coolify deployment platform (removed, placeholder only)
+- `tooling.yml` - Tooling services (removed, placeholder only)
 
 ### `monitoring/`
 Monitoring and observability stack:
